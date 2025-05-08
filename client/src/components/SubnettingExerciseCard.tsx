@@ -13,6 +13,7 @@ interface SubnettingExerciseProps {
 
 export default function SubnettingExerciseCard({ subnetType, difficulty }: SubnettingExerciseProps) {
   const { toast } = useToast();
+  const { t } = useLanguage();
   const [questionText, setQuestionText] = useState("");
   const [answerFields, setAnswerFields] = useState<{id: string, label: string, answer: string}[]>([]);
   const [userAnswers, setUserAnswers] = useState<{[key: string]: string}>({});
@@ -51,8 +52,8 @@ export default function SubnettingExerciseCard({ subnetType, difficulty }: Subne
 
     if (!allFieldsFilled) {
       toast({
-        title: "Incomplete answer",
-        description: "Please fill in all fields before checking your answer.",
+        title: t('subnetting.incompleteAnswer'),
+        description: t('subnetting.fillAllFields'),
         variant: "destructive",
       });
       return;
@@ -144,11 +145,11 @@ export default function SubnettingExerciseCard({ subnetType, difficulty }: Subne
 
   const getSubnetTypeLabel = () => {
     switch(subnetType) {
-      case "basic": return "Basic Subnetting";
-      case "vlsm": return "VLSM Subnetting";
-      case "wildcard": return "Wildcard Masks";
-      case "network": return "Network Calculations";
-      default: return "Subnetting";
+      case "basic": return t('subnetting.type.basic');
+      case "vlsm": return t('subnetting.type.vlsm');
+      case "wildcard": return t('subnetting.type.wildcard');
+      case "network": return t('subnetting.type.network');
+      default: return t('subnetting.title');
     }
   };
 
@@ -160,7 +161,7 @@ export default function SubnettingExerciseCard({ subnetType, difficulty }: Subne
             <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
               {getSubnetTypeLabel()}
             </span>
-            <h3 className="mt-2 text-lg font-medium text-slate-900 dark:text-zinc-100">Calculate subnet information</h3>
+            <h3 className="mt-2 text-lg font-medium text-slate-900 dark:text-zinc-100">{t('subnetting.calculateInfo')}</h3>
           </div>
           <div>
             <Button
@@ -170,7 +171,7 @@ export default function SubnettingExerciseCard({ subnetType, difficulty }: Subne
               className="flex items-center gap-1"
             >
               <RefreshCw className="h-4 w-4" />
-              New Question
+              {t('subnetting.newQuestion')}
             </Button>
           </div>
         </div>
@@ -189,7 +190,9 @@ export default function SubnettingExerciseCard({ subnetType, difficulty }: Subne
                 id={field.id}
                 value={userAnswers[field.id] || ""}
                 onChange={(e) => handleInputChange(field.id, e.target.value)}
-                placeholder={`e.g., ${field.id.includes("mask") ? "both 255.255.255.0 and /24 accepted" : "192.168.1.0"}`}
+                placeholder={field.id.includes("mask") 
+                  ? t('subnetting.placeholder.mask') 
+                  : t('subnetting.placeholder.ip')}
                 className="shadow-sm focus:ring-secondary focus:border-secondary block w-full sm:text-sm border-slate-300"
               />
             </div>
@@ -201,7 +204,7 @@ export default function SubnettingExerciseCard({ subnetType, difficulty }: Subne
           disabled={isAnswered}
           className="w-full md:w-auto"
         >
-          Check Answer
+          {t('subnetting.checkAnswer')}
         </Button>
         
         {/* Feedback section when answer is correct */}
@@ -212,7 +215,7 @@ export default function SubnettingExerciseCard({ subnetType, difficulty }: Subne
                 <CheckCircle className="text-green-400 text-xl dark:text-green-500" />
               </div>
               <div className="ml-3">
-                <h3 className="text-sm font-medium text-green-800 dark:text-green-400">Correct!</h3>
+                <h3 className="text-sm font-medium text-green-800 dark:text-green-400">{t('subnetting.correct')}</h3>
                 <div className="mt-2 text-sm text-green-700 dark:text-green-300">
                   <div dangerouslySetInnerHTML={{ __html: explanation }} />
                 </div>
@@ -229,9 +232,9 @@ export default function SubnettingExerciseCard({ subnetType, difficulty }: Subne
                 <XCircle className="text-red-400 text-xl dark:text-red-500" />
               </div>
               <div className="ml-3">
-                <h3 className="text-sm font-medium text-red-800 dark:text-red-400">Incorrect</h3>
+                <h3 className="text-sm font-medium text-red-800 dark:text-red-400">{t('subnetting.incorrect')}</h3>
                 <div className="mt-2 text-sm text-red-700 dark:text-red-300">
-                  <p>The correct answers are:</p>
+                  <p>{t('subnetting.correctAnswersAre')}</p>
                   <ul className="list-disc pl-5 mt-2">
                     {answerFields.map(field => (
                       <li key={field.id}>
@@ -256,14 +259,14 @@ export default function SubnettingExerciseCard({ subnetType, difficulty }: Subne
               onClick={handleSkip}
               disabled={isAnswered}
             >
-              Skip
+              {t('subnetting.skip')}
             </Button>
             <Button 
               onClick={handleNextQuestion}
               disabled={!isAnswered}
               className={!isAnswered ? "opacity-50 cursor-not-allowed bg-primary hover:bg-blue-600" : "bg-primary hover:bg-blue-600"}
             >
-              Next Question
+              {t('subnetting.nextQuestion')}
             </Button>
           </div>
         </div>

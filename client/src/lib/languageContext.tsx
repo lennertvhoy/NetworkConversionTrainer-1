@@ -313,6 +313,10 @@ const translations: Record<string, Record<string, string>> = {
     en: 'Calculate subnet information',
     nl: 'Bereken subnet informatie',
   },
+  'subnetting.calculateInfo': {
+    en: 'Calculate subnet information',
+    nl: 'Bereken subnet informatie',
+  },
   'subnetting.checkAnswer': {
     en: 'Check Answer',
     nl: 'Controleer Antwoord',
@@ -348,6 +352,14 @@ const translations: Record<string, Record<string, string>> = {
   'subnetting.fillAllFields': {
     en: 'Please fill in all fields before checking your answer.',
     nl: 'Vul alle velden in voordat je je antwoord controleert.',
+  },
+  'subnetting.placeholder.mask': {
+    en: 'both 255.255.255.0 and /24 accepted',
+    nl: 'zowel 255.255.255.0 als /24 geaccepteerd',
+  },
+  'subnetting.placeholder.ip': {
+    en: 'e.g., 192.168.1.0',
+    nl: 'bijv. 192.168.1.0',
   },
   'subnetting.reference.title': {
     en: 'Subnetting Reference',
