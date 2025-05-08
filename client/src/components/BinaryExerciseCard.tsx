@@ -188,7 +188,7 @@ export default function BinaryExerciseCard({ conversionType, difficulty }: Binar
             <Button 
               onClick={handleNextQuestion}
               disabled={!isAnswered}
-              className={!isAnswered ? "opacity-50 cursor-not-allowed" : ""}
+              className={!isAnswered ? "opacity-50 cursor-not-allowed bg-primary hover:bg-blue-600" : "bg-primary hover:bg-blue-600"}
             >
               Next Question
             </Button>

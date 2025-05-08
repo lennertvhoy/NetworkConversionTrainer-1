@@ -234,8 +234,7 @@ export default function SubnettingExerciseCard({ subnetType, difficulty }: Subne
             <Button 
               onClick={handleNextQuestion}
               disabled={!isAnswered}
-              className={!isAnswered ? "opacity-50 cursor-not-allowed" : ""}
-              variant="default"
+              className={!isAnswered ? "opacity-50 cursor-not-allowed bg-primary hover:bg-blue-600" : "bg-primary hover:bg-blue-600"}
             >
               Next Question
             </Button>

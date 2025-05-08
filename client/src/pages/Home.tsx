@@ -72,7 +72,7 @@ export default function Home() {
               </span>
             </div>
             <Link href="/subnetting">
-              <Button className="w-full bg-secondary hover:bg-green-600">
+              <Button className="w-full bg-primary hover:bg-blue-600">
                 Start Subnetting Practice
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
