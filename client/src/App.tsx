@@ -1,5 +1,6 @@
 import { Switch, Route } from "wouter";
 import { Toaster } from "@/components/ui/toaster";
+import { LanguageProvider } from "@/lib/languageContext";
 import NotFound from "@/pages/not-found";
 import Layout from "@/components/Layout";
 import BinaryConversion from "@/pages/BinaryConversion";
@@ -21,10 +22,10 @@ function Router() {
 
 function App() {
   return (
-    <>
+    <LanguageProvider>
       <Toaster />
       <Router />
-    </>
+    </LanguageProvider>
   );
 }
 

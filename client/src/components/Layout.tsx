@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { useTheme } from "@/components/ui/theme-provider";
+import { useLanguage } from "@/lib/languageContext";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { CodeSquare, Sun, Moon } from "lucide-react";
 
 interface LayoutProps {
@@ -10,6 +12,7 @@ interface LayoutProps {
 export default function Layout({ children }: LayoutProps) {
   const [location] = useLocation();
   const { theme, setTheme } = useTheme();
+  const { t } = useLanguage();
   const [mounted, setMounted] = useState(false);
 
   // Ensure theme toggle only shows after hydration to avoid mismatch
@@ -29,22 +32,25 @@ export default function Layout({ children }: LayoutProps) {
           <Link href="/">
             <div className="text-2xl font-bold text-primary flex items-center gap-2">
               <CodeSquare className="h-6 w-6" />
-              <span>BinaryNetTrainer</span>
+              <span>{t('app.title')}</span>
             </div>
           </Link>
-          <button
-            onClick={toggleTheme}
-            className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-zinc-700"
-            aria-label="Toggle theme"
-          >
-            {mounted && (
-              theme === "dark" ? (
-                <Sun className="h-5 w-5" />
-              ) : (
-                <Moon className="h-5 w-5" />
-              )
-            )}
-          </button>
+          <div className="flex items-center gap-2">
+            <LanguageSwitcher />
+            <button
+              onClick={toggleTheme}
+              className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-zinc-700"
+              aria-label={theme === "dark" ? t('app.lightMode') : t('app.darkMode')}
+            >
+              {mounted && (
+                theme === "dark" ? (
+                  <Sun className="h-5 w-5" />
+                ) : (
+                  <Moon className="h-5 w-5" />
+                )
+              )}
+            </button>
+          </div>
         </div>
       </header>
 
@@ -60,7 +66,7 @@ export default function Layout({ children }: LayoutProps) {
                     : "text-slate-500 border-transparent hover:text-slate-700 dark:text-zinc-400 dark:hover:text-zinc-300"
                 }`}
               >
-                Home
+                {t('nav.home')}
               </div>
             </Link>
             <Link href="/binary">
@@ -71,7 +77,7 @@ export default function Layout({ children }: LayoutProps) {
                     : "text-slate-500 border-transparent hover:text-slate-700 dark:text-zinc-400 dark:hover:text-zinc-300"
                 }`}
               >
-                Binary Conversion
+                {t('nav.binary')}
               </div>
             </Link>
             <Link href="/subnetting">
@@ -82,7 +88,7 @@ export default function Layout({ children }: LayoutProps) {
                     : "text-slate-500 border-transparent hover:text-slate-700 dark:text-zinc-400 dark:hover:text-zinc-300"
                 }`}
               >
-                Subnetting
+                {t('nav.subnetting')}
               </div>
             </Link>
           </nav>
