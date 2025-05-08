@@ -18,18 +18,19 @@ export default function BinaryExerciseCard({ conversionType, difficulty }: Binar
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
   const [explanation, setExplanation] = useState("");
   const [isAnswered, setIsAnswered] = useState(false);
-  const [questionNumber, setQuestionNumber] = useState(1);
-  const [score, setScore] = useState(0);
-  const [totalQuestions] = useState(10);
+  const [currentDifficulty, setCurrentDifficulty] = useState(difficulty);
+  const [currentType, setCurrentType] = useState(conversionType);
 
   // Load a new question on mount or when conversion type/difficulty changes
   useEffect(() => {
+    setCurrentDifficulty(difficulty);
+    setCurrentType(conversionType);
     generateNewQuestion();
   }, [conversionType, difficulty]);
 
   const generateNewQuestion = () => {
     // Generate question client-side
-    const { question, answer, explanation } = generateBinaryQuestion(conversionType, difficulty);
+    const { question, answer, explanation } = generateBinaryQuestion(currentType, currentDifficulty);
     setQuestion(question);
     setAnswer(answer);
     setExplanation(explanation);
@@ -51,26 +52,10 @@ export default function BinaryExerciseCard({ conversionType, difficulty }: Binar
     const isUserCorrect = userAnswer.trim().toLowerCase() === answer.toLowerCase();
     setIsCorrect(isUserCorrect);
     setIsAnswered(true);
-    
-    if (isUserCorrect) {
-      setScore(prev => prev + 1);
-    }
   };
 
   const handleNextQuestion = () => {
-    if (questionNumber < totalQuestions) {
-      setQuestionNumber(prev => prev + 1);
-      generateNewQuestion();
-    } else {
-      // Start a new session
-      toast({
-        title: "Practice session completed!",
-        description: `You scored ${score} out of ${totalQuestions}`,
-      });
-      setQuestionNumber(1);
-      setScore(0);
-      generateNewQuestion();
-    }
+    generateNewQuestion();
   };
 
   const handleSkip = () => {
@@ -80,7 +65,7 @@ export default function BinaryExerciseCard({ conversionType, difficulty }: Binar
   };
 
   const getConversionTypeLabel = () => {
-    switch(conversionType) {
+    switch(currentType) {
       case "bin2dec": return "Binary to Decimal";
       case "bin2hex": return "Binary to Hexadecimal";
       case "hex2bin": return "Hexadecimal to Binary";
@@ -90,7 +75,7 @@ export default function BinaryExerciseCard({ conversionType, difficulty }: Binar
   };
 
   const getConversionQuestion = () => {
-    switch(conversionType) {
+    switch(currentType) {
       case "bin2dec": return "Convert this binary number to decimal";
       case "bin2hex": return "Convert this binary number to hexadecimal";
       case "hex2bin": return "Convert this hexadecimal number to binary";
@@ -109,14 +94,16 @@ export default function BinaryExerciseCard({ conversionType, difficulty }: Binar
             </span>
             <h3 className="mt-2 text-lg font-medium text-slate-900 dark:text-zinc-100">{getConversionQuestion()}</h3>
           </div>
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-slate-500 dark:text-zinc-400">Question {questionNumber}/{totalQuestions}</span>
-            <div className="bg-slate-100 h-2 w-24 rounded-full overflow-hidden dark:bg-zinc-700">
-              <div 
-                className="bg-primary h-full rounded-full" 
-                style={{width: `${(questionNumber / totalQuestions) * 100}%`}}
-              ></div>
-            </div>
+          <div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={generateNewQuestion}
+              className="flex items-center gap-1"
+            >
+              <RefreshCw className="h-4 w-4" />
+              New Question
+            </Button>
           </div>
         </div>
         
@@ -189,11 +176,7 @@ export default function BinaryExerciseCard({ conversionType, difficulty }: Binar
       
       <div className="bg-slate-50 px-6 py-4 border-t border-slate-100 dark:bg-zinc-900 dark:border-zinc-700">
         <div className="flex flex-wrap gap-4 items-center justify-between">
-          <div>
-            <span className="text-sm text-slate-500 dark:text-zinc-400">
-              Score: <span className="font-medium text-slate-700 dark:text-zinc-300">{score}</span>/{totalQuestions} correct
-            </span>
-          </div>
+          <div></div>
           <div className="flex gap-2">
             <Button 
               variant="outline" 
@@ -207,7 +190,7 @@ export default function BinaryExerciseCard({ conversionType, difficulty }: Binar
               disabled={!isAnswered}
               className={!isAnswered ? "opacity-50 cursor-not-allowed" : ""}
             >
-              {questionNumber === totalQuestions ? "Start New Practice" : "Next Question"}
+              Next Question
             </Button>
           </div>
         </div>

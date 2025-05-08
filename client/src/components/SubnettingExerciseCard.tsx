@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { CheckCircle, XCircle } from "lucide-react";
+import { CheckCircle, XCircle, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
@@ -18,18 +18,19 @@ export default function SubnettingExerciseCard({ subnetType, difficulty }: Subne
   const [isAnswered, setIsAnswered] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
   const [explanation, setExplanation] = useState("");
-  const [questionNumber, setQuestionNumber] = useState(1);
-  const [score, setScore] = useState(0);
-  const [totalQuestions] = useState(10);
+  const [currentDifficulty, setCurrentDifficulty] = useState(difficulty);
+  const [currentType, setCurrentType] = useState(subnetType);
 
   // Load a new question on mount or when subnet type/difficulty changes
   useEffect(() => {
+    setCurrentDifficulty(difficulty);
+    setCurrentType(subnetType);
     generateNewQuestion();
   }, [subnetType, difficulty]);
 
   const generateNewQuestion = () => {
     // Generate question client-side
-    const { questionText, answerFields, explanation } = generateSubnettingQuestion(subnetType, difficulty);
+    const { questionText, answerFields, explanation } = generateSubnettingQuestion(currentType, currentDifficulty);
     setQuestionText(questionText);
     setAnswerFields(answerFields);
     setExplanation(explanation);
@@ -103,28 +104,10 @@ export default function SubnettingExerciseCard({ subnetType, difficulty }: Subne
 
     setIsCorrect(allCorrect);
     setIsAnswered(true);
-    
-    if (allCorrect) {
-      setScore(prev => prev + 1);
-    }
   };
 
   const handleNextQuestion = () => {
-    if (questionNumber < totalQuestions) {
-      setQuestionNumber(prev => prev + 1);
-      generateNewQuestion();
-    } else {
-      // Start a new session
-      toast({
-        title: "Practice session completed!",
-        description: `You scored ${score} out of ${totalQuestions}`,
-      });
-      
-      // Start a new session
-      setQuestionNumber(1);
-      setScore(0);
-      generateNewQuestion();
-    }
+    generateNewQuestion();
   };
 
   const handleSkip = () => {
@@ -133,7 +116,7 @@ export default function SubnettingExerciseCard({ subnetType, difficulty }: Subne
   };
 
   const getSubnetTypeLabel = () => {
-    switch(subnetType) {
+    switch(currentType) {
       case "basic": return "Basic Subnetting";
       case "vlsm": return "VLSM Subnetting";
       case "wildcard": return "Wildcard Masks";
@@ -152,14 +135,16 @@ export default function SubnettingExerciseCard({ subnetType, difficulty }: Subne
             </span>
             <h3 className="mt-2 text-lg font-medium text-slate-900 dark:text-zinc-100">Calculate subnet information</h3>
           </div>
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-slate-500 dark:text-zinc-400">Question {questionNumber}/{totalQuestions}</span>
-            <div className="bg-slate-100 h-2 w-24 rounded-full overflow-hidden dark:bg-zinc-700">
-              <div 
-                className="bg-secondary h-full rounded-full" 
-                style={{width: `${(questionNumber / totalQuestions) * 100}%`}}
-              ></div>
-            </div>
+          <div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={generateNewQuestion}
+              className="flex items-center gap-1"
+            >
+              <RefreshCw className="h-4 w-4" />
+              New Question
+            </Button>
           </div>
         </div>
         
@@ -237,11 +222,7 @@ export default function SubnettingExerciseCard({ subnetType, difficulty }: Subne
       
       <div className="bg-slate-50 px-6 py-4 border-t border-slate-100 dark:bg-zinc-900 dark:border-zinc-700">
         <div className="flex flex-wrap gap-4 items-center justify-between">
-          <div>
-            <span className="text-sm text-slate-500 dark:text-zinc-400">
-              Score: <span className="font-medium text-slate-700 dark:text-zinc-300">{score}</span>/{totalQuestions} correct
-            </span>
-          </div>
+          <div></div>
           <div className="flex gap-2">
             <Button 
               variant="outline" 
@@ -256,7 +237,7 @@ export default function SubnettingExerciseCard({ subnetType, difficulty }: Subne
               className={!isAnswered ? "opacity-50 cursor-not-allowed" : ""}
               variant="default"
             >
-              {questionNumber === totalQuestions ? "Start New Practice" : "Next Question"}
+              Next Question
             </Button>
           </div>
         </div>
