@@ -536,9 +536,15 @@ function buildWildcardMaskProblem(difficulty: string): SubnettingQuestion {
   </ul>`;
   
   if (difficulty !== 'easy') {
+    // Calculate the network address for the example
+    const networkAddr = ip.split('.').map((part, i) => {
+      const maskPart = parseInt(mask.split('.')[i]);
+      return parseInt(part) & maskPart;
+    }).join('.');
+      
     explanation += `<p class="mt-2">For ACLs, you typically use the network address with the wildcard mask:</p>
     <p class="mt-2 font-mono">permit ip ${answerFields[0].answer} ${answerFields[1].answer} any</p>
-    <p>This would match all addresses in the ${networkAddress}/${prefix} network.</p>`;
+    <p>This would match all addresses in the ${networkAddr}/${prefix} network.</p>`;
   }
   
   return {
