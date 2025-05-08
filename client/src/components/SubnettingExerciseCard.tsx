@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { generateSubnettingQuestion } from "@/lib/subnetUtils";
+import { useLanguage } from "@/lib/languageContext";
 
 interface SubnettingExerciseProps {
   subnetType: string;

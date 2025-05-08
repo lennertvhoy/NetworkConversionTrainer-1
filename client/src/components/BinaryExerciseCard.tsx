@@ -74,11 +74,11 @@ export default function BinaryExerciseCard({ conversionType, difficulty }: Binar
 
   const getConversionQuestion = () => {
     switch(conversionType) {
-      case "bin2dec": return "Convert this binary number to decimal";
-      case "bin2hex": return "Convert this binary number to hexadecimal";
-      case "hex2bin": return "Convert this hexadecimal number to binary";
-      case "dec2bin": return "Convert this decimal number to binary";
-      default: return "Convert this number";
+      case "bin2dec": return t('binary.questions.bin2dec');
+      case "bin2hex": return t('binary.questions.bin2hex');
+      case "hex2bin": return t('binary.questions.hex2bin');
+      case "dec2bin": return t('binary.questions.dec2bin');
+      default: return t('binary.questions.default');
     }
   };
 

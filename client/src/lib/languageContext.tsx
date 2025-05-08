@@ -196,6 +196,90 @@ const translations: Record<string, Record<string, string>> = {
     nl: 'Voer je antwoord in voordat je controleert.',
   },
   
+  // Binary conversion questions
+  'binary.questions.bin2dec': {
+    en: 'Convert this binary number to decimal',
+    nl: 'Zet dit binaire getal om naar decimaal',
+  },
+  'binary.questions.bin2hex': {
+    en: 'Convert this binary number to hexadecimal',
+    nl: 'Zet dit binaire getal om naar hexadecimaal',
+  },
+  'binary.questions.hex2bin': {
+    en: 'Convert this hexadecimal number to binary',
+    nl: 'Zet dit hexadecimale getal om naar binair',
+  },
+  'binary.questions.dec2bin': {
+    en: 'Convert this decimal number to binary',
+    nl: 'Zet dit decimale getal om naar binair',
+  },
+  'binary.questions.default': {
+    en: 'Convert this number',
+    nl: 'Zet dit getal om',
+  },
+  
+  // Binary tips section
+  'binary.tips.title': {
+    en: 'Conversion Tips',
+    nl: 'Conversie Tips',
+  },
+  'binary.tips.bin2dec.title': {
+    en: 'Binary to Decimal',
+    nl: 'Binair naar Decimaal',
+  },
+  'binary.tips.bin2dec.description': {
+    en: 'Each binary digit position represents a power of 2:',
+    nl: 'Elke binaire digitpositie vertegenwoordigt een macht van 2:',
+  },
+  'binary.tips.hex2bin.title': {
+    en: 'Hexadecimal to Binary',
+    nl: 'Hexadecimaal naar Binair',
+  },
+  'binary.tips.hex2bin.description': {
+    en: 'Each hex digit converts to 4 binary digits:',
+    nl: 'Elk hexadecimaal cijfer zet om naar 4 binaire cijfers:',
+  },
+  'binary.tips.bin2hex.title': {
+    en: 'Binary to Hexadecimal',
+    nl: 'Binair naar Hexadecimaal',
+  },
+  'binary.tips.bin2hex.description': {
+    en: 'Group binary digits into sets of 4, then convert each group:',
+    nl: 'Groepeer binaire cijfers in sets van 4, en zet elke groep om:',
+  },
+  'binary.tips.position': {
+    en: 'Position',
+    nl: 'Positie',
+  },
+  'binary.tips.value': {
+    en: 'Value',
+    nl: 'Waarde',
+  },
+  'binary.tips.hex': {
+    en: 'Hex',
+    nl: 'Hex',
+  },
+  'binary.tips.binary': {
+    en: 'Binary',
+    nl: 'Binair',
+  },
+  'binary.tips.example': {
+    en: 'Example',
+    nl: 'Voorbeeld',
+  },
+  'binary.tips.bin2hex.step1': {
+    en: 'Group',
+    nl: 'Groepeer',
+  },
+  'binary.tips.bin2hex.step2': {
+    en: 'Convert',
+    nl: 'Converteer',
+  },
+  'binary.tips.bin2hex.step3': {
+    en: 'Result',
+    nl: 'Resultaat',
+  },
+  
   // Subnetting page
   'subnetting.title': {
     en: 'IP Subnetting Practice',

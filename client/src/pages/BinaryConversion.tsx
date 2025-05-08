@@ -55,19 +55,19 @@ export default function BinaryConversion() {
       
       <Card>
         <CardHeader>
-          <CardTitle>Conversion Tips</CardTitle>
+          <CardTitle>{t('binary.tips.title')}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid gap-6 grid-cols-1 lg:grid-cols-3">
             <div>
-              <h4 className="font-medium text-slate-800 mb-2 dark:text-zinc-200">Binary to Decimal</h4>
-              <p className="text-sm text-slate-600 mb-2 dark:text-zinc-400">Each binary digit position represents a power of 2:</p>
+              <h4 className="font-medium text-slate-800 mb-2 dark:text-zinc-200">{t('binary.tips.bin2dec.title')}</h4>
+              <p className="text-sm text-slate-600 mb-2 dark:text-zinc-400">{t('binary.tips.bin2dec.description')}</p>
               <div className="bg-slate-50 p-3 rounded-md font-mono text-sm dark:bg-zinc-900">
                 <div className="overflow-x-auto">
                   <table className="min-w-full">
                     <thead>
                       <tr>
-                        <th className="text-center text-slate-700 dark:text-zinc-300">Position</th>
+                        <th className="text-center text-slate-700 dark:text-zinc-300">{t('binary.tips.position')}</th>
                         <th className="text-center text-slate-700 dark:text-zinc-300">2<sup>7</sup></th>
                         <th className="text-center text-slate-700 dark:text-zinc-300">2<sup>6</sup></th>
                         <th className="text-center text-slate-700 dark:text-zinc-300">2<sup>5</sup></th>
@@ -80,7 +80,7 @@ export default function BinaryConversion() {
                     </thead>
                     <tbody>
                       <tr>
-                        <td className="text-center text-slate-700 dark:text-zinc-300">Value</td>
+                        <td className="text-center text-slate-700 dark:text-zinc-300">{t('binary.tips.value')}</td>
                         <td className="text-center text-slate-700 dark:text-zinc-300">128</td>
                         <td className="text-center text-slate-700 dark:text-zinc-300">64</td>
                         <td className="text-center text-slate-700 dark:text-zinc-300">32</td>
@@ -97,17 +97,17 @@ export default function BinaryConversion() {
             </div>
             
             <div>
-              <h4 className="font-medium text-slate-800 mb-2 dark:text-zinc-200">Hexadecimal to Binary</h4>
-              <p className="text-sm text-slate-600 mb-2 dark:text-zinc-400">Each hex digit converts to 4 binary digits:</p>
+              <h4 className="font-medium text-slate-800 mb-2 dark:text-zinc-200">{t('binary.tips.hex2bin.title')}</h4>
+              <p className="text-sm text-slate-600 mb-2 dark:text-zinc-400">{t('binary.tips.hex2bin.description')}</p>
               <div className="bg-slate-50 p-3 rounded-md font-mono text-sm dark:bg-zinc-900">
                 <div className="overflow-x-auto">
                   <table className="min-w-full">
                     <thead>
                       <tr>
-                        <th className="text-left text-slate-700 dark:text-zinc-300">Hex</th>
-                        <th className="text-left text-slate-700 dark:text-zinc-300">Binary</th>
-                        <th className="text-left text-slate-700 dark:text-zinc-300">Hex</th>
-                        <th className="text-left text-slate-700 dark:text-zinc-300">Binary</th>
+                        <th className="text-left text-slate-700 dark:text-zinc-300">{t('binary.tips.hex')}</th>
+                        <th className="text-left text-slate-700 dark:text-zinc-300">{t('binary.tips.binary')}</th>
+                        <th className="text-left text-slate-700 dark:text-zinc-300">{t('binary.tips.hex')}</th>
+                        <th className="text-left text-slate-700 dark:text-zinc-300">{t('binary.tips.binary')}</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -166,13 +166,13 @@ export default function BinaryConversion() {
             </div>
             
             <div>
-              <h4 className="font-medium text-slate-800 mb-2 dark:text-zinc-200">Binary to Hexadecimal</h4>
-              <p className="text-sm text-slate-600 mb-2 dark:text-zinc-400">Group binary digits into sets of 4, then convert each group:</p>
+              <h4 className="font-medium text-slate-800 mb-2 dark:text-zinc-200">{t('binary.tips.bin2hex.title')}</h4>
+              <p className="text-sm text-slate-600 mb-2 dark:text-zinc-400">{t('binary.tips.bin2hex.description')}</p>
               <div className="bg-slate-50 p-3 rounded-md font-mono text-sm dark:bg-zinc-900">
-                <p className="mb-2 text-slate-800 dark:text-zinc-200">Example: <span className="font-medium">10110110</span></p>
-                <p className="mb-1 text-slate-700 dark:text-zinc-300">1. Group: <span className="font-medium">1011 0110</span></p>
-                <p className="mb-1 text-slate-700 dark:text-zinc-300">2. Convert: <span className="font-medium">1011 = B</span>, <span className="font-medium">0110 = 6</span></p>
-                <p className="text-slate-700 dark:text-zinc-300">3. Result: <span className="font-medium">B6</span></p>
+                <p className="mb-2 text-slate-800 dark:text-zinc-200">{t('binary.tips.example')}: <span className="font-medium">10110110</span></p>
+                <p className="mb-1 text-slate-700 dark:text-zinc-300">1. {t('binary.tips.bin2hex.step1')}: <span className="font-medium">1011 0110</span></p>
+                <p className="mb-1 text-slate-700 dark:text-zinc-300">2. {t('binary.tips.bin2hex.step2')}: <span className="font-medium">1011 = B</span>, <span className="font-medium">0110 = 6</span></p>
+                <p className="text-slate-700 dark:text-zinc-300">3. {t('binary.tips.bin2hex.step3')}: <span className="font-medium">B6</span></p>
               </div>
             </div>
           </div>
