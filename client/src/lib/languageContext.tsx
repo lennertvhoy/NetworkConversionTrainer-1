@@ -452,7 +452,9 @@ const defaultState: LanguageContextType = {
 const LanguageContext = createContext<LanguageContextType>(defaultState);
 
 // Create a hook to use the context
-export const useLanguage = () => useContext(LanguageContext);
+export function useLanguage() {
+  return useContext(LanguageContext);
+}
 
 // Define provider props
 interface LanguageProviderProps {

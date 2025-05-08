@@ -1,3 +1,5 @@
+import { Language } from './languageContext';
+
 interface SubnettingQuestion {
   questionText: string;
   answerFields: { id: string; label: string; answer: string }[];
@@ -748,7 +750,8 @@ function buildNetworkCalculationProblem(difficulty: string): SubnettingQuestion 
   };
 }
 
-export function generateSubnettingQuestion(subnetType: string, difficulty: string): SubnettingQuestion {
+export function generateSubnettingQuestion(subnetType: string, difficulty: string, language: Language = 'nl'): SubnettingQuestion {
+  // Language is provided by default through the context but we have a fallback here
   switch (subnetType) {
     case 'basic':
       return buildBasicSubnettingProblem(difficulty);

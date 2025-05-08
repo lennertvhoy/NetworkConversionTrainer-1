@@ -27,8 +27,9 @@ export default function SubnettingExerciseCard({ subnetType, difficulty }: Subne
   }, [subnetType, difficulty]);
 
   const generateNewQuestion = () => {
-    // Generate question client-side
-    const { questionText, answerFields, explanation } = generateSubnettingQuestion(subnetType, difficulty);
+    // Generate question client-side with language preference
+    const { language } = useLanguage();
+    const { questionText, answerFields, explanation } = generateSubnettingQuestion(subnetType, difficulty, language);
     setQuestionText(questionText);
     setAnswerFields(answerFields);
     setExplanation(explanation);
