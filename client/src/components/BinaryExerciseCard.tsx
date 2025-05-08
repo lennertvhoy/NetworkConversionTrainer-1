@@ -18,19 +18,15 @@ export default function BinaryExerciseCard({ conversionType, difficulty }: Binar
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
   const [explanation, setExplanation] = useState("");
   const [isAnswered, setIsAnswered] = useState(false);
-  const [currentDifficulty, setCurrentDifficulty] = useState(difficulty);
-  const [currentType, setCurrentType] = useState(conversionType);
 
   // Load a new question on mount or when conversion type/difficulty changes
   useEffect(() => {
-    setCurrentDifficulty(difficulty);
-    setCurrentType(conversionType);
     generateNewQuestion();
   }, [conversionType, difficulty]);
 
   const generateNewQuestion = () => {
     // Generate question client-side
-    const { question, answer, explanation } = generateBinaryQuestion(currentType, currentDifficulty);
+    const { question, answer, explanation } = generateBinaryQuestion(conversionType, difficulty);
     setQuestion(question);
     setAnswer(answer);
     setExplanation(explanation);
@@ -65,7 +61,7 @@ export default function BinaryExerciseCard({ conversionType, difficulty }: Binar
   };
 
   const getConversionTypeLabel = () => {
-    switch(currentType) {
+    switch(conversionType) {
       case "bin2dec": return "Binary to Decimal";
       case "bin2hex": return "Binary to Hexadecimal";
       case "hex2bin": return "Hexadecimal to Binary";
@@ -75,7 +71,7 @@ export default function BinaryExerciseCard({ conversionType, difficulty }: Binar
   };
 
   const getConversionQuestion = () => {
-    switch(currentType) {
+    switch(conversionType) {
       case "bin2dec": return "Convert this binary number to decimal";
       case "bin2hex": return "Convert this binary number to hexadecimal";
       case "hex2bin": return "Convert this hexadecimal number to binary";

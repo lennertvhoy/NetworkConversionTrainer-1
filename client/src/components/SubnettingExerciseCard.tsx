@@ -18,19 +18,15 @@ export default function SubnettingExerciseCard({ subnetType, difficulty }: Subne
   const [isAnswered, setIsAnswered] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
   const [explanation, setExplanation] = useState("");
-  const [currentDifficulty, setCurrentDifficulty] = useState(difficulty);
-  const [currentType, setCurrentType] = useState(subnetType);
 
   // Load a new question on mount or when subnet type/difficulty changes
   useEffect(() => {
-    setCurrentDifficulty(difficulty);
-    setCurrentType(subnetType);
     generateNewQuestion();
   }, [subnetType, difficulty]);
 
   const generateNewQuestion = () => {
     // Generate question client-side
-    const { questionText, answerFields, explanation } = generateSubnettingQuestion(currentType, currentDifficulty);
+    const { questionText, answerFields, explanation } = generateSubnettingQuestion(subnetType, difficulty);
     setQuestionText(questionText);
     setAnswerFields(answerFields);
     setExplanation(explanation);
@@ -116,7 +112,7 @@ export default function SubnettingExerciseCard({ subnetType, difficulty }: Subne
   };
 
   const getSubnetTypeLabel = () => {
-    switch(currentType) {
+    switch(subnetType) {
       case "basic": return "Basic Subnetting";
       case "vlsm": return "VLSM Subnetting";
       case "wildcard": return "Wildcard Masks";
