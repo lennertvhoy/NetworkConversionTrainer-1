@@ -1,10 +1,8 @@
 import { useState, useEffect } from "react";
-import { CheckCircle, XCircle, RefreshCw } from "lucide-react";
+import { CheckCircle, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { apiRequest } from "@/lib/queryClient";
-import { queryClient } from "@/lib/queryClient";
 import { generateSubnettingQuestion } from "@/lib/subnetUtils";
 
 interface SubnettingExerciseProps {
@@ -23,42 +21,21 @@ export default function SubnettingExerciseCard({ subnetType, difficulty }: Subne
   const [questionNumber, setQuestionNumber] = useState(1);
   const [score, setScore] = useState(0);
   const [totalQuestions] = useState(10);
-  const [startTime, setStartTime] = useState<Date | null>(null);
 
   // Load a new question on mount or when subnet type/difficulty changes
   useEffect(() => {
     generateNewQuestion();
   }, [subnetType, difficulty]);
 
-  const generateNewQuestion = async () => {
-    try {
-      const response = await apiRequest(
-        "POST",
-        "/api/subnetting/generate",
-        { type: subnetType, difficulty }
-      );
-      
-      const data = await response.json();
-      setQuestionText(data.questionText);
-      setAnswerFields(data.answerFields);
-      setExplanation(data.explanation);
-      setUserAnswers({});
-      setIsCorrect(false);
-      setIsAnswered(false);
-      setStartTime(new Date());
-    } catch (error) {
-      console.error("Error generating question:", error);
-      
-      // Fallback to client-side generation if API fails
-      const { questionText, answerFields, explanation } = generateSubnettingQuestion(subnetType, difficulty);
-      setQuestionText(questionText);
-      setAnswerFields(answerFields);
-      setExplanation(explanation);
-      setUserAnswers({});
-      setIsCorrect(false);
-      setIsAnswered(false);
-      setStartTime(new Date());
-    }
+  const generateNewQuestion = () => {
+    // Generate question client-side
+    const { questionText, answerFields, explanation } = generateSubnettingQuestion(subnetType, difficulty);
+    setQuestionText(questionText);
+    setAnswerFields(answerFields);
+    setExplanation(explanation);
+    setUserAnswers({});
+    setIsCorrect(false);
+    setIsAnswered(false);
   };
 
   const handleInputChange = (id: string, value: string) => {
@@ -132,35 +109,16 @@ export default function SubnettingExerciseCard({ subnetType, difficulty }: Subne
     }
   };
 
-  const handleNextQuestion = async () => {
+  const handleNextQuestion = () => {
     if (questionNumber < totalQuestions) {
       setQuestionNumber(prev => prev + 1);
       generateNewQuestion();
     } else {
-      // Submit session results if this was the last question
-      if (startTime) {
-        const timeSpent = Math.round((new Date().getTime() - startTime.getTime()) / 1000);
-        try {
-          await apiRequest("POST", "/api/practice-sessions", {
-            topic: "subnet",
-            subtype: subnetType,
-            score,
-            totalQuestions,
-            difficulty,
-            timeSpent,
-          });
-          
-          // Invalidate progress data to refresh dashboard
-          queryClient.invalidateQueries({ queryKey: ["/api/progress"] });
-          
-          toast({
-            title: "Practice session completed!",
-            description: `You scored ${score} out of ${totalQuestions}`,
-          });
-        } catch (error) {
-          console.error("Error saving practice session:", error);
-        }
-      }
+      // Start a new session
+      toast({
+        title: "Practice session completed!",
+        description: `You scored ${score} out of ${totalQuestions}`,
+      });
       
       // Start a new session
       setQuestionNumber(1);

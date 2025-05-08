@@ -3,9 +3,7 @@ import { CheckCircle, XCircle, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { apiRequest } from "@/lib/queryClient";
-import { queryClient } from "@/lib/queryClient";
-import { convertBinary, generateBinaryQuestion } from "@/lib/binaryUtils";
+import { generateBinaryQuestion } from "@/lib/binaryUtils";
 
 interface BinaryExerciseProps {
   conversionType: string;
@@ -23,42 +21,21 @@ export default function BinaryExerciseCard({ conversionType, difficulty }: Binar
   const [questionNumber, setQuestionNumber] = useState(1);
   const [score, setScore] = useState(0);
   const [totalQuestions] = useState(10);
-  const [startTime, setStartTime] = useState<Date | null>(null);
 
   // Load a new question on mount or when conversion type/difficulty changes
   useEffect(() => {
     generateNewQuestion();
   }, [conversionType, difficulty]);
 
-  const generateNewQuestion = async () => {
-    try {
-      const response = await apiRequest(
-        "POST",
-        "/api/binary/generate",
-        { type: conversionType, difficulty }
-      );
-      
-      const data = await response.json();
-      setQuestion(data.question);
-      setAnswer(data.answer);
-      setExplanation(data.explanation);
-      setUserAnswer("");
-      setIsCorrect(null);
-      setIsAnswered(false);
-      setStartTime(new Date());
-    } catch (error) {
-      console.error("Error generating question:", error);
-      
-      // Fallback to client-side generation if API fails
-      const { question, answer, explanation } = generateBinaryQuestion(conversionType, difficulty);
-      setQuestion(question);
-      setAnswer(answer);
-      setExplanation(explanation);
-      setUserAnswer("");
-      setIsCorrect(null);
-      setIsAnswered(false);
-      setStartTime(new Date());
-    }
+  const generateNewQuestion = () => {
+    // Generate question client-side
+    const { question, answer, explanation } = generateBinaryQuestion(conversionType, difficulty);
+    setQuestion(question);
+    setAnswer(answer);
+    setExplanation(explanation);
+    setUserAnswer("");
+    setIsCorrect(null);
+    setIsAnswered(false);
   };
 
   const checkAnswer = () => {
@@ -80,37 +57,16 @@ export default function BinaryExerciseCard({ conversionType, difficulty }: Binar
     }
   };
 
-  const handleNextQuestion = async () => {
+  const handleNextQuestion = () => {
     if (questionNumber < totalQuestions) {
       setQuestionNumber(prev => prev + 1);
       generateNewQuestion();
     } else {
-      // Submit session results if this was the last question
-      if (startTime) {
-        const timeSpent = Math.round((new Date().getTime() - startTime.getTime()) / 1000);
-        try {
-          await apiRequest("POST", "/api/practice-sessions", {
-            topic: "binary",
-            subtype: conversionType,
-            score,
-            totalQuestions,
-            difficulty,
-            timeSpent,
-          });
-          
-          // Invalidate progress data to refresh dashboard
-          queryClient.invalidateQueries({ queryKey: ["/api/progress"] });
-          
-          toast({
-            title: "Practice session completed!",
-            description: `You scored ${score} out of ${totalQuestions}`,
-          });
-        } catch (error) {
-          console.error("Error saving practice session:", error);
-        }
-      }
-      
       // Start a new session
+      toast({
+        title: "Practice session completed!",
+        description: `You scored ${score} out of ${totalQuestions}`,
+      });
       setQuestionNumber(1);
       setScore(0);
       generateNewQuestion();
