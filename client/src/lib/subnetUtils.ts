@@ -373,6 +373,11 @@ function buildBasicSubnettingProblem(difficulty: string): SubnettingQuestion {
     questionText += `CIDR prefix <span class="font-mono font-medium">/${prefix}</span>:</p>`;
   }
   
+  // Add a note about subnet mask formats being accepted
+  if (questionType === 'mask' || questionType === 'prefix') {
+    questionText += `<p class="text-slate-600 text-sm italic mb-3 dark:text-zinc-400">Note: Both decimal format (e.g., 255.255.255.0) and CIDR notation (e.g., /24) are accepted for subnet masks.</p>`;
+  }
+  
   let answerFields: { id: string; label: string; answer: string }[] = [];
   
   switch (questionType) {
@@ -449,11 +454,13 @@ function buildBasicSubnettingProblem(difficulty: string): SubnettingQuestion {
       break;
     case 'prefix':
       explanation = `<p>The CIDR prefix counts the number of contiguous 1 bits in the subnet mask:</p>
-      <p class="mt-2 font-mono">Mask: ${mask}<br>CIDR: /${prefix}</p>`;
+      <p class="mt-2 font-mono">Mask: ${mask}<br>CIDR: /${prefix}</p>
+      <p class="mt-2 text-sm text-slate-600 dark:text-zinc-400"><i>Note: Both CIDR notation (e.g., /24) and decimal format (e.g., 255.255.255.0) are equivalent representations of subnet masks.</i></p>`;
       break;
     case 'mask':
       explanation = `<p>Converting from CIDR prefix to subnet mask:</p>
-      <p class="mt-2 font-mono">CIDR: /${prefix}<br>Mask: ${mask}</p>`;
+      <p class="mt-2 font-mono">CIDR: /${prefix}<br>Mask: ${mask}</p>
+      <p class="mt-2 text-sm text-slate-600 dark:text-zinc-400"><i>Note: Both CIDR notation (e.g., /24) and decimal format (e.g., 255.255.255.0) are equivalent representations of subnet masks.</i></p>`;
       break;
     case 'all':
       explanation = `<p>Given IP ${ip} with mask ${mask} (/${prefix}):</p>

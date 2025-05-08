@@ -64,34 +64,64 @@ export default function SubnettingExerciseCard({ subnetType, difficulty }: Subne
       
       // For subnet masks, handle both forms (255.255.255.0 and /24)
       if (field.id.includes("mask")) {
-        if (correctAnswer.startsWith("/") && !userAnswer.startsWith("/")) {
-          // Convert dotted decimal to CIDR if needed
-          const cidrMap: {[key: string]: string} = {
-            "255.255.255.0": "/24",
-            "255.255.255.128": "/25",
-            "255.255.255.192": "/26",
-            "255.255.255.224": "/27",
-            "255.255.255.240": "/28",
-            "255.255.255.248": "/29",
-            "255.255.255.252": "/30",
-            "255.255.0.0": "/16",
-            "255.0.0.0": "/8"
-          };
-          return cidrMap[userAnswer] === correctAnswer;
-        } else if (!correctAnswer.startsWith("/") && userAnswer.startsWith("/")) {
-          // Convert CIDR to dotted decimal if needed
-          const cidrMap: {[key: string]: string} = {
-            "/24": "255.255.255.0",
-            "/25": "255.255.255.128",
-            "/26": "255.255.255.192",
-            "/27": "255.255.255.224",
-            "/28": "255.255.255.240",
-            "/29": "255.255.255.248",
-            "/30": "255.255.255.252",
-            "/16": "255.255.0.0",
-            "/8": "255.0.0.0"
-          };
-          return cidrMap[userAnswer] === correctAnswer;
+        // Define bidirectional mapping between CIDR and dotted decimal
+        const cidrToDecimal: {[key: string]: string} = {
+          "/8": "255.0.0.0",
+          "/9": "255.128.0.0",
+          "/10": "255.192.0.0",
+          "/11": "255.224.0.0",
+          "/12": "255.240.0.0",
+          "/13": "255.248.0.0", 
+          "/14": "255.252.0.0",
+          "/15": "255.254.0.0",
+          "/16": "255.255.0.0",
+          "/17": "255.255.128.0",
+          "/18": "255.255.192.0",
+          "/19": "255.255.224.0",
+          "/20": "255.255.240.0",
+          "/21": "255.255.248.0",
+          "/22": "255.255.252.0",
+          "/23": "255.255.254.0",
+          "/24": "255.255.255.0",
+          "/25": "255.255.255.128",
+          "/26": "255.255.255.192",
+          "/27": "255.255.255.224",
+          "/28": "255.255.255.240",
+          "/29": "255.255.255.248",
+          "/30": "255.255.255.252",
+          "/31": "255.255.255.254",
+          "/32": "255.255.255.255"
+        };
+        
+        // Create reverse mapping (decimal to CIDR)
+        const decimalToCidr: {[key: string]: string} = {};
+        for (const [cidr, decimal] of Object.entries(cidrToDecimal)) {
+          decimalToCidr[decimal] = cidr;
+        }
+        
+        // First exact match check
+        if (userAnswer === correctAnswer) {
+          return true;
+        }
+        
+        // Try to convert between formats for comparison
+        if (userAnswer.startsWith("/") && !correctAnswer.startsWith("/")) {
+          // User provided CIDR, correct is decimal
+          return cidrToDecimal[userAnswer] === correctAnswer;
+        } else if (!userAnswer.startsWith("/") && correctAnswer.startsWith("/")) {
+          // User provided decimal, correct is CIDR
+          return decimalToCidr[userAnswer] === correctAnswer;
+        } else if (userAnswer.startsWith("/") && correctAnswer.startsWith("/")) {
+          // Both CIDR, direct comparison of prefix numbers
+          return parseInt(userAnswer.substring(1)) === parseInt(correctAnswer.substring(1));
+        } else {
+          // Both decimal, but maybe with slight formatting differences
+          const userParts = userAnswer.split(".").map(part => parseInt(part));
+          const correctParts = correctAnswer.split(".").map(part => parseInt(part));
+          
+          if (userParts.length === 4 && correctParts.length === 4) {
+            return userParts.every((part, i) => part === correctParts[i]);
+          }
         }
       }
       
@@ -158,7 +188,7 @@ export default function SubnettingExerciseCard({ subnetType, difficulty }: Subne
                 id={field.id}
                 value={userAnswers[field.id] || ""}
                 onChange={(e) => handleInputChange(field.id, e.target.value)}
-                placeholder={`e.g., ${field.id.includes("mask") ? "255.255.255.0 or /24" : "192.168.1.0"}`}
+                placeholder={`e.g., ${field.id.includes("mask") ? "both 255.255.255.0 and /24 accepted" : "192.168.1.0"}`}
                 className="shadow-sm focus:ring-secondary focus:border-secondary block w-full sm:text-sm border-slate-300"
               />
             </div>
