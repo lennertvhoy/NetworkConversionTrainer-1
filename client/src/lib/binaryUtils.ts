@@ -82,6 +82,7 @@ export function generateBinaryQuestion(conversionType: string, difficulty: strin
     case 'bin2dec':
       question = generateRandomBinary(binaryLength);
       answer = parseInt(question, 2).toString();
+      // Always generate English explanations by default
       explanation = `The binary number <span class="font-mono font-bold">${question}</span> equals <span class="font-mono font-bold">${answer}</span> in decimal.<br/><br/>`;
       
       // Add detailed calculation for explanation
@@ -93,6 +94,7 @@ export function generateBinaryQuestion(conversionType: string, difficulty: strin
     case 'bin2hex':
       question = generateRandomBinary(binaryLength);
       answer = parseInt(question, 2).toString(16).toUpperCase();
+      // Always generate English explanations by default
       explanation = `The binary number <span class="font-mono font-bold">${question}</span> equals <span class="font-mono font-bold">${answer}</span> in hexadecimal.<br/><br/>`;
       
       // Add grouped conversion for explanation
@@ -109,6 +111,7 @@ export function generateBinaryQuestion(conversionType: string, difficulty: strin
     case 'hex2bin':
       question = generateRandomHex(hexLength);
       answer = '';
+      // Always generate English explanations by default
       explanation = `The hexadecimal number <span class="font-mono font-bold">${question}</span> equals <span class="font-mono font-bold">`;
       
       // Convert each hex digit and build explanation
@@ -132,6 +135,7 @@ export function generateBinaryQuestion(conversionType: string, difficulty: strin
       const decimalValue = generateRandomDecimal(decMin, decMax);
       question = decimalValue.toString();
       answer = decimalValue.toString(2);
+      // Always generate English explanations by default
       explanation = `The decimal number <span class="font-mono font-bold">${question}</span> equals <span class="font-mono font-bold">${answer}</span> in binary.<br/><br/>`;
       
       // Add division method explanation
@@ -155,25 +159,42 @@ export function generateBinaryQuestion(conversionType: string, difficulty: strin
       explanation = '';
   }
   
-  // Apply language translations to the explanation text if English is selected
-  if (language === 'en') {
-    // Replace common phrases with their English equivalents
-    // Binary to decimal explanation
-    explanation = explanation
-      .replace(/Het binaire getal/g, "The binary number")
-      .replace(/gelijk aan/g, "equals")
-      .replace(/in decimaal/g, "in decimal")
-      .replace(/Groepeer/g, "Group")
-      .replace(/binair/g, "binary")
-      .replace(/decimaal/g, "decimal")
-      .replace(/hexadecimaal/g, "hexadecimal")
-      .replace(/Het hexadecimale getal/g, "The hexadecimal number")
-      .replace(/Zet elk hexadecimaal cijfer om naar 4 binaire cijfers/g, "Convert each hex digit to 4 binary digits")
-      .replace(/Met de delingsmethode/g, "Using the division method")
-      .replace(/rest/g, "remainder")
-      .replace(/De restwaarden van onder naar boven lezen geeft het binaire resultaat/g, "Reading the remainders from bottom to top gives the binary result")
-      .replace(/de binaire cijfers in sets van 4/g, "the binary into sets of 4 bits")
-      .replace(/aanvullen met voorloopnullen indien nodig/g, "padding with leading zeros if needed");
+  // English is the default language for explanations in this code
+  // For Dutch (nl), we need to translate to Dutch
+  if (language === 'nl') {
+    // For Dutch language, replace English text with Dutch equivalents
+    if (conversionType === 'bin2dec') {
+      explanation = explanation
+        .replace(/The binary number/g, "Het binaire getal")
+        .replace(/equals/g, "is gelijk aan")
+        .replace(/in decimal/g, "in decimaal");
+    }
+    else if (conversionType === 'bin2hex') {
+      explanation = explanation
+        .replace(/The binary number/g, "Het binaire getal")
+        .replace(/equals/g, "is gelijk aan")
+        .replace(/in hexadecimal/g, "in hexadecimaal")
+        .replace(/Group the binary into sets of 4 bits/g, "Groepeer de binaire cijfers in sets van 4")
+        .replace(/padding with leading zeros if needed/g, "aanvullen met voorloopnullen indien nodig");
+    }
+    else if (conversionType === 'hex2bin') {
+      explanation = explanation
+        .replace(/The hexadecimal number/g, "Het hexadecimale getal")
+        .replace(/equals/g, "is gelijk aan")
+        .replace(/in binary/g, "in binair")
+        .replace(/Convert each hex digit to 4 binary digits/g, "Zet elk hexadecimaal cijfer om naar 4 binaire cijfers")
+        .replace(/Hex/g, "Hex")
+        .replace(/Binary/g, "Binair");
+    }
+    else if (conversionType === 'dec2bin') {
+      explanation = explanation
+        .replace(/The decimal number/g, "Het decimale getal")
+        .replace(/equals/g, "is gelijk aan")
+        .replace(/in binary/g, "in binair")
+        .replace(/Using the division method/g, "Met de delingsmethode")
+        .replace(/remainder/g, "rest")
+        .replace(/Reading the remainders from bottom to top gives the binary result/g, "De restwaarden van onder naar boven lezen geeft het binaire resultaat");
+    }
   }
   
   return { question, answer, explanation };

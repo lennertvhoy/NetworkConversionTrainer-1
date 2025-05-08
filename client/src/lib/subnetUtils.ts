@@ -780,15 +780,58 @@ export function generateSubnettingQuestion(subnetType: string, difficulty: strin
   
   // Replace common text patterns based on language
   if (language === 'en') {
-    // Replace Dutch text with English
+    // More comprehensive word and phrase replacements for questionText
     question.questionText = question.questionText
-      .replace(/Bereken/g, "Calculate")
+      // Translate section headers and structural elements
+      .replace(/class="text-slate-800 mb-3 dark:text-zinc-200"/g, 'class="text-slate-800 mb-3 dark:text-zinc-200"')
+      .replace(/class="text-slate-800 font-medium dark:text-zinc-200"/g, 'class="text-slate-800 font-medium dark:text-zinc-200"')
+      .replace(/class="list-disc pl-5 space-y-1 text-slate-700 mb-3 dark:text-zinc-300"/g, 'class="list-disc pl-5 space-y-1 text-slate-700 mb-3 dark:text-zinc-300"')
+      
+      // Common phrases in questions
+      .replace(/Accesscontrolelijsten \(ACLs\)/g, "Access control lists (ACLs)")
+      .replace(/routeringsprotocollen/g, "routing protocols")
+      .replace(/maken vaak gebruik van/g, "often use")
+      .replace(/wildcard maskers/g, "wildcard masks")
+      .replace(/welke het omgekeerde zijn van/g, "which are the inverse of")
+      .replace(/subnet maskers/g, "subnet masks")
+      .replace(/Gegeven het subnet masker/g, "Given the subnet mask")
       .replace(/Gegeven/g, "Given")
+      .replace(/Bereken/g, "Calculate")
+      .replace(/de volgende informatie/g, "the following information")
+      .replace(/Voor een router ACL/g, "For a router ACL")
+      .replace(/die exact moet overeenkomen met/g, "that should match exactly")
+      .replace(/het netwerk/g, "the network")
+      .replace(/Welk IP en wildcard masker/g, "What IP and wildcard mask")
+      .replace(/moet worden gebruikt/g, "should be used")
+      .replace(/in de ACL/g, "in the ACL")
+      .replace(/Je hebt/g, "You have")
+      .replace(/toegewezen gekregen/g, "been allocated")
+      .replace(/en moet/g, "and need to")
+      .replace(/maken/g, "create")
+      .replace(/de volgende subnets/g, "the following subnets")
+      .replace(/Subnet \d+: (\d+) hosts/g, "Subnet $1: $2 hosts")
+      .replace(/Wat is het subnet masker/g, "What is the subnet mask")
+      .replace(/voor Subnet/g, "for Subnet")
+      .replace(/Je moet een subnet ontwerpen/g, "You need to design a subnet")
+      .replace(/dat ondersteuning biedt voor/g, "that can support")
+      .replace(/hosts/g, "hosts")
+      .replace(/Wat is de minimale subnet prefix lengte/g, "What is the minimum subnet prefix length")
+      .replace(/\(CIDR notatie\) benodigd/g, "(CIDR notation) required")
+      .replace(/Je moet een samenvattingsroute maken/g, "You need to create a summary route")
+      .replace(/voor de volgende netwerken/g, "for the following networks")
+      .replace(/Wat is de meest efficiënte samenvattingsroute/g, "What is the most efficient summary route")
+      .replace(/\(netwerk en masker\)/g, "(network and mask)")
+      .replace(/subnetten/g, "subnets")
+      .replace(/van gelijke grootte/g, "of equal size")
+      .replace(/Welk subnet masker/g, "What subnet mask")
+      .replace(/gebruik je/g, "should you use")
+      .replace(/voor elk subnet/g, "for each subnet")
+      
+      // Common network terms
       .replace(/netwerk/g, "network")
       .replace(/host bereik/g, "host range")
       .replace(/adress/g, "address")
       .replace(/masker/g, "mask")
-      .replace(/Je hebt/g, "You have")
       .replace(/welke/g, "which")
       .replace(/nodig/g, "needed")
       .replace(/Wat is/g, "What is")
@@ -796,18 +839,54 @@ export function generateSubnettingQuestion(subnetType: string, difficulty: strin
       .replace(/gebruiken/g, "use")
       .replace(/voor elk/g, "for each")
       .replace(/voor/g, "for")
-      .replace(/maak/g, "create")
       .replace(/volgende/g, "following")
       .replace(/moeten maken/g, "need to create")
       .replace(/om te maken/g, "to create")
       .replace(/moet je/g, "you need to")
-      .replace(/hosts/g, "hosts")
       .replace(/subnet prefix lengte/g, "subnet prefix length")
       .replace(/het meest efficiënte/g, "the most efficient")
       .replace(/maak een samenvatting/g, "create a summary");
       
-    // Replace in the explanation
+    // Comprehensive replacements for the explanation
     question.explanation = question.explanation
+      // HTML formatting elements
+      .replace(/<p>/g, '<p>')
+      .replace(/<\/p>/g, '</p>')
+      .replace(/<br\/>/g, '<br/>')
+      .replace(/<ol class="list-decimal ml-5 mt-2 space-y-1">/g, '<ol class="list-decimal ml-5 mt-2 space-y-1">')
+      .replace(/<ul class="list-disc ml-5 mt-1 space-y-1">/g, '<ul class="list-disc ml-5 mt-1 space-y-1">')
+      
+      // Common explanation phrases
+      .replace(/Een wildcard masker is het omgekeerde van een subnet masker/g, "A wildcard mask is the inverse of a subnet mask")
+      .replace(/Om het te berekenen/g, "To calculate it")
+      .replace(/trek je elk octet van het subnet masker af van 255/g, "subtract each octet of the subnet mask from 255")
+      .replace(/Subnet masker/g, "Subnet mask")
+      .replace(/Wildcard masker/g, "Wildcard mask")
+      .replace(/In een wildcard masker/g, "In a wildcard mask")
+      .replace(/0 bits betekenen "exacte overeenkomst"/g, "0 bits mean \"match exactly\"")
+      .replace(/1 bits betekenen "negeren"/g, "1 bits mean \"ignore\"")
+      .replace(/\(kan elke waarde zijn\)/g, "(can be any value)")
+      .replace(/Voor ACLs/g, "For ACLs")
+      .replace(/gebruik je meestal/g, "you typically use")
+      .replace(/het netwerkadres met het wildcard masker/g, "the network address with the wildcard mask")
+      .replace(/Dit zou overeenkomen met alle adressen in het/g, "This would match all addresses in the")
+      .replace(/netwerk/g, "network")
+      
+      // Common subnet calculation terms
+      .replace(/Het netwerkadres is/g, "The network address is")
+      .replace(/Het broadcastadres is/g, "The broadcast address is")
+      .replace(/De eerste bruikbare host is/g, "The first usable host is")
+      .replace(/De laatste bruikbare host is/g, "The last usable host is")
+      .replace(/Het aantal bruikbare hosts is/g, "The number of usable hosts is")
+      .replace(/Om het netwerkadres te vinden/g, "To find the network address")
+      .replace(/voer je een bitwise AND-bewerking uit/g, "perform a bitwise AND operation")
+      .replace(/tussen het IP-adres en het subnet masker/g, "between the IP address and the subnet mask")
+      .replace(/Het broadcastadres is het netwerkadres met alle hostbits op 1 gezet/g, "The broadcast address is the network address with all host bits set to 1")
+      .replace(/De eerste host is het netwerkadres plus 1/g, "The first host is the network address plus 1")
+      .replace(/De laatste host is het broadcastadres min 1/g, "The last host is the broadcast address minus 1")
+      .replace(/Het aantal bruikbare hosts is 2 tot de macht van het aantal hostbits, min 2/g, "The number of usable hosts is 2 to the power of the number of host bits, minus 2")
+      
+      // More explanation text translations
       .replace(/Voor/g, "For")
       .replace(/berekeneningen/g, "calculations")
       .replace(/Om de/g, "To find the")
@@ -833,34 +912,19 @@ export function generateSubnettingQuestion(subnetType: string, difficulty: strin
     for (let i = 0; i < question.answerFields.length; i++) {
       const field = question.answerFields[i];
       
-      // Translate common field labels
-      if (field.label.includes("Netwerk")) {
-        field.label = field.label.replace("Netwerk", "Network");
-      }
-      if (field.label.includes("Broadcast")) {
-        field.label = field.label.replace("Broadcast", "Broadcast");
-      }
-      if (field.label.includes("Eerste Host")) {
-        field.label = field.label.replace("Eerste Host", "First Host");
-      }
-      if (field.label.includes("Laatste Host")) {
-        field.label = field.label.replace("Laatste Host", "Last Host");
-      }
-      if (field.label.includes("Subnet Masker")) {
-        field.label = field.label.replace("Subnet Masker", "Subnet Mask");
-      }
-      if (field.label.includes("Aantal Hosts")) {
-        field.label = field.label.replace("Aantal Hosts", "Number of Hosts");
-      }
-      if (field.label.includes("Wildcard Masker")) {
-        field.label = field.label.replace("Wildcard Masker", "Wildcard Mask");
-      }
-      if (field.label.includes("Samenvattings")) {
-        field.label = field.label.replace("Samenvattings", "Summary ");
-      }
-      if (field.label.includes("Vereiste Prefix")) {
-        field.label = field.label.replace("Vereiste Prefix", "Required Prefix");
-      }
+      // Complete translation of common field labels
+      field.label = field.label
+        .replace(/Netwerkadres/g, "Network Address")
+        .replace(/Broadcastadres/g, "Broadcast Address")
+        .replace(/Eerste Host/g, "First Host")
+        .replace(/Laatste Host/g, "Last Host")
+        .replace(/Subnet Masker/g, "Subnet Mask")
+        .replace(/Aantal Hosts/g, "Number of Hosts")
+        .replace(/Wildcard Masker/g, "Wildcard Mask")
+        .replace(/Samenvattingsnetwerk/g, "Summary Network")
+        .replace(/Samenvattingsmasker/g, "Summary Mask")
+        .replace(/Vereiste Prefix/g, "Required Prefix")
+        .replace(/Prefix Lengte/g, "Prefix Length");
     }
   }
   
