@@ -757,17 +757,112 @@ function buildNetworkCalculationProblem(difficulty: string): SubnettingQuestion 
 }
 
 export function generateSubnettingQuestion(subnetType: string, difficulty: string, language: Language = 'nl'): SubnettingQuestion {
-  // Language is provided by default through the context but we have a fallback here
+  // We need to adjust all the hardcoded text in the questions based on language
+  let question: SubnettingQuestion;
+  
   switch (subnetType) {
     case 'basic':
-      return buildBasicSubnettingProblem(difficulty);
+      question = buildBasicSubnettingProblem(difficulty);
+      break;
     case 'vlsm':
-      return buildVlsmProblem(difficulty);
+      question = buildVlsmProblem(difficulty);
+      break;
     case 'wildcard':
-      return buildWildcardMaskProblem(difficulty);
+      question = buildWildcardMaskProblem(difficulty);
+      break;
     case 'network':
-      return buildNetworkCalculationProblem(difficulty);
+      question = buildNetworkCalculationProblem(difficulty);
+      break;
     default:
-      return buildBasicSubnettingProblem(difficulty);
+      question = buildBasicSubnettingProblem(difficulty);
+      break;
   }
+  
+  // Replace common text patterns based on language
+  if (language === 'en') {
+    // Replace Dutch text with English
+    question.questionText = question.questionText
+      .replace(/Bereken/g, "Calculate")
+      .replace(/Gegeven/g, "Given")
+      .replace(/netwerk/g, "network")
+      .replace(/host bereik/g, "host range")
+      .replace(/adress/g, "address")
+      .replace(/masker/g, "mask")
+      .replace(/Je hebt/g, "You have")
+      .replace(/welke/g, "which")
+      .replace(/nodig/g, "needed")
+      .replace(/Wat is/g, "What is")
+      .replace(/gelijke/g, "equal")
+      .replace(/gebruiken/g, "use")
+      .replace(/voor elk/g, "for each")
+      .replace(/voor/g, "for")
+      .replace(/maak/g, "create")
+      .replace(/volgende/g, "following")
+      .replace(/moeten maken/g, "need to create")
+      .replace(/om te maken/g, "to create")
+      .replace(/moet je/g, "you need to")
+      .replace(/hosts/g, "hosts")
+      .replace(/subnet prefix lengte/g, "subnet prefix length")
+      .replace(/het meest efficiënte/g, "the most efficient")
+      .replace(/maak een samenvatting/g, "create a summary");
+      
+    // Replace in the explanation
+    question.explanation = question.explanation
+      .replace(/Voor/g, "For")
+      .replace(/berekeneningen/g, "calculations")
+      .replace(/Om de/g, "To find the")
+      .replace(/te vinden/g, "")
+      .replace(/nodig hebt/g, "you need")
+      .replace(/Bereken/g, "Calculate") 
+      .replace(/bereik/g, "range")
+      .replace(/adres/g, "address")
+      .replace(/Dit geeft/g, "This gives")
+      .replace(/bruikbare hosts/g, "usable hosts")
+      .replace(/Het broadcast/g, "The broadcast")
+      .replace(/Het netwerk/g, "The network")
+      .replace(/gebruik de formule/g, "use the formula") 
+      .replace(/We hebben/g, "We need")
+      .replace(/De nieuwe/g, "The new")
+      .replace(/Het subnet/g, "The subnet")
+      .replace(/Dit maakt/g, "This creates")
+      .replace(/elk met/g, "each with")
+      .replace(/elke subnet/g, "each subnet")
+      .replace(/Deze samenvattingsroute/g, "This summary route");
+      
+    // Update label texts
+    for (let i = 0; i < question.answerFields.length; i++) {
+      const field = question.answerFields[i];
+      
+      // Translate common field labels
+      if (field.label.includes("Netwerk")) {
+        field.label = field.label.replace("Netwerk", "Network");
+      }
+      if (field.label.includes("Broadcast")) {
+        field.label = field.label.replace("Broadcast", "Broadcast");
+      }
+      if (field.label.includes("Eerste Host")) {
+        field.label = field.label.replace("Eerste Host", "First Host");
+      }
+      if (field.label.includes("Laatste Host")) {
+        field.label = field.label.replace("Laatste Host", "Last Host");
+      }
+      if (field.label.includes("Subnet Masker")) {
+        field.label = field.label.replace("Subnet Masker", "Subnet Mask");
+      }
+      if (field.label.includes("Aantal Hosts")) {
+        field.label = field.label.replace("Aantal Hosts", "Number of Hosts");
+      }
+      if (field.label.includes("Wildcard Masker")) {
+        field.label = field.label.replace("Wildcard Masker", "Wildcard Mask");
+      }
+      if (field.label.includes("Samenvattings")) {
+        field.label = field.label.replace("Samenvattings", "Summary ");
+      }
+      if (field.label.includes("Vereiste Prefix")) {
+        field.label = field.label.replace("Vereiste Prefix", "Required Prefix");
+      }
+    }
+  }
+  
+  return question;
 }

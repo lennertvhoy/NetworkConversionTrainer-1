@@ -1,3 +1,5 @@
+import { Language } from './languageContext';
+
 interface BinaryQuestion {
   question: string;
   answer: string;
@@ -53,7 +55,7 @@ function generateRandomDecimal(min: number, max: number): number {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-export function generateBinaryQuestion(conversionType: string, difficulty: string): BinaryQuestion {
+export function generateBinaryQuestion(conversionType: string, difficulty: string, language: Language = 'nl'): BinaryQuestion {
   let question = '';
   let answer = '';
   let explanation = '';
@@ -151,6 +153,27 @@ export function generateBinaryQuestion(conversionType: string, difficulty: strin
       question = 'Invalid conversion type';
       answer = '';
       explanation = '';
+  }
+  
+  // Apply language translations to the explanation text if English is selected
+  if (language === 'en') {
+    // Replace common phrases with their English equivalents
+    // Binary to decimal explanation
+    explanation = explanation
+      .replace(/Het binaire getal/g, "The binary number")
+      .replace(/gelijk aan/g, "equals")
+      .replace(/in decimaal/g, "in decimal")
+      .replace(/Groepeer/g, "Group")
+      .replace(/binair/g, "binary")
+      .replace(/decimaal/g, "decimal")
+      .replace(/hexadecimaal/g, "hexadecimal")
+      .replace(/Het hexadecimale getal/g, "The hexadecimal number")
+      .replace(/Zet elk hexadecimaal cijfer om naar 4 binaire cijfers/g, "Convert each hex digit to 4 binary digits")
+      .replace(/Met de delingsmethode/g, "Using the division method")
+      .replace(/rest/g, "remainder")
+      .replace(/De restwaarden van onder naar boven lezen geeft het binaire resultaat/g, "Reading the remainders from bottom to top gives the binary result")
+      .replace(/de binaire cijfers in sets van 4/g, "the binary into sets of 4 bits")
+      .replace(/aanvullen met voorloopnullen indien nodig/g, "padding with leading zeros if needed");
   }
   
   return { question, answer, explanation };
