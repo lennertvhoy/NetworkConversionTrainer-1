@@ -10,8 +10,10 @@ import {
 import { Button } from "@/components/ui/button";
 import { RefreshCw } from "lucide-react";
 import BinaryExerciseCard from "@/components/BinaryExerciseCard";
+import { useLanguage } from "@/lib/languageContext";
 
 export default function BinaryConversion() {
+  const { t } = useLanguage();
   const [conversionType, setConversionType] = useState("bin2dec");
   const [difficulty, setDifficulty] = useState("easy");
 
@@ -19,8 +21,8 @@ export default function BinaryConversion() {
     <div>
       <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h2 className="text-xl font-semibold text-slate-900 dark:text-zinc-100">Binary Conversion Practice</h2>
-          <p className="text-slate-600 dark:text-zinc-400">Master binary, decimal, and hexadecimal conversions</p>
+          <h2 className="text-xl font-semibold text-slate-900 dark:text-zinc-100">{t('binary.title')}</h2>
+          <p className="text-slate-600 dark:text-zinc-400">{t('binary.subtitle')}</p>
         </div>
         
         <div className="flex items-center gap-3">
@@ -29,21 +31,21 @@ export default function BinaryConversion() {
               <SelectValue placeholder="Conversion Type" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="bin2dec">Binary to Decimal</SelectItem>
-              <SelectItem value="bin2hex">Binary to Hexadecimal</SelectItem>
-              <SelectItem value="hex2bin">Hexadecimal to Binary</SelectItem>
-              <SelectItem value="dec2bin">Decimal to Binary</SelectItem>
+              <SelectItem value="bin2dec">{t('binary.type.bin2dec')}</SelectItem>
+              <SelectItem value="bin2hex">{t('binary.type.bin2hex')}</SelectItem>
+              <SelectItem value="hex2bin">{t('binary.type.hex2bin')}</SelectItem>
+              <SelectItem value="dec2bin">{t('binary.type.dec2bin')}</SelectItem>
             </SelectContent>
           </Select>
           
           <Select value={difficulty} onValueChange={setDifficulty}>
             <SelectTrigger className="w-[120px]">
-              <SelectValue placeholder="Difficulty" />
+              <SelectValue placeholder={t('binary.difficulty')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="easy">Easy</SelectItem>
-              <SelectItem value="medium">Medium</SelectItem>
-              <SelectItem value="hard">Hard</SelectItem>
+              <SelectItem value="easy">{t('binary.difficulty.easy')}</SelectItem>
+              <SelectItem value="medium">{t('binary.difficulty.medium')}</SelectItem>
+              <SelectItem value="hard">{t('binary.difficulty.hard')}</SelectItem>
             </SelectContent>
           </Select>
         </div>

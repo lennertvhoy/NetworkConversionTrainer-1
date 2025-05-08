@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { generateBinaryQuestion } from "@/lib/binaryUtils";
+import { useLanguage } from "@/lib/languageContext";
 
 interface BinaryExerciseProps {
   conversionType: string;
@@ -12,6 +13,7 @@ interface BinaryExerciseProps {
 
 export default function BinaryExerciseCard({ conversionType, difficulty }: BinaryExerciseProps) {
   const { toast } = useToast();
+  const { t } = useLanguage();
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState("");
   const [userAnswer, setUserAnswer] = useState("");
@@ -38,8 +40,8 @@ export default function BinaryExerciseCard({ conversionType, difficulty }: Binar
   const checkAnswer = () => {
     if (!userAnswer.trim()) {
       toast({
-        title: "Empty answer",
-        description: "Please enter your answer before checking.",
+        title: t('binary.emptyAnswer'),
+        description: t('binary.pleaseEnterAnswer'),
         variant: "destructive",
       });
       return;
@@ -62,11 +64,11 @@ export default function BinaryExerciseCard({ conversionType, difficulty }: Binar
 
   const getConversionTypeLabel = () => {
     switch(conversionType) {
-      case "bin2dec": return "Binary to Decimal";
-      case "bin2hex": return "Binary to Hexadecimal";
-      case "hex2bin": return "Hexadecimal to Binary";
-      case "dec2bin": return "Decimal to Binary";
-      default: return "Binary Conversion";
+      case "bin2dec": return t('binary.type.bin2dec');
+      case "bin2hex": return t('binary.type.bin2hex');
+      case "hex2bin": return t('binary.type.hex2bin');
+      case "dec2bin": return t('binary.type.dec2bin');
+      default: return t('binary.title');
     }
   };
 
@@ -98,7 +100,7 @@ export default function BinaryExerciseCard({ conversionType, difficulty }: Binar
               className="flex items-center gap-1"
             >
               <RefreshCw className="h-4 w-4" />
-              New Question
+              {t('binary.newQuestion')}
             </Button>
           </div>
         </div>
@@ -109,7 +111,7 @@ export default function BinaryExerciseCard({ conversionType, difficulty }: Binar
         
         <div className="mb-6">
           <label htmlFor="user-answer" className="block text-sm font-medium text-slate-700 mb-2 dark:text-zinc-300">
-            Your Answer
+            {t('binary.yourAnswer')}
           </label>
           <div className="flex">
             <Input 
@@ -121,7 +123,7 @@ export default function BinaryExerciseCard({ conversionType, difficulty }: Binar
                   checkAnswer();
                 }
               }}
-              placeholder="Enter your answer"
+              placeholder={t('binary.yourAnswer')}
               className="shadow-sm focus:ring-primary focus:border-primary block w-full sm:text-sm border-slate-300"
             />
             <Button 
@@ -129,7 +131,7 @@ export default function BinaryExerciseCard({ conversionType, difficulty }: Binar
               disabled={isAnswered}
               className="ml-4"
             >
-              Check
+              {t('binary.check')}
             </Button>
           </div>
         </div>
@@ -142,7 +144,7 @@ export default function BinaryExerciseCard({ conversionType, difficulty }: Binar
                 <CheckCircle className="text-green-400 text-xl dark:text-green-500" />
               </div>
               <div className="ml-3">
-                <h3 className="text-sm font-medium text-green-800 dark:text-green-400">Correct!</h3>
+                <h3 className="text-sm font-medium text-green-800 dark:text-green-400">{t('binary.correct')}</h3>
                 <div className="mt-2 text-sm text-green-700 dark:text-green-300">
                   <div dangerouslySetInnerHTML={{ __html: explanation }} />
                 </div>
@@ -159,9 +161,9 @@ export default function BinaryExerciseCard({ conversionType, difficulty }: Binar
                 <XCircle className="text-red-400 text-xl dark:text-red-500" />
               </div>
               <div className="ml-3">
-                <h3 className="text-sm font-medium text-red-800 dark:text-red-400">Incorrect</h3>
+                <h3 className="text-sm font-medium text-red-800 dark:text-red-400">{t('binary.incorrect')}</h3>
                 <div className="mt-2 text-sm text-red-700 dark:text-red-300">
-                  <p>The correct answer is <span className="font-mono font-bold">{answer}</span>.</p>
+                  <p>{t('binary.correctAnswerIs')} <span className="font-mono font-bold">{answer}</span>.</p>
                   <div dangerouslySetInnerHTML={{ __html: explanation }} />
                 </div>
               </div>
@@ -179,14 +181,14 @@ export default function BinaryExerciseCard({ conversionType, difficulty }: Binar
               onClick={handleSkip}
               disabled={isAnswered}
             >
-              Skip
+              {t('binary.skip')}
             </Button>
             <Button 
               onClick={handleNextQuestion}
               disabled={!isAnswered}
               className={!isAnswered ? "opacity-50 cursor-not-allowed bg-primary hover:bg-blue-600" : "bg-primary hover:bg-blue-600"}
             >
-              Next Question
+              {t('binary.nextQuestion')}
             </Button>
           </div>
         </div>
