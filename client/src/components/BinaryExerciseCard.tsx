@@ -21,14 +21,17 @@ export default function BinaryExerciseCard({ conversionType, difficulty }: Binar
   const [explanation, setExplanation] = useState("");
   const [isAnswered, setIsAnswered] = useState(false);
 
-  // Load a new question on mount or when conversion type/difficulty changes
+  // Get the language from context at component level
+  const { language } = useLanguage();
+  
+  // Load a new question on mount or when conversion type/difficulty/language changes
   useEffect(() => {
     generateNewQuestion();
-  }, [conversionType, difficulty]);
+  }, [conversionType, difficulty, language]);
 
   const generateNewQuestion = () => {
-    // Generate question client-side
-    const { question, answer, explanation } = generateBinaryQuestion(conversionType, difficulty);
+    // Generate question client-side with language preference
+    const { question, answer, explanation } = generateBinaryQuestion(conversionType, difficulty, language);
     setQuestion(question);
     setAnswer(answer);
     setExplanation(explanation);
