@@ -2,46 +2,47 @@ import { Link } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
+import { useLanguage } from "@/lib/languageContext";
 
 export default function Home() {
+  const { t } = useLanguage();
   return (
     <div>
       <div className="text-center mb-8">
         <h1 className="text-3xl font-bold text-slate-900 dark:text-zinc-100 mb-2">
-          Welcome to BinaryNetTrainer
+          {t('home.title')}
         </h1>
         <p className="text-slate-600 dark:text-zinc-400 max-w-2xl mx-auto">
-          Practice binary conversions and subnetting with interactive exercises to help you master networking concepts.
+          {t('home.subtitle')}
         </p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         <Card className="shadow hover:shadow-md transition-shadow duration-300">
           <CardHeader>
-            <CardTitle>Binary Conversion Practice</CardTitle>
+            <CardTitle>{t('home.binarySection.title')}</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-slate-600 dark:text-zinc-400 mb-6">
-              Practice converting between binary, decimal, and hexadecimal number systems. 
-              Perfect for building foundational skills for networking and computer science.
+              {t('home.binarySection.description')}
             </p>
             <div className="flex flex-wrap gap-2 mb-6">
               <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-800 dark:bg-zinc-700 dark:text-zinc-300">
-                Binary to Decimal
+                {t('binary.type.bin2dec')}
               </span>
               <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-800 dark:bg-zinc-700 dark:text-zinc-300">
-                Binary to Hex
+                {t('binary.type.bin2hex')}
               </span>
               <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-800 dark:bg-zinc-700 dark:text-zinc-300">
-                Hex to Binary
+                {t('binary.type.hex2bin')}
               </span>
               <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-800 dark:bg-zinc-700 dark:text-zinc-300">
-                Decimal to Binary
+                {t('binary.type.dec2bin')}
               </span>
             </div>
             <Link href="/binary">
               <Button className="w-full bg-primary hover:bg-blue-600">
-                Start Binary Practice
+                {t('home.binarySection.button')}
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </Link>
@@ -50,30 +51,29 @@ export default function Home() {
 
         <Card className="shadow hover:shadow-md transition-shadow duration-300">
           <CardHeader>
-            <CardTitle>Subnetting Practice</CardTitle>
+            <CardTitle>{t('home.subnettingSection.title')}</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-slate-600 dark:text-zinc-400 mb-6">
-              Practice IP addressing, subnet mask calculations, VLSM, and network calculations.
-              Great for CCNA exam preparation and networking skills.
+              {t('home.subnettingSection.description')}
             </p>
             <div className="flex flex-wrap gap-2 mb-6">
               <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-800 dark:bg-zinc-700 dark:text-zinc-300">
-                Basic Subnetting
+                {t('subnetting.type.basic')}
               </span>
               <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-800 dark:bg-zinc-700 dark:text-zinc-300">
-                VLSM
+                {t('subnetting.type.vlsm')}
               </span>
               <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-800 dark:bg-zinc-700 dark:text-zinc-300">
-                Wildcard Masks
+                {t('subnetting.type.wildcard')}
               </span>
               <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-800 dark:bg-zinc-700 dark:text-zinc-300">
-                Network Calculations
+                {t('subnetting.type.network')}
               </span>
             </div>
             <Link href="/subnetting">
               <Button className="w-full bg-primary hover:bg-blue-600">
-                Start Subnetting Practice
+                {t('home.subnettingSection.button')}
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </Link>
@@ -83,26 +83,24 @@ export default function Home() {
 
       <Card>
         <CardHeader>
-          <CardTitle>About This Application</CardTitle>
+          <CardTitle>{t('home.about.title')}</CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-slate-600 dark:text-zinc-400 mb-4">
-            This application helps you practice binary conversions and subnetting concepts that are essential for 
-            networking professionals and students preparing for certifications like CCNA.
+            {t('home.about.description')}
           </p>
           <p className="text-slate-600 dark:text-zinc-400 mb-4">
-            The practice exercises include:
+            {t('home.about.practiceExercises')}
           </p>
           <ul className="list-disc pl-6 space-y-1 text-slate-600 dark:text-zinc-400 mb-4">
-            <li>Binary to decimal, hexadecimal, and reverse conversions</li>
-            <li>Basic subnetting (network address, broadcast address, host range)</li>
-            <li>VLSM (Variable Length Subnet Masking) for efficient network design</li>
-            <li>Wildcard mask calculations for access control lists</li>
-            <li>Network calculations with realistic scenarios</li>
+            <li>{t('home.about.exercise1')}</li>
+            <li>{t('home.about.exercise2')}</li>
+            <li>{t('home.about.exercise3')}</li>
+            <li>{t('home.about.exercise4')}</li>
+            <li>{t('home.about.exercise5')}</li>
           </ul>
           <p className="text-slate-600 dark:text-zinc-400">
-            Choose your practice area and difficulty level to get started. Each exercise provides 
-            detailed explanations to help you understand the concepts better.
+            {t('home.about.chooseArea')}
           </p>
         </CardContent>
       </Card>
