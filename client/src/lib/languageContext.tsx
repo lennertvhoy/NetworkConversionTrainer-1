@@ -426,6 +426,52 @@ const translations: Record<string, Record<string, string>> = {
     nl: 'Voorbeeld VLSM Berekening',
   },
   
+  // Subnetting field labels
+  'subnetting.fields.networkAddress': {
+    en: 'Network Address',
+    nl: 'Netwerkadres',
+  },
+  'subnetting.fields.broadcastAddress': {
+    en: 'Broadcast Address',
+    nl: 'Broadcastadres',
+  },
+  'subnetting.fields.firstHost': {
+    en: 'First Host',
+    nl: 'Eerste Host',
+  },
+  'subnetting.fields.lastHost': {
+    en: 'Last Host',
+    nl: 'Laatste Host',
+  },
+  'subnetting.fields.subnetMask': {
+    en: 'Subnet Mask',
+    nl: 'Subnet Masker',
+  },
+  'subnetting.fields.numberOfHosts': {
+    en: 'Number of Hosts',
+    nl: 'Aantal Hosts',
+  },
+  'subnetting.fields.wildcardMask': {
+    en: 'Wildcard Mask',
+    nl: 'Wildcard Masker',
+  },
+  'subnetting.fields.summaryNetwork': {
+    en: 'Summary Network',
+    nl: 'Samenvattingsnetwerk',
+  },
+  'subnetting.fields.summaryMask': {
+    en: 'Summary Mask',
+    nl: 'Samenvattingsmasker',
+  },
+  'subnetting.fields.requiredPrefix': {
+    en: 'Required Prefix',
+    nl: 'Vereiste Prefix',
+  },
+  'subnetting.fields.prefixLength': {
+    en: 'Prefix Length',
+    nl: 'Prefix Lengte',
+  },
+  
   // Not found page
   'notFound.title': {
     en: 'Page Not Found',

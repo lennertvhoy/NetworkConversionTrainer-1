@@ -194,7 +194,18 @@ export default function SubnettingExerciseCard({ subnetType, difficulty }: Subne
           {answerFields.map(field => (
             <div key={field.id}>
               <label htmlFor={field.id} className="block text-sm font-medium text-slate-700 mb-2 dark:text-zinc-300">
-                {field.label}
+                {field.label === "Network Address" ? t('subnetting.fields.networkAddress') :
+                 field.label === "Broadcast Address" ? t('subnetting.fields.broadcastAddress') :
+                 field.label === "First Host" ? t('subnetting.fields.firstHost') :
+                 field.label === "Last Host" ? t('subnetting.fields.lastHost') :
+                 field.label === "Subnet Mask" ? t('subnetting.fields.subnetMask') :
+                 field.label === "Number of Hosts" ? t('subnetting.fields.numberOfHosts') :
+                 field.label === "Wildcard Mask" ? t('subnetting.fields.wildcardMask') : 
+                 field.label === "Summary Network" ? t('subnetting.fields.summaryNetwork') :
+                 field.label === "Summary Mask" ? t('subnetting.fields.summaryMask') :
+                 field.label === "Required Prefix" ? t('subnetting.fields.requiredPrefix') :
+                 field.label === "Prefix Length" ? t('subnetting.fields.prefixLength') :
+                 field.label}
               </label>
               <Input
                 id={field.id}
@@ -248,7 +259,20 @@ export default function SubnettingExerciseCard({ subnetType, difficulty }: Subne
                   <ul className="list-disc pl-5 mt-2">
                     {answerFields.map(field => (
                       <li key={field.id}>
-                        <strong>{field.label}:</strong> <span className="font-mono font-bold">{field.answer}</span>
+                        <strong>
+                          {field.label === "Network Address" ? t('subnetting.fields.networkAddress') :
+                           field.label === "Broadcast Address" ? t('subnetting.fields.broadcastAddress') :
+                           field.label === "First Host" ? t('subnetting.fields.firstHost') :
+                           field.label === "Last Host" ? t('subnetting.fields.lastHost') :
+                           field.label === "Subnet Mask" ? t('subnetting.fields.subnetMask') :
+                           field.label === "Number of Hosts" ? t('subnetting.fields.numberOfHosts') :
+                           field.label === "Wildcard Mask" ? t('subnetting.fields.wildcardMask') : 
+                           field.label === "Summary Network" ? t('subnetting.fields.summaryNetwork') :
+                           field.label === "Summary Mask" ? t('subnetting.fields.summaryMask') :
+                           field.label === "Required Prefix" ? t('subnetting.fields.requiredPrefix') :
+                           field.label === "Prefix Length" ? t('subnetting.fields.prefixLength') :
+                           field.label}
+                        :</strong> <span className="font-mono font-bold">{field.answer}</span>
                       </li>
                     ))}
                   </ul>
