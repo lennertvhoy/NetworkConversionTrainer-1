@@ -645,13 +645,23 @@ function buildNetworkCalculationProblem(difficulty: string, language: Language =
         { id: 'required-prefix', label: 'Required Prefix Length', answer: `/${requiredPrefix}` }
       ];
       
-      explanation = `<p>To find the required prefix length for ${requiredNumber} hosts:</p>
-      <ol class="list-decimal ml-5 mt-2 space-y-1">
-        <li>Calculate how many host bits you need using the formula: 2<sup>host bits</sup> - 2 ≥ ${requiredNumber}</li>
-        <li>We need at least ${hostBits} host bits because 2<sup>${hostBits}</sup> - 2 = ${Math.pow(2, hostBits) - 2} ≥ ${requiredNumber}</li>
-        <li>The prefix length is 32 - (host bits) = 32 - ${hostBits} = /${requiredPrefix}</li>
-      </ol>
-      <p class="mt-2">A /${requiredPrefix} subnet has ${Math.pow(2, hostBits) - 2} usable host addresses.</p>`;
+      const hostExplanation = language === 'en'
+        ? `<p>To find the required prefix length for ${requiredNumber} hosts:</p>
+        <ol class="list-decimal ml-5 mt-2 space-y-1">
+          <li>Calculate how many host bits you need using the formula: 2<sup>host bits</sup> - 2 ≥ ${requiredNumber}</li>
+          <li>We need at least ${hostBits} host bits because 2<sup>${hostBits}</sup> - 2 = ${Math.pow(2, hostBits) - 2} ≥ ${requiredNumber}</li>
+          <li>The prefix length is 32 - (host bits) = 32 - ${hostBits} = /${requiredPrefix}</li>
+        </ol>
+        <p class="mt-2">A /${requiredPrefix} subnet has ${Math.pow(2, hostBits) - 2} usable host addresses.</p>`
+        : `<p>Om de vereiste prefix lengte te vinden voor ${requiredNumber} hosts:</p>
+        <ol class="list-decimal ml-5 mt-2 space-y-1">
+          <li>Bereken hoeveel host-bits je nodig hebt met de formule: 2<sup>host bits</sup> - 2 ≥ ${requiredNumber}</li>
+          <li>We hebben minstens ${hostBits} host-bits nodig omdat 2<sup>${hostBits}</sup> - 2 = ${Math.pow(2, hostBits) - 2} ≥ ${requiredNumber}</li>
+          <li>De prefix lengte is 32 - (host bits) = 32 - ${hostBits} = /${requiredPrefix}</li>
+        </ol>
+        <p class="mt-2">Een /${requiredPrefix} subnet heeft ${Math.pow(2, hostBits) - 2} bruikbare host-adressen.</p>`;
+      
+      explanation = hostExplanation;
       
     } else {
       // Ask for required prefix to support a number of subnets
@@ -682,14 +692,25 @@ function buildNetworkCalculationProblem(difficulty: string, language: Language =
         { id: 'subnet-mask', label: 'Subnet Mask', answer: newMask }
       ];
       
-      explanation = `<p>To find the subnet mask for ${requiredNumber} equal-sized subnets from a /${baseNetwork.prefix} network:</p>
-      <ol class="list-decimal ml-5 mt-2 space-y-1">
-        <li>Calculate how many subnet bits you need using the formula: 2<sup>subnet bits</sup> ≥ ${requiredNumber}</li>
-        <li>We need at least ${subnetBits} subnet bits because 2<sup>${subnetBits}</sup> = ${Math.pow(2, subnetBits)} ≥ ${requiredNumber}</li>
-        <li>The new prefix length is ${baseNetwork.prefix} + ${subnetBits} = /${newPrefix}</li>
-        <li>The subnet mask for a /${newPrefix} prefix is ${newMask}</li>
-      </ol>
-      <p class="mt-2">This creates ${Math.pow(2, subnetBits)} subnets, each with ${Math.pow(2, 32 - newPrefix) - 2} usable hosts.</p>`;
+      const subnetExplanation = language === 'en'
+        ? `<p>To find the subnet mask for ${requiredNumber} equal-sized subnets from a /${baseNetwork.prefix} network:</p>
+        <ol class="list-decimal ml-5 mt-2 space-y-1">
+          <li>Calculate how many subnet bits you need using the formula: 2<sup>subnet bits</sup> ≥ ${requiredNumber}</li>
+          <li>We need at least ${subnetBits} subnet bits because 2<sup>${subnetBits}</sup> = ${Math.pow(2, subnetBits)} ≥ ${requiredNumber}</li>
+          <li>The new prefix length is ${baseNetwork.prefix} + ${subnetBits} = /${newPrefix}</li>
+          <li>The subnet mask for a /${newPrefix} prefix is ${newMask}</li>
+        </ol>
+        <p class="mt-2">This creates ${Math.pow(2, subnetBits)} subnets, each with ${Math.pow(2, 32 - newPrefix) - 2} usable hosts.</p>`
+        : `<p>Om het subnet masker te vinden voor ${requiredNumber} subnetten van gelijke grootte vanuit een /${baseNetwork.prefix} netwerk:</p>
+        <ol class="list-decimal ml-5 mt-2 space-y-1">
+          <li>Bereken hoeveel subnet-bits je nodig hebt met de formule: 2<sup>subnet bits</sup> ≥ ${requiredNumber}</li>
+          <li>We hebben minstens ${subnetBits} subnet-bits nodig omdat 2<sup>${subnetBits}</sup> = ${Math.pow(2, subnetBits)} ≥ ${requiredNumber}</li>
+          <li>De nieuwe prefix lengte is ${baseNetwork.prefix} + ${subnetBits} = /${newPrefix}</li>
+          <li>Het subnet masker voor een /${newPrefix} prefix is ${newMask}</li>
+        </ol>
+        <p class="mt-2">Dit creëert ${Math.pow(2, subnetBits)} subnetten, elk met ${Math.pow(2, 32 - newPrefix) - 2} bruikbare hosts.</p>`;
+        
+      explanation = subnetExplanation;
     }
   } else if (problemType === 'subnetting') {
     // Create a problem to divide a network into subnets
@@ -746,21 +767,41 @@ function buildNetworkCalculationProblem(difficulty: string, language: Language =
     
     // For equally sized subnets
     if (difficulty === 'medium') {
-      explanation = `<p>When dividing a network into ${subnets.length} equal-sized subnets:</p>
-      <ol class="list-decimal ml-5 mt-2 space-y-1">
-        <li>Add ${Math.log2(subnets.length)} bits to the original prefix: ${baseNetwork.prefix} + ${Math.log2(subnets.length)} = /${requiredPrefix}</li>
-        <li>The subnet mask for a /${requiredPrefix} prefix is ${requiredMask}</li>
-      </ol>
-      <p class="mt-2">Each subnet will have ${Math.pow(2, 32 - requiredPrefix) - 2} usable hosts.</p>`;
+      const mediumExplanation = language === 'en'
+        ? `<p>When dividing a network into ${subnets.length} equal-sized subnets:</p>
+        <ol class="list-decimal ml-5 mt-2 space-y-1">
+          <li>Add ${Math.log2(subnets.length)} bits to the original prefix: ${baseNetwork.prefix} + ${Math.log2(subnets.length)} = /${requiredPrefix}</li>
+          <li>The subnet mask for a /${requiredPrefix} prefix is ${requiredMask}</li>
+        </ol>
+        <p class="mt-2">Each subnet will have ${Math.pow(2, 32 - requiredPrefix) - 2} usable hosts.</p>`
+        : `<p>Bij het verdelen van een netwerk in ${subnets.length} subnetten van gelijke grootte:</p>
+        <ol class="list-decimal ml-5 mt-2 space-y-1">
+          <li>Voeg ${Math.log2(subnets.length)} bits toe aan de originele prefix: ${baseNetwork.prefix} + ${Math.log2(subnets.length)} = /${requiredPrefix}</li>
+          <li>Het subnet masker voor een /${requiredPrefix} prefix is ${requiredMask}</li>
+        </ol>
+        <p class="mt-2">Elk subnet zal ${Math.pow(2, 32 - requiredPrefix) - 2} bruikbare hosts hebben.</p>`;
+        
+      explanation = mediumExplanation;
     } else { // For variably sized subnets (VLSM)
-      explanation = `<p>For Subnet ${targetSubnetIndex+1} which needs ${subnets[targetSubnetIndex]} hosts:</p>
-      <ol class="list-decimal ml-5 mt-2 space-y-1">
-        <li>Calculate required host bits: 2<sup>host bits</sup> - 2 ≥ ${subnets[targetSubnetIndex]}</li>
-        <li>We need ${hostBits} host bits (2<sup>${hostBits}</sup> - 2 = ${Math.pow(2, hostBits) - 2} hosts)</li>
-        <li>The prefix length is 32 - ${hostBits} = /${requiredPrefix}</li>
-        <li>The subnet mask is ${requiredMask}</li>
-      </ol>
-      <p class="mt-2">This allows for ${Math.pow(2, hostBits) - 2} usable hosts in Subnet ${targetSubnetIndex+1}.</p>`;
+      const vlsmExplanation = language === 'en'
+        ? `<p>For Subnet ${targetSubnetIndex+1} which needs ${subnets[targetSubnetIndex]} hosts:</p>
+        <ol class="list-decimal ml-5 mt-2 space-y-1">
+          <li>Calculate required host bits: 2<sup>host bits</sup> - 2 ≥ ${subnets[targetSubnetIndex]}</li>
+          <li>We need ${hostBits} host bits (2<sup>${hostBits}</sup> - 2 = ${Math.pow(2, hostBits) - 2} hosts)</li>
+          <li>The prefix length is 32 - ${hostBits} = /${requiredPrefix}</li>
+          <li>The subnet mask is ${requiredMask}</li>
+        </ol>
+        <p class="mt-2">This allows for ${Math.pow(2, hostBits) - 2} usable hosts in Subnet ${targetSubnetIndex+1}.</p>`
+        : `<p>Voor Subnet ${targetSubnetIndex+1} dat ${subnets[targetSubnetIndex]} hosts nodig heeft:</p>
+        <ol class="list-decimal ml-5 mt-2 space-y-1">
+          <li>Bereken benodigde host-bits: 2<sup>host bits</sup> - 2 ≥ ${subnets[targetSubnetIndex]}</li>
+          <li>We hebben ${hostBits} host-bits nodig (2<sup>${hostBits}</sup> - 2 = ${Math.pow(2, hostBits) - 2} hosts)</li>
+          <li>De prefix lengte is 32 - ${hostBits} = /${requiredPrefix}</li>
+          <li>Het subnet masker is ${requiredMask}</li>
+        </ol>
+        <p class="mt-2">Dit biedt ruimte voor ${Math.pow(2, hostBits) - 2} bruikbare hosts in Subnet ${targetSubnetIndex+1}.</p>`;
+        
+      explanation = vlsmExplanation;
     }
   } else if (problemType === 'supernetting') {
     // Supernetting/route summarization problem (hard only)
@@ -811,16 +852,29 @@ function buildNetworkCalculationProblem(difficulty: string, language: Language =
       { id: 'summary-mask', label: 'Summary Mask', answer: summaryMask }
     ];
     
-    explanation = `<p>To find the most efficient summary route for ${networkCount} consecutive /24 networks:</p>
-    <ol class="list-decimal ml-5 mt-2 space-y-1">
-      <li>Identify the first network: ${networks[0]}</li>
-      <li>Determine how many networks we're summarizing: ${networkCount}</li>
-      <li>Calculate how many bits are needed to represent ${networkCount} networks: log₂(${networkCount}) = ${Math.log2(networkCount)} bits</li>
-      <li>Subtract from the original prefix: 24 - ${Math.log2(networkCount)} = ${summaryPrefix}</li>
-      <li>The summary network is: ${summaryNetwork}/${summaryPrefix}</li>
-      <li>The subnet mask for /${summaryPrefix} is ${summaryMask}</li>
-    </ol>
-    <p class="mt-2">This summary route encompasses all ${networkCount} networks efficiently.</p>`;
+    const summaryExplanation = language === 'en'
+      ? `<p>To find the most efficient summary route for ${networkCount} consecutive /24 networks:</p>
+      <ol class="list-decimal ml-5 mt-2 space-y-1">
+        <li>Identify the first network: ${networks[0]}</li>
+        <li>Determine how many networks we're summarizing: ${networkCount}</li>
+        <li>Calculate how many bits are needed to represent ${networkCount} networks: log₂(${networkCount}) = ${Math.log2(networkCount)} bits</li>
+        <li>Subtract from the original prefix: 24 - ${Math.log2(networkCount)} = ${summaryPrefix}</li>
+        <li>The summary network is: ${summaryNetwork}/${summaryPrefix}</li>
+        <li>The subnet mask for /${summaryPrefix} is ${summaryMask}</li>
+      </ol>
+      <p class="mt-2">This summary route encompasses all ${networkCount} networks efficiently.</p>`
+      : `<p>Om de meest efficiënte samenvattingsroute te vinden voor ${networkCount} opeenvolgende /24 netwerken:</p>
+      <ol class="list-decimal ml-5 mt-2 space-y-1">
+        <li>Identificeer het eerste netwerk: ${networks[0]}</li>
+        <li>Bepaal hoeveel netwerken we samenvatten: ${networkCount}</li>
+        <li>Bereken hoeveel bits er nodig zijn om ${networkCount} netwerken weer te geven: log₂(${networkCount}) = ${Math.log2(networkCount)} bits</li>
+        <li>Trek af van de originele prefix: 24 - ${Math.log2(networkCount)} = ${summaryPrefix}</li>
+        <li>Het samenvattingsnetwerk is: ${summaryNetwork}/${summaryPrefix}</li>
+        <li>Het subnet masker voor /${summaryPrefix} is ${summaryMask}</li>
+      </ol>
+      <p class="mt-2">Deze samenvattingsroute omvat alle ${networkCount} netwerken op efficiënte wijze.</p>`;
+      
+    explanation = summaryExplanation;
   }
   
   return {
