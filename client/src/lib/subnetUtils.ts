@@ -185,7 +185,7 @@ function calculateSubnetIncrement(mask: string): number {
 }
 
 // Build a VLSM problem
-function buildVlsmProblem(difficulty: string): SubnettingQuestion {
+function buildVlsmProblem(difficulty: string, language: Language = 'nl'): SubnettingQuestion {
   // Start with a base network
   const { ip: baseNetwork, prefix: basePrefix } = generateRandomNetworkClass(difficulty);
   const baseMask = prefixToSubnetMask(basePrefix);
@@ -333,7 +333,7 @@ function buildVlsmProblem(difficulty: string): SubnettingQuestion {
 }
 
 // Build a basic subnetting problem
-function buildBasicSubnettingProblem(difficulty: string): SubnettingQuestion {
+function buildBasicSubnettingProblem(difficulty: string, language: Language = 'nl'): SubnettingQuestion {
   // Start with a base IP
   const ip = generateRandomIP();
   
@@ -484,7 +484,7 @@ function buildBasicSubnettingProblem(difficulty: string): SubnettingQuestion {
 }
 
 // Build a wildcard mask problem
-function buildWildcardMaskProblem(difficulty: string): SubnettingQuestion {
+function buildWildcardMaskProblem(difficulty: string, language: Language = 'nl'): SubnettingQuestion {
   const ip = generateRandomIP();
   
   // Choose a prefix based on difficulty
@@ -502,37 +502,71 @@ function buildWildcardMaskProblem(difficulty: string): SubnettingQuestion {
   // Calculate wildcard mask (inverse of subnet mask)
   const wildcardMask = mask.split('.').map(octet => 255 - parseInt(octet)).join('.');
   
+  // Prepare text based on language
+  const introText = language === 'en' 
+    ? `Access control lists (ACLs) and routing protocols often use wildcard masks, which are the inverse of subnet masks.`
+    : `Accesscontrolelijsten (ACLs) en routeringsprotocollen maken vaak gebruik van wildcard maskers, welke het omgekeerde zijn van subnet maskers.`;
+    
+  const maskText = language === 'en'
+    ? `Given the subnet mask <span class="font-mono font-medium">${mask}</span> (/${prefix}):`
+    : `Gegeven het subnet masker <span class="font-mono font-medium">${mask}</span> (/${prefix}):`;
+  
   // Generate question
-  let questionText = `<p class="text-slate-800 mb-3 dark:text-zinc-200">Access control lists (ACLs) and routing protocols often use wildcard masks, which are the inverse of subnet masks.</p>
-  <p class="text-slate-800 mb-3 dark:text-zinc-200">Given the subnet mask <span class="font-mono font-medium">${mask}</span> (/${prefix}):</p>`;
+  let questionText = `<p class="text-slate-800 mb-3 dark:text-zinc-200">${introText}</p>
+  <p class="text-slate-800 mb-3 dark:text-zinc-200">${maskText}</p>`;
   
   let answerFields: { id: string; label: string; answer: string }[] = [];
   
   if (difficulty === 'easy') {
-    questionText += `<p class="text-slate-800 font-medium dark:text-zinc-200">What is the wildcard mask?</p>`;
+    const whatIsText = language === 'en' ? 'What is the wildcard mask?' : 'Wat is het wildcard masker?';
+    questionText += `<p class="text-slate-800 font-medium dark:text-zinc-200">${whatIsText}</p>`;
+    
+    const labelText = language === 'en' ? 'Wildcard Mask' : 'Wildcard Masker';
     answerFields = [
-      { id: 'wildcard-mask', label: 'Wildcard Mask', answer: wildcardMask }
+      { id: 'wildcard-mask', label: labelText, answer: wildcardMask }
     ];
   } else {
     // For medium and hard, ask about ACL application
     const networkAddress = calculateNetworkAddress(ip, mask);
     
-    questionText += `<p class="text-slate-800 mb-3 dark:text-zinc-200">For a router ACL that should match exactly the network <span class="font-mono font-medium">${networkAddress}/${prefix}</span>:</p>
-    <p class="text-slate-800 font-medium dark:text-zinc-200">What IP and wildcard mask should be used in the ACL?</p>`;
+    const aclText = language === 'en'
+      ? `For a router ACL that should match exactly the network <span class="font-mono font-medium">${networkAddress}/${prefix}</span>:`
+      : `Voor een router ACL die exact moet overeenkomen met het netwerk <span class="font-mono font-medium">${networkAddress}/${prefix}</span>:`;
+      
+    const whatIpText = language === 'en'
+      ? 'What IP and wildcard mask should be used in the ACL?'
+      : 'Welk IP en wildcard masker moet worden gebruikt in de ACL?';
+    
+    questionText += `<p class="text-slate-800 mb-3 dark:text-zinc-200">${aclText}</p>
+    <p class="text-slate-800 font-medium dark:text-zinc-200">${whatIpText}</p>`;
+    
+    const ipLabel = language === 'en' ? 'IP Address' : 'IP-Adres';
+    const maskLabel = language === 'en' ? 'Wildcard Mask' : 'Wildcard Masker';
     
     answerFields = [
-      { id: 'acl-ip', label: 'IP Address', answer: networkAddress },
-      { id: 'wildcard-mask', label: 'Wildcard Mask', answer: wildcardMask }
+      { id: 'acl-ip', label: ipLabel, answer: networkAddress },
+      { id: 'wildcard-mask', label: maskLabel, answer: wildcardMask }
     ];
   }
   
-  // Create explanation
-  let explanation = `<p>A wildcard mask is the inverse of a subnet mask. To calculate it, subtract each octet of the subnet mask from 255:</p>
-  <p class="mt-2 font-mono">Subnet mask: ${mask}<br>Wildcard mask: ${wildcardMask}</p>
-  <p class="mt-2">In a wildcard mask:</p>
+  // Create explanation with text based on language
+  const explanationIntro = language === 'en'
+    ? 'A wildcard mask is the inverse of a subnet mask. To calculate it, subtract each octet of the subnet mask from 255:'
+    : 'Een wildcard masker is het omgekeerde van een subnet masker. Om het te berekenen, trek je elk octet van het subnet masker af van 255:';
+    
+  const subnetText = language === 'en' ? 'Subnet mask' : 'Subnet masker';
+  const wildcardText = language === 'en' ? 'Wildcard mask' : 'Wildcard masker';
+  
+  const inWildcardText = language === 'en' ? 'In a wildcard mask:' : 'In een wildcard masker:';
+  const matchExactly = language === 'en' ? '0 bits mean "match exactly"' : '0 bits betekenen "exacte overeenkomst"';
+  const ignoreValue = language === 'en' ? '1 bits mean "ignore" (can be any value)' : '1 bits betekenen "negeren" (kan elke waarde zijn)';
+  
+  let explanation = `<p>${explanationIntro}</p>
+  <p class="mt-2 font-mono">${subnetText}: ${mask}<br>${wildcardText}: ${wildcardMask}</p>
+  <p class="mt-2">${inWildcardText}</p>
   <ul class="list-disc ml-5 mt-1 space-y-1">
-    <li>0 bits mean "match exactly"</li>
-    <li>1 bits mean "ignore" (can be any value)</li>
+    <li>${matchExactly}</li>
+    <li>${ignoreValue}</li>
   </ul>`;
   
   if (difficulty !== 'easy') {
@@ -541,10 +575,18 @@ function buildWildcardMaskProblem(difficulty: string): SubnettingQuestion {
       const maskPart = parseInt(mask.split('.')[i]);
       return parseInt(part) & maskPart;
     }).join('.');
+    
+    const forAclsText = language === 'en' 
+      ? 'For ACLs, you typically use the network address with the wildcard mask:'
+      : 'Voor ACLs gebruik je meestal het netwerkadres met het wildcard masker:';
       
-    explanation += `<p class="mt-2">For ACLs, you typically use the network address with the wildcard mask:</p>
+    const matchText = language === 'en'
+      ? `This would match all addresses in the ${networkAddr}/${prefix} network.`
+      : `Dit zou overeenkomen met alle adressen in het ${networkAddr}/${prefix} netwerk.`;
+      
+    explanation += `<p class="mt-2">${forAclsText}</p>
     <p class="mt-2 font-mono">permit ip ${answerFields[0].answer} ${answerFields[1].answer} any</p>
-    <p>This would match all addresses in the ${networkAddr}/${prefix} network.</p>`;
+    <p>${matchText}</p>`;
   }
   
   return {
@@ -555,7 +597,7 @@ function buildWildcardMaskProblem(difficulty: string): SubnettingQuestion {
 }
 
 // Build a network calculation problem
-function buildNetworkCalculationProblem(difficulty: string): SubnettingQuestion {
+function buildNetworkCalculationProblem(difficulty: string, language: Language = 'nl'): SubnettingQuestion {
   // Choose the type of calculation problem
   const problemType = difficulty === 'easy' 
     ? 'required-prefix'
@@ -757,24 +799,28 @@ function buildNetworkCalculationProblem(difficulty: string): SubnettingQuestion 
 }
 
 export function generateSubnettingQuestion(subnetType: string, difficulty: string, language: Language = 'nl'): SubnettingQuestion {
-  // We need to adjust all the hardcoded text in the questions based on language
+  // Pass language parameter to each function that builds questions
   let question: SubnettingQuestion;
   
   switch (subnetType) {
     case 'basic':
-      question = buildBasicSubnettingProblem(difficulty);
+      // Update buildBasicSubnettingProblem to accept language parameter
+      question = buildBasicSubnettingProblem(difficulty, language);
       break;
     case 'vlsm':
-      question = buildVlsmProblem(difficulty);
+      // Update buildVlsmProblem to accept language parameter
+      question = buildVlsmProblem(difficulty, language);
       break;
     case 'wildcard':
-      question = buildWildcardMaskProblem(difficulty);
+      // We already updated this function to accept language parameter
+      question = buildWildcardMaskProblem(difficulty, language);
       break;
     case 'network':
-      question = buildNetworkCalculationProblem(difficulty);
+      // Update buildNetworkCalculationProblem to accept language parameter
+      question = buildNetworkCalculationProblem(difficulty, language);
       break;
     default:
-      question = buildBasicSubnettingProblem(difficulty);
+      question = buildBasicSubnettingProblem(difficulty, language);
       break;
   }
   
