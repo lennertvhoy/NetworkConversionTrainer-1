@@ -21,14 +21,23 @@ export default function SubnettingExerciseCard({ subnetType, difficulty }: Subne
   const [isCorrect, setIsCorrect] = useState(false);
   const [explanation, setExplanation] = useState("");
 
-  // Load a new question on mount or when subnet type/difficulty changes
+  // Get the language from context at component level
+  const { language } = useLanguage();
+  
+  // Load a new question on mount or when subnet type/difficulty/language changes
   useEffect(() => {
-    generateNewQuestion();
-  }, [subnetType, difficulty]);
-
+    // Generate question client-side with language preference
+    const { questionText, answerFields, explanation } = generateSubnettingQuestion(subnetType, difficulty, language);
+    setQuestionText(questionText);
+    setAnswerFields(answerFields);
+    setExplanation(explanation);
+    setUserAnswers({});
+    setIsCorrect(false);
+    setIsAnswered(false);
+  }, [subnetType, difficulty, language]);
+  
   const generateNewQuestion = () => {
     // Generate question client-side with language preference
-    const { language } = useLanguage();
     const { questionText, answerFields, explanation } = generateSubnettingQuestion(subnetType, difficulty, language);
     setQuestionText(questionText);
     setAnswerFields(answerFields);
