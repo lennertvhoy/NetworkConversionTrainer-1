@@ -622,8 +622,16 @@ function buildNetworkCalculationProblem(difficulty: string, language: Language =
     }
     
     if (isHostQuestion) {
-      questionText = `<p class="text-slate-800 mb-3 dark:text-zinc-200">You need to design a subnet that can support <span class="font-medium">${requiredNumber}</span> hosts.</p>
-      <p class="text-slate-800 font-medium dark:text-zinc-200">What is the minimum subnet prefix length (CIDR notation) required?</p>`;
+      const designText = language === 'en' 
+      ? `You need to design a subnet that can support <span class="font-medium">${requiredNumber}</span> hosts.`
+      : `Je moet een subnet ontwerpen dat ondersteuning biedt voor <span class="font-medium">${requiredNumber}</span> hosts.`;
+      
+    const prefixQuestion = language === 'en'
+      ? `What is the minimum subnet prefix length (CIDR notation) required?`
+      : `Wat is de minimale subnet prefix lengte (CIDR notatie) benodigd?`;
+      
+    questionText = `<p class="text-slate-800 mb-3 dark:text-zinc-200">${designText}</p>
+      <p class="text-slate-800 font-medium dark:text-zinc-200">${prefixQuestion}</p>`;
       
       // Calculate required host bits
       let hostBits = 0;
@@ -650,8 +658,16 @@ function buildNetworkCalculationProblem(difficulty: string, language: Language =
       const baseNetwork = generateRandomNetworkClass(difficulty);
       const baseMask = prefixToSubnetMask(baseNetwork.prefix);
       
-      questionText = `<p class="text-slate-800 mb-3 dark:text-zinc-200">You have been allocated the network <span class="font-mono font-medium">${baseNetwork.ip}/${baseNetwork.prefix}</span> and need to create <span class="font-medium">${requiredNumber}</span> equal-sized subnets.</p>
-      <p class="text-slate-800 font-medium dark:text-zinc-200">What subnet mask should you use for each subnet?</p>`;
+      const allocatedText = language === 'en'
+        ? `You have been allocated the network <span class="font-mono font-medium">${baseNetwork.ip}/${baseNetwork.prefix}</span> and need to create <span class="font-medium">${requiredNumber}</span> equal-sized subnets.`
+        : `Je hebt toegewezen gekregen het netwerk <span class="font-mono font-medium">${baseNetwork.ip}/${baseNetwork.prefix}</span> en moet <span class="font-medium">${requiredNumber}</span> subnetten van gelijke grootte maken.`;
+        
+      const maskQuestion = language === 'en'
+        ? `What subnet mask should you use for each subnet?`
+        : `Welk subnet masker moet je gebruiken voor elk subnet?`;
+      
+      questionText = `<p class="text-slate-800 mb-3 dark:text-zinc-200">${allocatedText}</p>
+      <p class="text-slate-800 font-medium dark:text-zinc-200">${maskQuestion}</p>`;
       
       // Calculate required subnet bits
       let subnetBits = 0;
@@ -694,7 +710,11 @@ function buildNetworkCalculationProblem(difficulty: string, language: Language =
       ];
     }
     
-    questionText = `<p class="text-slate-800 mb-3 dark:text-zinc-200">You have been allocated the network <span class="font-mono font-medium">${baseNetwork.ip}/${baseNetwork.prefix}</span> and need to create the following subnets:</p>
+    const allocatedText = language === 'en'
+      ? `You have been allocated the network <span class="font-mono font-medium">${baseNetwork.ip}/${baseNetwork.prefix}</span> and need to create the following subnets:`
+      : `Je hebt toegewezen gekregen het netwerk <span class="font-mono font-medium">${baseNetwork.ip}/${baseNetwork.prefix}</span> en moet de volgende subnets maken:`;
+    
+    questionText = `<p class="text-slate-800 mb-3 dark:text-zinc-200">${allocatedText}</p>
     <ul class="list-disc pl-5 space-y-1 text-slate-700 mb-3 dark:text-zinc-300">`;
     
     for (let i = 0; i < subnets.length; i++) {
@@ -704,8 +724,12 @@ function buildNetworkCalculationProblem(difficulty: string, language: Language =
     // Pick a random subnet to ask about (not the first one for hard)
     const targetSubnetIndex = difficulty === 'medium' ? 0 : Math.floor(Math.random() * (subnets.length - 1)) + 1;
     
+    const subnetMaskQuestion = language === 'en'
+      ? `What is the subnet mask for Subnet ${targetSubnetIndex+1}?`
+      : `Wat is het subnet masker voor Subnet ${targetSubnetIndex+1}?`;
+      
     questionText += `</ul>
-    <p class="text-slate-800 font-medium dark:text-zinc-200">What is the subnet mask for Subnet ${targetSubnetIndex+1}?</p>`;
+    <p class="text-slate-800 font-medium dark:text-zinc-200">${subnetMaskQuestion}</p>`;
     
     // Calculate answer
     let hostBits = 0;
@@ -755,15 +779,23 @@ function buildNetworkCalculationProblem(difficulty: string, language: Language =
       networks.push(`${networkBase}.${startThirdOctet + i}.0/24`);
     }
     
-    questionText = `<p class="text-slate-800 mb-3 dark:text-zinc-200">You need to create a summary route for the following networks:</p>
+    const summaryText = language === 'en'
+      ? `You need to create a summary route for the following networks:`
+      : `Je moet een samenvattingsroute maken voor de volgende netwerken:`;
+    
+    questionText = `<p class="text-slate-800 mb-3 dark:text-zinc-200">${summaryText}</p>
     <ul class="list-disc pl-5 space-y-1 text-slate-700 mb-3 font-mono dark:text-zinc-300">`;
     
     for (const network of networks) {
       questionText += `<li>${network}</li>`;
     }
     
+    const summaryQuestion = language === 'en'
+      ? `What is the most efficient summary route (network and mask)?`
+      : `Wat is de meest efficiënte samenvattingsroute (netwerk en masker)?`;
+    
     questionText += `</ul>
-    <p class="text-slate-800 font-medium dark:text-zinc-200">What is the most efficient summary route (network and mask)?</p>`;
+    <p class="text-slate-800 font-medium dark:text-zinc-200">${summaryQuestion}</p>`;
     
     // Calculate the summary route
     // Find common bits
