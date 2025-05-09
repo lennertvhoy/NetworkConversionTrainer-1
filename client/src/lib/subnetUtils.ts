@@ -387,7 +387,11 @@ function buildBasicSubnettingProblem(difficulty: string, language: Language = 'n
   }
   
   // Add a note about subnet mask formats being accepted
-  if (questionType === 'mask' || questionType === 'prefix') {
+  // We'll only add this note if we're asking for a subnet mask or CIDR prefix
+  // Not when we're specifically asking for conversion from one format to another
+  const isMaskConversionQuestion = questionType === 'mask' && questionText.includes(mask) || questionType === 'prefix' && questionText.includes(prefix.toString());
+  
+  if ((questionType === 'mask' || questionType === 'prefix') && !isMaskConversionQuestion) {
     const noteText = language === 'en'
       ? `Note: Both decimal format (e.g., 255.255.255.0) and CIDR notation (e.g., /24) are accepted for subnet masks.`
       : `Let op: Zowel decimaal formaat (bijv. 255.255.255.0) als CIDR notatie (bijv. /24) worden geaccepteerd voor subnet maskers.`;
@@ -456,15 +460,26 @@ function buildBasicSubnettingProblem(difficulty: string, language: Language = 'n
       ];
       break;
     case 'mask':
-      const maskQuestion = language === 'en'
-        ? 'What is the subnet mask in dotted decimal format?'
-        : 'Wat is het subnet masker in decimale notatie?';
+      // If the question is presented with CIDR notation, ask for decimal format
+      // If presented with decimal format, ask for CIDR notation
+      const isMaskShownAsDecimal = questionText.includes(mask);
+      
+      const maskQuestion = isMaskShownAsDecimal 
+        ? (language === 'en' 
+            ? 'What is the equivalent CIDR prefix notation?'
+            : 'Wat is de equivalente CIDR prefix notatie?')
+        : (language === 'en'
+            ? 'What is the subnet mask in dotted decimal format?'
+            : 'Wat is het subnet masker in decimale notatie?');
+      
       questionText += `<p class="text-slate-800 font-medium dark:text-zinc-200">${maskQuestion}</p>`;
       
       const maskLabel = language === 'en' ? 'Subnet Mask' : 'Subnet Masker';
-      answerFields = [
-        { id: 'subnet-mask', label: maskLabel, answer: mask }
-      ];
+      const cidrLabel = language === 'en' ? 'CIDR Prefix' : 'CIDR Prefix';
+      
+      answerFields = isMaskShownAsDecimal
+        ? [{ id: 'subnet-mask', label: cidrLabel, answer: `/${prefix}` }]
+        : [{ id: 'subnet-mask', label: maskLabel, answer: mask }];
       break;
     case 'all':
       const allQuestion = language === 'en'
@@ -538,13 +553,30 @@ function buildBasicSubnettingProblem(difficulty: string, language: Language = 'n
       explanation = prefixExplanationText;
       break;
     case 'mask':
-      const maskExplanationText = language === 'en'
-        ? `<p>Converting from CIDR prefix to subnet mask:</p>
-        <p class="mt-2 font-mono">CIDR: /${prefix}<br>Mask: ${mask}</p>
-        <p class="mt-2 text-sm text-slate-600 dark:text-zinc-400"><i>Note: Both CIDR notation (e.g., /24) and decimal format (e.g., 255.255.255.0) are equivalent representations of subnet masks.</i></p>`
-        : `<p>Omzetten van CIDR prefix naar subnet masker:</p>
-        <p class="mt-2 font-mono">CIDR: /${prefix}<br>Masker: ${mask}</p>
-        <p class="mt-2 text-sm text-slate-600 dark:text-zinc-400"><i>Let op: Zowel CIDR notatie (bijv. /24) als decimaal formaat (bijv. 255.255.255.0) zijn gelijkwaardige representaties van subnet maskers.</i></p>`;
+      // If mask is shown in decimal format, explain conversion to CIDR
+      // If mask is shown in CIDR format, explain conversion to decimal
+      const isMaskToPrefix = questionText.includes(mask);
+      
+      const maskExplanationText = isMaskToPrefix
+        ? (language === 'en'
+            ? `<p>Converting from subnet mask to CIDR prefix:</p>
+            <p class="mt-2 font-mono">Mask: ${mask}<br>CIDR: /${prefix}</p>
+            <p class="mt-2">To find the prefix, count the number of consecutive 1 bits in the binary representation of the subnet mask.</p>
+            <p class="mt-2 text-sm text-slate-600 dark:text-zinc-400"><i>Note: Both CIDR notation (e.g., /24) and decimal format (e.g., 255.255.255.0) are equivalent representations of subnet masks.</i></p>`
+            : `<p>Omzetten van subnet masker naar CIDR prefix:</p>
+            <p class="mt-2 font-mono">Masker: ${mask}<br>CIDR: /${prefix}</p>
+            <p class="mt-2">Om de prefix te vinden, tel je het aantal opeenvolgende 1-bits in de binaire representatie van het subnet masker.</p>
+            <p class="mt-2 text-sm text-slate-600 dark:text-zinc-400"><i>Let op: Zowel CIDR notatie (bijv. /24) als decimaal formaat (bijv. 255.255.255.0) zijn gelijkwaardige representaties van subnet maskers.</i></p>`)
+        : (language === 'en'
+            ? `<p>Converting from CIDR prefix to subnet mask:</p>
+            <p class="mt-2 font-mono">CIDR: /${prefix}<br>Mask: ${mask}</p>
+            <p class="mt-2">To convert a prefix to a subnet mask, set the first (prefix) bits to 1 and the remaining bits to 0, then convert to decimal.</p>
+            <p class="mt-2 text-sm text-slate-600 dark:text-zinc-400"><i>Note: Both CIDR notation (e.g., /24) and decimal format (e.g., 255.255.255.0) are equivalent representations of subnet masks.</i></p>`
+            : `<p>Omzetten van CIDR prefix naar subnet masker:</p>
+            <p class="mt-2 font-mono">CIDR: /${prefix}<br>Masker: ${mask}</p>
+            <p class="mt-2">Om een prefix naar een subnet masker om te zetten, zet je de eerste (prefix) bits op 1 en de overige bits op 0, en zet je dit vervolgens om naar decimaal.</p>
+            <p class="mt-2 text-sm text-slate-600 dark:text-zinc-400"><i>Let op: Zowel CIDR notatie (bijv. /24) als decimaal formaat (bijv. 255.255.255.0) zijn gelijkwaardige representaties van subnet maskers.</i></p>`);
+      
       explanation = maskExplanationText;
       break;
     case 'all':
