@@ -57,7 +57,32 @@ export default function BinaryExerciseCard({ conversionType, difficulty }: Binar
     };
     
     // Get the value to convert
-    const extractedValue = extractValue();
+    let extractedValue = extractValue();
+    
+    // Format binary numbers in groups of 4 for better readability (medium and hard difficulty only)
+    if ((conversionType === 'bin2dec' || conversionType === 'bin2hex') && difficulty !== 'easy' && extractedValue.length > 4) {
+      // Add padding to make the length a multiple of 4
+      const paddedLength = Math.ceil(extractedValue.length / 4) * 4;
+      const paddedValue = extractedValue.padStart(paddedLength, '0');
+      
+      // Insert space every 4 characters
+      let formattedValue = '';
+      for (let i = 0; i < paddedValue.length; i += 4) {
+        if (i > 0) formattedValue += ' ';
+        formattedValue += paddedValue.substring(i, i + 4);
+      }
+      
+      // Remove leading zeros if they were added
+      if (paddedValue.length > extractedValue.length) {
+        const leadingZeros = paddedValue.length - extractedValue.length;
+        const firstGroup = formattedValue.substring(0, 4);
+        if (firstGroup.startsWith('0'.repeat(leadingZeros))) {
+          formattedValue = firstGroup.substring(leadingZeros) + formattedValue.substring(4);
+        }
+      }
+      
+      extractedValue = formattedValue;
+    }
     
     // Store all states
     setQuestion(question);
@@ -80,7 +105,11 @@ export default function BinaryExerciseCard({ conversionType, difficulty }: Binar
       return;
     }
 
-    const isUserCorrect = userAnswer.trim().toLowerCase() === answer.toLowerCase();
+    // Remove all spaces from both user answer and the correct answer before comparing
+    const cleanUserAnswer = userAnswer.trim().toLowerCase().replace(/\s+/g, '');
+    const cleanCorrectAnswer = answer.toLowerCase().replace(/\s+/g, '');
+    
+    const isUserCorrect = cleanUserAnswer === cleanCorrectAnswer;
     setIsCorrect(isUserCorrect);
     setIsAnswered(true);
   };
