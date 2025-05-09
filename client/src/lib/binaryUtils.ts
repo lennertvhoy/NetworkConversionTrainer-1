@@ -29,6 +29,12 @@ function generateRandomBinary(length: number): string {
   for (let i = 0; i < length; i++) {
     result += Math.floor(Math.random() * 2).toString();
   }
+  // Ensure we don't have all zeros (which isn't useful for learning)
+  if (result.split('').every(bit => bit === '0')) {
+    // Set at least one bit to 1 (randomly)
+    const randomPosition = Math.floor(Math.random() * length);
+    result = result.substring(0, randomPosition) + '1' + result.substring(randomPosition + 1);
+  }
   // Ensure we don't start with 0 for most conversions
   if (result[0] === '0' && length > 1) {
     result = '1' + result.substring(1);
@@ -43,6 +49,15 @@ function generateRandomHex(length: number): string {
   for (let i = 0; i < length; i++) {
     result += hexChars[Math.floor(Math.random() * 16)];
   }
+  
+  // Ensure we don't have all zeros (which isn't useful for learning)
+  if (result.split('').every(char => char === '0')) {
+    // Set at least one character to a non-zero value (randomly)
+    const randomPosition = Math.floor(Math.random() * length);
+    const randomHexChar = hexChars[1 + Math.floor(Math.random() * 15)]; // Avoid '0'
+    result = result.substring(0, randomPosition) + randomHexChar + result.substring(randomPosition + 1);
+  }
+  
   // Ensure we don't start with 0 for most conversions
   if (result[0] === '0' && length > 1) {
     result = hexChars[1 + Math.floor(Math.random() * 15)] + result.substring(1);
@@ -52,7 +67,18 @@ function generateRandomHex(length: number): string {
 
 // Helper to generate a random decimal number in a given range
 function generateRandomDecimal(min: number, max: number): number {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
+  // Generate a random number that isn't too trivial to convert
+  let result;
+  // Avoid numbers that are powers of 2 or very close to them
+  // as they're too simple for learning binary conversion
+  do {
+    result = Math.floor(Math.random() * (max - min + 1)) + min;
+    // Check if it's a power of 2 (has exactly one bit set to 1)
+    const isPowerOf2 = (result & (result - 1)) === 0;
+    // Also avoid 0 as it's too trivial
+  } while (result === 0 || isPowerOf2);
+  
+  return result;
 }
 
 export function generateBinaryQuestion(conversionType: string, difficulty: string, language: Language = 'nl'): BinaryQuestion {
