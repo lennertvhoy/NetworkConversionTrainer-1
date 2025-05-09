@@ -37,33 +37,32 @@ export default function BinaryExerciseCard({ conversionType, difficulty }: Binar
     // Generate question client-side with language preference
     const { question, answer, explanation } = generateBinaryQuestion(conversionType, difficulty, language);
     
-    // Extract the actual value to convert (usually a number) from the question text
-    // This helps us display it more prominently
+    // Extract the actual value to convert from the explanation text
     const extractValue = () => {
-      // Try to find a pattern like a binary, hex, or decimal number in the question
-      const binaryMatch = question.match(/([01]+)/);
-      const hexMatch = question.match(/([0-9A-Fa-f]+)/);
-      const decimalMatch = question.match(/(\d+)/);
-      
-      // Return the appropriate match based on conversion type
+      // Pattern matching based on conversion type to find the value in the explanation
       if (conversionType === 'bin2dec' || conversionType === 'bin2hex') {
-        return binaryMatch ? binaryMatch[1] : question;
+        // Find the binary number in the explanation (first pattern between <span> tags)
+        const binaryMatch = explanation.match(/<span class="font-mono font-bold">([01]+)<\/span>/);
+        return binaryMatch ? binaryMatch[1] : "";
       } else if (conversionType === 'hex2bin') {
-        return hexMatch ? hexMatch[1] : question;
+        // Find the hex number in the explanation
+        const hexMatch = explanation.match(/<span class="font-mono font-bold">([0-9A-Fa-f]+)<\/span>/);
+        return hexMatch ? hexMatch[1] : "";
       } else if (conversionType === 'dec2bin') {
-        return decimalMatch ? decimalMatch[1] : question;
+        // Find the decimal number in the explanation
+        const decimalMatch = explanation.match(/<span class="font-mono font-bold">(\d+)<\/span>/);
+        return decimalMatch ? decimalMatch[1] : "";
       }
-      return question;
+      return "";
     };
     
+    // Get the value to convert
     const extractedValue = extractValue();
     
-    // Get the context (the part of the question that asks what to do)
-    const contextMatch = question.replace(extractedValue, '');
-    
+    // Store all states
     setQuestion(question);
     setQuestionValue(extractedValue);
-    setQuestionContext(contextMatch);
+    setQuestionContext(question);
     setAnswer(answer);
     setExplanation(explanation);
     setUserAnswer("");
