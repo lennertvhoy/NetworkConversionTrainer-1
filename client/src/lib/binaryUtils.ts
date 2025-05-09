@@ -78,79 +78,146 @@ export function generateBinaryQuestion(conversionType: string, difficulty: strin
     decMax = 4095;
   }
   
+  // Prepare question texts based on language
+  const questionTextBinary = language === 'en' 
+    ? 'Convert this binary number to '
+    : 'Zet dit binaire getal om naar ';
+    
+  const questionTextHex = language === 'en'
+    ? 'Convert this hexadecimal number to '
+    : 'Zet dit hexadecimale getal om naar ';
+    
+  const questionTextDecimal = language === 'en'
+    ? 'Convert this decimal number to '
+    : 'Zet dit decimale getal om naar ';
+    
+  const decimalWord = language === 'en' ? 'decimal' : 'decimaal';
+  const binaryWord = language === 'en' ? 'binary' : 'binair';
+  const hexWord = language === 'en' ? 'hexadecimal' : 'hexadecimaal';
+  
   switch (conversionType) {
     case 'bin2dec':
-      question = generateRandomBinary(binaryLength);
-      answer = parseInt(question, 2).toString();
-      // Always generate English explanations by default
-      explanation = `The binary number <span class="font-mono font-bold">${question}</span> equals <span class="font-mono font-bold">${answer}</span> in decimal.<br/><br/>`;
+      const binValue = generateRandomBinary(binaryLength);
+      question = questionTextBinary + decimalWord;
+      answer = parseInt(binValue, 2).toString();
       
-      // Add detailed calculation for explanation
-      explanation += question.split('').reverse().map((bit, index) => {
+      // Translation-aware explanations
+      const bin2decExplanation = language === 'en'
+        ? `The binary number <span class="font-mono font-bold">${binValue}</span> equals <span class="font-mono font-bold">${answer}</span> in decimal.<br/><br/>`
+        : `Het binaire getal <span class="font-mono font-bold">${binValue}</span> is gelijk aan <span class="font-mono font-bold">${answer}</span> in decimaal.<br/><br/>`;
+      
+      explanation = bin2decExplanation;
+      
+      // Add detailed calculation for explanation in the appropriate language
+      const calcText = language === 'en' ? ' = ' : ' = ';
+      explanation += binValue.split('').reverse().map((bit, index) => {
         return bit === '1' ? `1×2<sup>${index}</sup> (${Math.pow(2, index)})` : `0×2<sup>${index}</sup> (0)`;
-      }).reverse().join(' + ') + ' = ' + answer;
+      }).reverse().join(' + ') + calcText + answer;
       break;
       
     case 'bin2hex':
-      question = generateRandomBinary(binaryLength);
-      answer = parseInt(question, 2).toString(16).toUpperCase();
-      // Always generate English explanations by default
-      explanation = `The binary number <span class="font-mono font-bold">${question}</span> equals <span class="font-mono font-bold">${answer}</span> in hexadecimal.<br/><br/>`;
+      const binHexValue = generateRandomBinary(binaryLength);
+      question = questionTextBinary + hexWord;
+      answer = parseInt(binHexValue, 2).toString(16).toUpperCase();
+      
+      // Translation-aware explanations
+      const bin2hexExplanation = language === 'en'
+        ? `The binary number <span class="font-mono font-bold">${binHexValue}</span> equals <span class="font-mono font-bold">${answer}</span> in hexadecimal.<br/><br/>`
+        : `Het binaire getal <span class="font-mono font-bold">${binHexValue}</span> is gelijk aan <span class="font-mono font-bold">${answer}</span> in hexadecimaal.<br/><br/>`;
+      
+      explanation = bin2hexExplanation;
       
       // Add grouped conversion for explanation
       let groupedBinary = '';
-      let paddedBinary = question.padStart(Math.ceil(question.length / 4) * 4, '0');
+      let paddedBinary = binHexValue.padStart(Math.ceil(binHexValue.length / 4) * 4, '0');
       for (let i = 0; i < paddedBinary.length; i += 4) {
         let group = paddedBinary.slice(i, i + 4);
         let hexValue = parseInt(group, 2).toString(16).toUpperCase();
         groupedBinary += `${group} (${hexValue}) `;
       }
-      explanation += `Group the binary into sets of 4 bits (padding with leading zeros if needed):<br/>${groupedBinary}`;
+      
+      const groupingText = language === 'en'
+        ? `Group the binary into sets of 4 bits (padding with leading zeros if needed):<br/>${groupedBinary}`
+        : `Groepeer het binaire getal in sets van 4 bits (met voorloopnullen indien nodig):<br/>${groupedBinary}`;
+      
+      explanation += groupingText;
       break;
       
     case 'hex2bin':
-      question = generateRandomHex(hexLength);
+      const hexValue = generateRandomHex(hexLength);
+      question = questionTextHex + binaryWord;
       answer = '';
-      // Always generate English explanations by default
-      explanation = `The hexadecimal number <span class="font-mono font-bold">${question}</span> equals <span class="font-mono font-bold">`;
+      
+      // Translation-aware explanations
+      const hex2binStart = language === 'en'
+        ? `The hexadecimal number <span class="font-mono font-bold">${hexValue}</span> equals <span class="font-mono font-bold">`
+        : `Het hexadecimale getal <span class="font-mono font-bold">${hexValue}</span> is gelijk aan <span class="font-mono font-bold">`;
+      
+      explanation = hex2binStart;
       
       // Convert each hex digit and build explanation
-      for (let i = 0; i < question.length; i++) {
-        const digit = question[i];
+      for (let i = 0; i < hexValue.length; i++) {
+        const digit = hexValue[i];
         const binaryGroup = parseInt(digit, 16).toString(2).padStart(4, '0');
         answer += binaryGroup;
         explanation += `${binaryGroup}`;
-        if (i < question.length - 1) explanation += ' ';
+        if (i < hexValue.length - 1) explanation += ' ';
       }
-      explanation += `</span> in binary.<br/><br/>Convert each hex digit to 4 binary digits:<br/>`;
       
-      for (let i = 0; i < question.length; i++) {
-        const digit = question[i];
+      const hex2binMiddle = language === 'en'
+        ? `</span> in binary.<br/><br/>Convert each hex digit to 4 binary digits:<br/>`
+        : `</span> in binair.<br/><br/>Zet elk hexadecimaal cijfer om naar 4 binaire cijfers:<br/>`;
+        
+      explanation += hex2binMiddle;
+      
+      for (let i = 0; i < hexValue.length; i++) {
+        const digit = hexValue[i];
         const binaryGroup = parseInt(digit, 16).toString(2).padStart(4, '0');
-        explanation += `Hex ${digit} → Binary ${binaryGroup}<br/>`;
+        
+        const arrowSymbol = language === 'en' ? '→' : '→';
+        const hexLabel = language === 'en' ? 'Hex' : 'Hex';
+        const binaryLabel = language === 'en' ? 'Binary' : 'Binair';
+        
+        explanation += `${hexLabel} ${digit} ${arrowSymbol} ${binaryLabel} ${binaryGroup}<br/>`;
       }
       break;
       
     case 'dec2bin':
       const decimalValue = generateRandomDecimal(decMin, decMax);
-      question = decimalValue.toString();
+      question = questionTextDecimal + binaryWord;
       answer = decimalValue.toString(2);
-      // Always generate English explanations by default
-      explanation = `The decimal number <span class="font-mono font-bold">${question}</span> equals <span class="font-mono font-bold">${answer}</span> in binary.<br/><br/>`;
+      
+      // Translation-aware explanations
+      const dec2binExplanation = language === 'en'
+        ? `The decimal number <span class="font-mono font-bold">${decimalValue}</span> equals <span class="font-mono font-bold">${answer}</span> in binary.<br/><br/>`
+        : `Het decimale getal <span class="font-mono font-bold">${decimalValue}</span> is gelijk aan <span class="font-mono font-bold">${answer}</span> in binair.<br/><br/>`;
+      
+      explanation = dec2binExplanation;
       
       // Add division method explanation
-      explanation += 'Using the division method:<br/>';
-      let divisionExplanation = '';
+      const divisionIntro = language === 'en' 
+        ? 'Using the division method:<br/>'
+        : 'Met de delingsmethode:<br/>';
+        
+      explanation += divisionIntro;
+      
       let tempValue = decimalValue;
       let steps = [];
       
       while (tempValue > 0) {
         const remainder = tempValue % 2;
-        steps.push(`${tempValue} ÷ 2 = ${Math.floor(tempValue / 2)} remainder ${remainder}`);
+        const remainderText = language === 'en' ? 'remainder' : 'rest';
+        steps.push(`${tempValue} ÷ 2 = ${Math.floor(tempValue / 2)} ${remainderText} ${remainder}`);
         tempValue = Math.floor(tempValue / 2);
       }
       
-      explanation += steps.join('<br/>') + '<br/><br/>Reading the remainders from bottom to top gives the binary result.';
+      explanation += steps.join('<br/>');
+      
+      const bottomToTop = language === 'en'
+        ? '<br/><br/>Reading the remainders from bottom to top gives the binary result.'
+        : '<br/><br/>De restwaarden van onder naar boven lezen geeft het binaire resultaat.';
+        
+      explanation += bottomToTop;
       break;
       
     default:

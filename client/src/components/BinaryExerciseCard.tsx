@@ -20,6 +20,10 @@ export default function BinaryExerciseCard({ conversionType, difficulty }: Binar
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
   const [explanation, setExplanation] = useState("");
   const [isAnswered, setIsAnswered] = useState(false);
+  
+  // Separate the question (binary/hex/decimal number) from its context text
+  const [questionValue, setQuestionValue] = useState("");
+  const [questionContext, setQuestionContext] = useState("");
 
   // Get the language from context at component level
   const { language } = useLanguage();
@@ -32,7 +36,34 @@ export default function BinaryExerciseCard({ conversionType, difficulty }: Binar
   const generateNewQuestion = () => {
     // Generate question client-side with language preference
     const { question, answer, explanation } = generateBinaryQuestion(conversionType, difficulty, language);
+    
+    // Extract the actual value to convert (usually a number) from the question text
+    // This helps us display it more prominently
+    const extractValue = () => {
+      // Try to find a pattern like a binary, hex, or decimal number in the question
+      const binaryMatch = question.match(/([01]+)/);
+      const hexMatch = question.match(/([0-9A-Fa-f]+)/);
+      const decimalMatch = question.match(/(\d+)/);
+      
+      // Return the appropriate match based on conversion type
+      if (conversionType === 'bin2dec' || conversionType === 'bin2hex') {
+        return binaryMatch ? binaryMatch[1] : question;
+      } else if (conversionType === 'hex2bin') {
+        return hexMatch ? hexMatch[1] : question;
+      } else if (conversionType === 'dec2bin') {
+        return decimalMatch ? decimalMatch[1] : question;
+      }
+      return question;
+    };
+    
+    const extractedValue = extractValue();
+    
+    // Get the context (the part of the question that asks what to do)
+    const contextMatch = question.replace(extractedValue, '');
+    
     setQuestion(question);
+    setQuestionValue(extractedValue);
+    setQuestionContext(contextMatch);
     setAnswer(answer);
     setExplanation(explanation);
     setUserAnswer("");
@@ -108,8 +139,14 @@ export default function BinaryExerciseCard({ conversionType, difficulty }: Binar
           </div>
         </div>
         
-        <div className="p-4 bg-slate-50 rounded-lg mb-6 text-center dark:bg-zinc-900">
-          <p className="font-mono text-2xl tracking-wide font-bold text-slate-800 select-all dark:text-zinc-100">{question}</p>
+        {/* Question Card - Split into question context and the value to convert */}
+        <div className="p-4 bg-slate-50 rounded-lg mb-6 dark:bg-zinc-900">
+          <div className="mb-2 text-slate-700 dark:text-zinc-300">
+            {questionContext}
+          </div>
+          <div className="py-4 px-6 bg-white rounded border-2 border-blue-100 shadow-sm dark:bg-zinc-800 dark:border-blue-900">
+            <p className="font-mono text-3xl tracking-wider font-bold text-blue-700 select-all dark:text-blue-400 text-center">{questionValue}</p>
+          </div>
         </div>
         
         <div className="mb-6">
