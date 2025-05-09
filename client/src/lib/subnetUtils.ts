@@ -16,6 +16,10 @@ function generateRandomIP(): string {
   // Avoid certain reserved ranges
   if (octet1 === 127) return generateRandomIP(); // Loopback
   if (octet1 === 169 && octet2 === 254) return generateRandomIP(); // APIPA
+  if (octet1 === 10) return generateRandomIP(); // Private Class A
+  if (octet1 === 172 && (octet2 >= 16 && octet2 <= 31)) return generateRandomIP(); // Private Class B
+  if (octet1 === 192 && octet2 === 168) return generateRandomIP(); // Private Class C
+  if (octet1 === 224) return generateRandomIP(); // Multicast
   
   return `${octet1}.${octet2}.${octet3}.${octet4}`;
 }
@@ -26,11 +30,25 @@ function generateRandomNetworkClass(difficulty: string): {ip: string, prefix: nu
   let ip: string;
   let prefix: number;
   
+  // Function to avoid private IP ranges
+  function isPrivateIP(octet1: number, octet2: number = 0): boolean {
+    // Private IP ranges: 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16
+    return (
+      octet1 === 10 || 
+      (octet1 === 172 && (octet2 >= 16 && octet2 <= 31)) || 
+      (octet1 === 192 && octet2 === 168)
+    );
+  }
+  
   if (difficulty === 'easy') {
     // Class C networks are easiest to work with
     classType = 'C';
-    const octet1 = Math.floor(Math.random() * 32) + 192; // 192-223
-    const octet2 = Math.floor(Math.random() * 256);
+    let octet1, octet2;
+    do {
+      octet1 = Math.floor(Math.random() * 32) + 192; // 192-223
+      octet2 = Math.floor(Math.random() * 256);
+    } while (isPrivateIP(octet1, octet2) || octet1 >= 224); // Avoid private IPs and multicast
+    
     const octet3 = Math.floor(Math.random() * 256);
     ip = `${octet1}.${octet2}.${octet3}.0`;
     prefix = 24;
@@ -39,15 +57,23 @@ function generateRandomNetworkClass(difficulty: string): {ip: string, prefix: nu
     const rand = Math.random();
     if (rand < 0.6) {
       classType = 'C';
-      const octet1 = Math.floor(Math.random() * 32) + 192; // 192-223
-      const octet2 = Math.floor(Math.random() * 256);
+      let octet1, octet2;
+      do {
+        octet1 = Math.floor(Math.random() * 32) + 192; // 192-223
+        octet2 = Math.floor(Math.random() * 256);
+      } while (isPrivateIP(octet1, octet2) || octet1 >= 224); // Avoid private IPs and multicast
+      
       const octet3 = Math.floor(Math.random() * 256);
       ip = `${octet1}.${octet2}.${octet3}.0`;
       prefix = 24;
     } else {
       classType = 'B';
-      const octet1 = Math.floor(Math.random() * 64) + 128; // 128-191
-      const octet2 = Math.floor(Math.random() * 256);
+      let octet1, octet2;
+      do {
+        octet1 = Math.floor(Math.random() * 64) + 128; // 128-191
+        octet2 = Math.floor(Math.random() * 256);
+      } while (isPrivateIP(octet1, octet2)); // Avoid private IPs
+      
       ip = `${octet1}.${octet2}.0.0`;
       prefix = 16;
     }
@@ -56,20 +82,32 @@ function generateRandomNetworkClass(difficulty: string): {ip: string, prefix: nu
     const rand = Math.random();
     if (rand < 0.4) {
       classType = 'C';
-      const octet1 = Math.floor(Math.random() * 32) + 192; // 192-223
-      const octet2 = Math.floor(Math.random() * 256);
+      let octet1, octet2;
+      do {
+        octet1 = Math.floor(Math.random() * 32) + 192; // 192-223
+        octet2 = Math.floor(Math.random() * 256);
+      } while (isPrivateIP(octet1, octet2) || octet1 >= 224); // Avoid private IPs and multicast
+      
       const octet3 = Math.floor(Math.random() * 256);
       ip = `${octet1}.${octet2}.${octet3}.0`;
       prefix = 24;
     } else if (rand < 0.7) {
       classType = 'B';
-      const octet1 = Math.floor(Math.random() * 64) + 128; // 128-191
-      const octet2 = Math.floor(Math.random() * 256);
+      let octet1, octet2;
+      do {
+        octet1 = Math.floor(Math.random() * 64) + 128; // 128-191
+        octet2 = Math.floor(Math.random() * 256);
+      } while (isPrivateIP(octet1, octet2)); // Avoid private IPs
+      
       ip = `${octet1}.${octet2}.0.0`;
       prefix = 16;
     } else {
       classType = 'A';
-      const octet1 = Math.floor(Math.random() * 126) + 1; // 1-126
+      let octet1;
+      do {
+        octet1 = Math.floor(Math.random() * 126) + 1; // 1-126
+      } while (isPrivateIP(octet1)); // Avoid private IPs
+      
       ip = `${octet1}.0.0.0`;
       prefix = 8;
     }
