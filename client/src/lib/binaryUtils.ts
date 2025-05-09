@@ -226,43 +226,7 @@ export function generateBinaryQuestion(conversionType: string, difficulty: strin
       explanation = '';
   }
   
-  // English is the default language for explanations in this code
-  // For Dutch (nl), we need to translate to Dutch
-  if (language === 'nl') {
-    // For Dutch language, replace English text with Dutch equivalents
-    if (conversionType === 'bin2dec') {
-      explanation = explanation
-        .replace(/The binary number/g, "Het binaire getal")
-        .replace(/equals/g, "is gelijk aan")
-        .replace(/in decimal/g, "in decimaal");
-    }
-    else if (conversionType === 'bin2hex') {
-      explanation = explanation
-        .replace(/The binary number/g, "Het binaire getal")
-        .replace(/equals/g, "is gelijk aan")
-        .replace(/in hexadecimal/g, "in hexadecimaal")
-        .replace(/Group the binary into sets of 4 bits/g, "Groepeer de binaire cijfers in sets van 4")
-        .replace(/padding with leading zeros if needed/g, "aanvullen met voorloopnullen indien nodig");
-    }
-    else if (conversionType === 'hex2bin') {
-      explanation = explanation
-        .replace(/The hexadecimal number/g, "Het hexadecimale getal")
-        .replace(/equals/g, "is gelijk aan")
-        .replace(/in binary/g, "in binair")
-        .replace(/Convert each hex digit to 4 binary digits/g, "Zet elk hexadecimaal cijfer om naar 4 binaire cijfers")
-        .replace(/Hex/g, "Hex")
-        .replace(/Binary/g, "Binair");
-    }
-    else if (conversionType === 'dec2bin') {
-      explanation = explanation
-        .replace(/The decimal number/g, "Het decimale getal")
-        .replace(/equals/g, "is gelijk aan")
-        .replace(/in binary/g, "in binair")
-        .replace(/Using the division method/g, "Met de delingsmethode")
-        .replace(/remainder/g, "rest")
-        .replace(/Reading the remainders from bottom to top gives the binary result/g, "De restwaarden van onder naar boven lezen geeft het binaire resultaat");
-    }
-  }
+  // All translations are now handled directly in the relevant switch case sections
   
   return { question, answer, explanation };
 }
