@@ -108,7 +108,54 @@ export function generateBinaryQuestion(conversionType: string, difficulty: strin
       
       explanation = bin2decExplanation;
       
-      // Add detailed calculation for explanation in the appropriate language
+      // Add power of 2 method visual explanation (similar to the image shared)
+      const powerMethodBin2Dec = language === 'en'
+        ? 'Using the powers of 2 method:<br/>'
+        : 'Met de machten van 2 methode:<br/>';
+      
+      explanation += powerMethodBin2Dec;
+      
+      // Create table for powers of 2 in binary to decimal conversion (matching the example image)
+      const binaryArray = binValue.split('').reverse(); // Reverse for LSB to MSB
+      
+      let tableHtml = '<div class="overflow-x-auto mt-2 mb-4">';
+      tableHtml += '<table class="min-w-full border-collapse">';
+      
+      // First row - powers of 2
+      tableHtml += '<tr class="bg-slate-50 dark:bg-slate-800">';
+      for (let i = binaryArray.length - 1; i >= 0; i--) {
+        tableHtml += `<th class="py-1 px-2 text-center text-sm font-medium border">${Math.pow(2, i)}</th>`;
+      }
+      tableHtml += '</tr>';
+      
+      // Second row - binary digits (in correct order)
+      tableHtml += '<tr>';
+      for (let i = binaryArray.length - 1; i >= 0; i--) {
+        tableHtml += `<td class="py-1 px-2 text-center font-mono font-bold border">${binaryArray[binaryArray.length - 1 - i]}</td>`;
+      }
+      tableHtml += '</tr>';
+      
+      // Third row - values where binary digit is 1
+      tableHtml += '<tr>';
+      for (let i = binaryArray.length - 1; i >= 0; i--) {
+        const digit = binaryArray[binaryArray.length - 1 - i];
+        if (digit === '1') {
+          tableHtml += `<td class="py-1 px-2 text-center border">${Math.pow(2, i)}</td>`;
+        } else {
+          tableHtml += '<td class="py-1 px-2 text-center border">0</td>';
+        }
+      }
+      tableHtml += '</tr>';
+      tableHtml += '</table></div>';
+      
+      // Add calculation details
+      const calculationInWords = language === 'en'
+        ? 'To convert from binary to decimal, add up the powers of 2 where the binary digit is 1:<br/>'
+        : 'Om van binair naar decimaal te gaan, tel je de machten van 2 op waar het binaire cijfer 1 is:<br/>';
+        
+      explanation += tableHtml + calculationInWords;
+      
+      // Create calculation string showing detailed steps as before
       const calcText = language === 'en' ? ' = ' : ' = ';
       explanation += binValue.split('').reverse().map((bit, index) => {
         return bit === '1' ? `1×2<sup>${index}</sup> (${Math.pow(2, index)})` : `0×2<sup>${index}</sup> (0)`;
@@ -194,10 +241,78 @@ export function generateBinaryQuestion(conversionType: string, difficulty: strin
       
       explanation = dec2binExplanation;
       
+      // Add power of 2 method visual explanation (similar to the image shared)
+      const powerMethod = language === 'en'
+        ? 'Using the powers of 2 method:<br/>'
+        : 'Met de machten van 2 methode:<br/>';
+      
+      explanation += powerMethod;
+      
+      // Create table for powers of 2
+      const binaryDigits = answer.split('').reverse(); // Reverse to start from LSB
+      let dec2binTableHtml = '<div class="overflow-x-auto mt-2 mb-4">';
+      dec2binTableHtml += '<table class="min-w-full border-collapse">';
+      
+      // Table headers - powers of 2
+      tableHtml += '<tr class="bg-slate-50 dark:bg-slate-800">';
+      const powerLabel = language === 'en' ? 'Power' : 'Macht';
+      
+      // Calculate required columns based on binary length
+      const columns = binaryDigits.length;
+      for (let i = 0; i < columns; i++) {
+        tableHtml += `<th class="py-2 px-3 text-center text-sm font-medium border">${Math.pow(2, i)}</th>`;
+      }
+      tableHtml += '</tr>';
+      
+      // Row for binary representation (0/1)
+      tableHtml += '<tr>';
+      for (let i = 0; i < columns; i++) {
+        tableHtml += `<td class="py-2 px-3 text-center font-mono font-bold border">${binaryDigits[i] || '0'}</td>`;
+      }
+      tableHtml += '</tr>';
+      
+      // Row for calculation results
+      tableHtml += '<tr>';
+      let sum = 0;
+      for (let i = 0; i < columns; i++) {
+        const digit = parseInt(binaryDigits[i] || '0');
+        const value = digit * Math.pow(2, i);
+        sum += value;
+        
+        let cellContent = '';
+        if (digit === 1) {
+          cellContent = `${Math.pow(2, i)}`;
+        } else {
+          cellContent = '0';
+        }
+        
+        tableHtml += `<td class="py-2 px-3 text-center border">${cellContent}</td>`;
+      }
+      tableHtml += '</tr>';
+      tableHtml += '</table></div>';
+      
+      // Add calculation details
+      let calculationText = language === 'en' 
+        ? 'To convert from binary to decimal, add up the powers of 2 where the binary digit is 1:<br/>'
+        : 'Om van binair naar decimaal te gaan, tel je de machten van 2 op waar het binaire cijfer 1 is:<br/>';
+      
+      let calculationSteps = [];
+      for (let i = 0; i < columns; i++) {
+        const digit = parseInt(binaryDigits[i] || '0');
+        if (digit === 1) {
+          calculationSteps.push(`2<sup>${i}</sup> = ${Math.pow(2, i)}`);
+        }
+      }
+      
+      calculationText += calculationSteps.join(' + ');
+      calculationText += ` = ${decimalValue}`;
+      
+      explanation += tableHtml + '<br/>' + calculationText + '<br/><br/>';
+      
       // Add division method explanation
       const divisionIntro = language === 'en' 
-        ? 'Using the division method:<br/>'
-        : 'Met de delingsmethode:<br/>';
+        ? 'Alternatively, using the division method:<br/>'
+        : 'Als alternatief, met de delingsmethode:<br/>';
         
       explanation += divisionIntro;
       
