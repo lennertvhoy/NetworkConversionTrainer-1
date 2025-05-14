@@ -739,22 +739,90 @@ function buildBasicSubnettingProblem(difficulty: string, language: Language = 'n
           : `Netwerkadres: ${networkAddress}<br>Broadcastadres: ${broadcastAddress}<br>Eerste bruikbare host: ${firstHost}<br>Laatste bruikbare host: ${lastHost}`;
       } else {
         const allExplanationText = language === 'en'
-          ? `<p>Network address calculation (IP AND Mask):</p>
-          <p class="mt-2 font-mono">IP: ${ip}<br>Mask: ${mask}<br>Network: ${networkAddress}</p>
-          <p class="mt-3">Broadcast address calculation (Network OR (NOT Mask)):</p>
-          <p class="mt-2 font-mono">Network: ${networkAddress}<br>Mask: ${mask}<br>Broadcast: ${broadcastAddress}</p>
-          <p class="mt-3">First usable host is the network address + 1:</p>
-          <p class="mt-2 font-mono">First host: ${firstHost}</p>
-          <p class="mt-3">Last usable host is the broadcast address - 1:</p>
-          <p class="mt-2 font-mono">Last host: ${lastHost}</p>`
-          : `<p>Netwerkadres berekening (IP AND Masker):</p>
-          <p class="mt-2 font-mono">IP: ${ip}<br>Masker: ${mask}<br>Netwerk: ${networkAddress}</p>
-          <p class="mt-3">Broadcastadres berekening (Netwerk OR (NOT Masker)):</p>
-          <p class="mt-2 font-mono">Netwerk: ${networkAddress}<br>Masker: ${mask}<br>Broadcast: ${broadcastAddress}</p>
-          <p class="mt-3">Eerste bruikbare host is het netwerkadres + 1:</p>
-          <p class="mt-2 font-mono">Eerste host: ${firstHost}</p>
-          <p class="mt-3">Laatste bruikbare host is het broadcastadres - 1:</p>
-          <p class="mt-2 font-mono">Laatste host: ${lastHost}</p>`;
+          ? `<h3 class="font-bold mb-2">Subnet Address Calculations</h3>
+          <div class="p-4 bg-zinc-100 dark:bg-zinc-800 rounded-md mb-4">
+            <p class="font-medium">Given IP: ${ip} with Subnet Mask: ${mask}</p>
+          </div>
+          
+          <div class="grid gap-4 mt-4">
+            <div class="p-4 bg-white dark:bg-zinc-900 rounded-md border border-zinc-200 dark:border-zinc-700">
+              <h4 class="font-semibold text-indigo-700 dark:text-indigo-400">Network Address</h4>
+              <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">The network address identifies the subnet and is calculated by performing a bitwise AND operation between the IP address and subnet mask.</p>
+              
+              <div class="mt-3 p-2 bg-zinc-50 dark:bg-zinc-800 rounded font-mono">
+                <div><span class="text-slate-500 mr-2">IP:</span> ${ip}</div>
+                <div><span class="text-slate-500 mr-2">Mask:</span> ${mask}</div>
+                <div class="mt-1 pt-1 border-t border-dashed border-zinc-300 dark:border-zinc-600">
+                  <span class="text-slate-500 mr-2">Network:</span> <span class="font-semibold">${networkAddress}</span>
+                </div>
+              </div>
+            </div>
+            
+            <div class="p-4 bg-white dark:bg-zinc-900 rounded-md border border-zinc-200 dark:border-zinc-700">
+              <h4 class="font-semibold text-rose-700 dark:text-rose-400">Broadcast Address</h4>
+              <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">The broadcast address is used to send packets to all hosts on the subnet and is calculated using the network address and the inverted subnet mask.</p>
+              
+              <div class="mt-3 p-2 bg-zinc-50 dark:bg-zinc-800 rounded font-mono">
+                <div><span class="text-slate-500 mr-2">Network:</span> ${networkAddress}</div>
+                <div><span class="text-slate-500 mr-2">Inverted Mask:</span> ${invertMask(mask)}</div>
+                <div class="mt-1 pt-1 border-t border-dashed border-zinc-300 dark:border-zinc-600">
+                  <span class="text-slate-500 mr-2">Broadcast:</span> <span class="font-semibold">${broadcastAddress}</span>
+                </div>
+              </div>
+            </div>
+            
+            <div class="p-4 bg-white dark:bg-zinc-900 rounded-md border border-zinc-200 dark:border-zinc-700">
+              <h4 class="font-semibold text-emerald-700 dark:text-emerald-400">Usable Host Range</h4>
+              <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">The usable host range excludes the network and broadcast addresses, leaving the following range for devices:</p>
+              
+              <div class="mt-3 p-2 bg-zinc-50 dark:bg-zinc-800 rounded font-mono">
+                <div><span class="text-slate-500 mr-2">First Host:</span> <span class="font-semibold">${firstHost}</span></div>
+                <div><span class="text-slate-500 mr-2">Last Host:</span> <span class="font-semibold">${lastHost}</span></div>
+              </div>
+            </div>
+          </div>`
+          : `<h3 class="font-bold mb-2">Subnet Adresberekeningen</h3>
+          <div class="p-4 bg-zinc-100 dark:bg-zinc-800 rounded-md mb-4">
+            <p class="font-medium">Gegeven IP: ${ip} met Subnet Masker: ${mask}</p>
+          </div>
+          
+          <div class="grid gap-4 mt-4">
+            <div class="p-4 bg-white dark:bg-zinc-900 rounded-md border border-zinc-200 dark:border-zinc-700">
+              <h4 class="font-semibold text-indigo-700 dark:text-indigo-400">Netwerkadres</h4>
+              <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">Het netwerkadres identificeert het subnet en wordt berekend door een bitwise AND-operatie uit te voeren tussen het IP-adres en het subnet masker.</p>
+              
+              <div class="mt-3 p-2 bg-zinc-50 dark:bg-zinc-800 rounded font-mono">
+                <div><span class="text-slate-500 mr-2">IP:</span> ${ip}</div>
+                <div><span class="text-slate-500 mr-2">Masker:</span> ${mask}</div>
+                <div class="mt-1 pt-1 border-t border-dashed border-zinc-300 dark:border-zinc-600">
+                  <span class="text-slate-500 mr-2">Netwerk:</span> <span class="font-semibold">${networkAddress}</span>
+                </div>
+              </div>
+            </div>
+            
+            <div class="p-4 bg-white dark:bg-zinc-900 rounded-md border border-zinc-200 dark:border-zinc-700">
+              <h4 class="font-semibold text-rose-700 dark:text-rose-400">Broadcastadres</h4>
+              <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">Het broadcastadres wordt gebruikt om pakketten naar alle hosts op het subnet te sturen en wordt berekend met behulp van het netwerkadres en het geïnverteerde subnet masker.</p>
+              
+              <div class="mt-3 p-2 bg-zinc-50 dark:bg-zinc-800 rounded font-mono">
+                <div><span class="text-slate-500 mr-2">Netwerk:</span> ${networkAddress}</div>
+                <div><span class="text-slate-500 mr-2">Geïnverteerd Masker:</span> ${invertMask(mask)}</div>
+                <div class="mt-1 pt-1 border-t border-dashed border-zinc-300 dark:border-zinc-600">
+                  <span class="text-slate-500 mr-2">Broadcast:</span> <span class="font-semibold">${broadcastAddress}</span>
+                </div>
+              </div>
+            </div>
+            
+            <div class="p-4 bg-white dark:bg-zinc-900 rounded-md border border-zinc-200 dark:border-zinc-700">
+              <h4 class="font-semibold text-emerald-700 dark:text-emerald-400">Bruikbaar Host Bereik</h4>
+              <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">Het bruikbare host-bereik sluit het netwerk- en broadcastadres uit, waardoor het volgende bereik voor apparaten overblijft:</p>
+              
+              <div class="mt-3 p-2 bg-zinc-50 dark:bg-zinc-800 rounded font-mono">
+                <div><span class="text-slate-500 mr-2">Eerste Host:</span> <span class="font-semibold">${firstHost}</span></div>
+                <div><span class="text-slate-500 mr-2">Laatste Host:</span> <span class="font-semibold">${lastHost}</span></div>
+              </div>
+            </div>
+          </div>`;
         explanation = allExplanationText;
       }
       break;
@@ -1017,30 +1085,40 @@ function buildNetworkCalculationProblem(difficulty: string, language: Language =
       
     // Generate explanation
     const hostExplanation = language === 'en'
-      ? `<p>To subnet a network into ${targetSubnets} subnets:</p>
+      ? `<p>To divide the network ${baseNetwork}/${basePrefix} into ${targetSubnets} subnets:</p>
       <ol class="list-decimal ml-5 mt-2 space-y-1">
-        <li>Calculate how many subnet bits are needed: ceil(log₂(${targetSubnets})) = ${requiredPrefixBits} bits</li>
-        <li>Calculate the new subnet prefix: ${basePrefix} + ${requiredPrefixBits} = /${subnetPrefix}</li>
-        <li>Convert the prefix to subnet mask: /${subnetPrefix} = ${subnetMask}</li>
-        <li>Calculate host bits: 32 - ${subnetPrefix} = ${hostBits} bits</li>
-        <li>Actual number of subnets possible: 2<sup>${requiredPrefixBits}</sup> = ${actualSubnets}</li>
+        <li><strong>Calculate required subnet bits:</strong> We need at least ${targetSubnets} subnets, so we need enough bits to represent that many networks:<br>
+        ceil(log₂(${targetSubnets})) = ${requiredPrefixBits} bits</li>
+        <li><strong>Calculate new subnet prefix:</strong> Add the subnet bits to the original prefix:<br>
+        ${basePrefix} (original) + ${requiredPrefixBits} (subnet bits) = /${subnetPrefix}</li>
+        <li><strong>Determine subnet mask:</strong> Convert the new prefix to a subnet mask:<br>
+        /${subnetPrefix} = ${subnetMask}</li>
+        <li><strong>Calculate available host bits:</strong> Total bits (32) minus prefix bits:<br>
+        32 - ${subnetPrefix} = ${hostBits} host bits</li>
+        <li><strong>Total number of subnets possible:</strong> With ${requiredPrefixBits} subnet bits:<br>
+        2<sup>${requiredPrefixBits}</sup> = ${actualSubnets} subnets</li>
       </ol>
-      <p class="mt-2">With a /${subnetPrefix} subnet, you can create ${actualSubnets} subnets from the ${baseNetwork}/${basePrefix} network.</p>
-      <p class="mt-2">The first few subnets are:</p>
-      <ul class="list-disc ml-5 mt-2 space-y-1 font-mono">
+      <p class="mt-2">With this subnet configuration (/${subnetPrefix}), you can create ${actualSubnets} equal-sized subnets from the original ${baseNetwork}/${basePrefix} network.</p>
+      <p class="mt-2">The first few subnet addresses are:</p>
+      <ul class="list-disc ml-5 mt-2 space-y-1 font-mono font-bold">
         ${subnetList}
       </ul>`
-      : `<p>Om een netwerk te subnetten in ${targetSubnets} subnetten:</p>
+      : `<p>Om het netwerk ${baseNetwork}/${basePrefix} te verdelen in ${targetSubnets} subnetten:</p>
       <ol class="list-decimal ml-5 mt-2 space-y-1">
-        <li>Bereken hoeveel subnet-bits nodig zijn: ceil(log₂(${targetSubnets})) = ${requiredPrefixBits} bits</li>
-        <li>Bereken de nieuwe subnet-prefix: ${basePrefix} + ${requiredPrefixBits} = /${subnetPrefix}</li>
-        <li>Converteer de prefix naar subnetmask: /${subnetPrefix} = ${subnetMask}</li>
-        <li>Bereken host-bits: 32 - ${subnetPrefix} = ${hostBits} bits</li>
-        <li>Werkelijk aantal mogelijke subnetten: 2<sup>${requiredPrefixBits}</sup> = ${actualSubnets}</li>
+        <li><strong>Bereken benodigde subnet-bits:</strong> We hebben minstens ${targetSubnets} subnetten nodig, dus we hebben genoeg bits nodig om dat aantal netwerken te representeren:<br>
+        ceil(log₂(${targetSubnets})) = ${requiredPrefixBits} bits</li>
+        <li><strong>Bereken nieuwe subnet-prefix:</strong> Tel de subnet-bits op bij de originele prefix:<br>
+        ${basePrefix} (origineel) + ${requiredPrefixBits} (subnet-bits) = /${subnetPrefix}</li>
+        <li><strong>Bepaal subnet masker:</strong> Zet de nieuwe prefix om naar een subnet masker:<br>
+        /${subnetPrefix} = ${subnetMask}</li>
+        <li><strong>Bereken beschikbare host-bits:</strong> Totaal aantal bits (32) min prefix bits:<br>
+        32 - ${subnetPrefix} = ${hostBits} host-bits</li>
+        <li><strong>Totaal aantal mogelijke subnetten:</strong> Met ${requiredPrefixBits} subnet-bits:<br>
+        2<sup>${requiredPrefixBits}</sup> = ${actualSubnets} subnetten</li>
       </ol>
-      <p class="mt-2">Met een /${subnetPrefix} subnet kun je ${actualSubnets} subnetten maken van het ${baseNetwork}/${basePrefix} netwerk.</p>
-      <p class="mt-2">De eerste paar subnetten zijn:</p>
-      <ul class="list-disc ml-5 mt-2 space-y-1 font-mono">
+      <p class="mt-2">Met deze subnet configuratie (/${subnetPrefix}) kun je ${actualSubnets} even grote subnetten maken van het originele ${baseNetwork}/${basePrefix} netwerk.</p>
+      <p class="mt-2">De eerste subnet-adressen zijn:</p>
+      <ul class="list-disc ml-5 mt-2 space-y-1 font-mono font-bold">
         ${subnetList}
       </ul>`;
     
@@ -1076,20 +1154,42 @@ function buildNetworkCalculationProblem(difficulty: string, language: Language =
     
     // Generate explanation
     const subnetExplanation = language === 'en'
-      ? `<p>To calculate the number of usable host addresses:</p>
-      <ol class="list-decimal ml-5 mt-2 space-y-1">
-        <li>Find the number of host bits: 32 - ${subnetPrefix} = ${hostBits}</li>
-        <li>Calculate 2 raised to that power: 2<sup>${hostBits}</sup> = ${Math.pow(2, hostBits)}</li>
-        <li>Subtract 2 for the network and broadcast addresses: ${Math.pow(2, hostBits)} - 2 = ${usableHosts}</li>
+      ? `<p>To calculate the number of usable host addresses in a /${subnetPrefix} subnet:</p>
+      <ol class="list-decimal ml-5 mt-2 space-y-2">
+        <li><strong>Determine the host bits:</strong><br>
+        In an IPv4 address, there are 32 bits total. The subnet prefix (/${subnetPrefix}) tells us how many bits are used for the network portion.<br>
+        Host bits = 32 - ${subnetPrefix} = <strong>${hostBits} bits</strong></li>
+        
+        <li><strong>Calculate the total addresses:</strong><br>
+        The total number of addresses (including network and broadcast) is 2 raised to the power of the host bits.<br>
+        2<sup>${hostBits}</sup> = <strong>${Math.pow(2, hostBits)} total addresses</strong></li>
+        
+        <li><strong>Calculate usable addresses:</strong><br>
+        We must subtract 2 addresses that cannot be assigned to hosts:<br>
+        - The network address (all host bits set to 0)<br>
+        - The broadcast address (all host bits set to 1)<br><br>
+        ${Math.pow(2, hostBits)} - 2 = <strong>${usableHosts} usable host addresses</strong></li>
       </ol>
-      <p class="mt-2">Therefore, a /${subnetPrefix} subnet has ${usableHosts} usable host addresses.</p>`
-      : `<p>Om het aantal bruikbare host-adressen te berekenen:</p>
-      <ol class="list-decimal ml-5 mt-2 space-y-1">
-        <li>Vind het aantal host-bits: 32 - ${subnetPrefix} = ${hostBits}</li>
-        <li>Bereken 2 tot de macht van dit getal: 2<sup>${hostBits}</sup> = ${Math.pow(2, hostBits)}</li>
-        <li>Trek 2 af voor de netwerk- en broadcastadressen: ${Math.pow(2, hostBits)} - 2 = ${usableHosts}</li>
+      <p class="mt-2 font-medium">Therefore, a /${subnetPrefix} subnet provides ${usableHosts} addresses that can be assigned to devices.</p>
+      <p class="mt-1 text-sm text-slate-600 dark:text-slate-400">Note: In special cases like point-to-point links with /31 prefixes, different rules may apply.</p>`
+      : `<p>Om het aantal bruikbare host-adressen in een /${subnetPrefix} subnet te berekenen:</p>
+      <ol class="list-decimal ml-5 mt-2 space-y-2">
+        <li><strong>Bepaal de host-bits:</strong><br>
+        In een IPv4-adres zijn er in totaal 32 bits. De subnet-prefix (/${subnetPrefix}) vertelt ons hoeveel bits worden gebruikt voor het netwerkgedeelte.<br>
+        Host-bits = 32 - ${subnetPrefix} = <strong>${hostBits} bits</strong></li>
+        
+        <li><strong>Bereken het totaal aantal adressen:</strong><br>
+        Het totale aantal adressen (inclusief netwerk- en broadcastadres) is 2 tot de macht van het aantal host-bits.<br>
+        2<sup>${hostBits}</sup> = <strong>${Math.pow(2, hostBits)} totale adressen</strong></li>
+        
+        <li><strong>Bereken bruikbare adressen:</strong><br>
+        We moeten 2 adressen aftrekken die niet aan hosts kunnen worden toegewezen:<br>
+        - Het netwerkadres (alle host-bits op 0)<br>
+        - Het broadcastadres (alle host-bits op 1)<br><br>
+        ${Math.pow(2, hostBits)} - 2 = <strong>${usableHosts} bruikbare host-adressen</strong></li>
       </ol>
-      <p class="mt-2">Daarom heeft een /${subnetPrefix} subnet ${usableHosts} bruikbare host-adressen.</p>`;
+      <p class="mt-2 font-medium">Daarom biedt een /${subnetPrefix} subnet ${usableHosts} adressen die aan apparaten kunnen worden toegewezen.</p>
+      <p class="mt-1 text-sm text-slate-600 dark:text-slate-400">Opmerking: In speciale gevallen zoals point-to-point verbindingen met /31 prefixen, kunnen andere regels gelden.</p>`;
     
     explanation = subnetExplanation;
   } 
@@ -1342,28 +1442,98 @@ function buildNetworkCalculationProblem(difficulty: string, language: Language =
     
     // Create explanation
     const fixedHostExplanation = language === 'en'
-      ? `<p>Detailed steps for this subnet calculation:</p>
-        <ol class="list-decimal ml-5 mt-2 space-y-1">
-          <li>Starting with network ${subnet1}/${startPrefix}</li>
-          <li>Need ${hostsPerSubnet} hosts per subnet, which requires ${requiredHostBits} host bits (2<sup>${requiredHostBits}</sup> - 2 = ${Math.pow(2, requiredHostBits) - 2} usable hosts)</li>
-          <li>New prefix = 32 - ${requiredHostBits} = /${newPrefix}</li>
-          <li>Subnet mask for /${newPrefix} is ${subnetMask}</li>
-          <li>The original network can be divided into ${possibleSubnets} subnets of size /${newPrefix}</li>
-          <li>First subnet starts at ${subnet1}</li>
-          <li>Second subnet starts at ${subnet2}</li>
-          <li>Subnet ${randomSubnetNumber} starts at ${subnetN}</li>
-        </ol>`
-      : `<p>Gedetailleerde stappen voor deze subnet berekening:</p>
-        <ol class="list-decimal ml-5 mt-2 space-y-1">
-          <li>Beginnend met netwerk ${subnet1}/${startPrefix}</li>
-          <li>Er zijn ${hostsPerSubnet} hosts per subnet nodig, wat ${requiredHostBits} host-bits vereist (2<sup>${requiredHostBits}</sup> - 2 = ${Math.pow(2, requiredHostBits) - 2} bruikbare hosts)</li>
-          <li>Nieuwe prefix = 32 - ${requiredHostBits} = /${newPrefix}</li>
-          <li>Subnetmasker voor /${newPrefix} is ${subnetMask}</li>
-          <li>Het oorspronkelijke netwerk kan worden verdeeld in ${possibleSubnets} subnetten van formaat /${newPrefix}</li>
-          <li>Eerste subnet begint bij ${subnet1}</li>
-          <li>Tweede subnet begint bij ${subnet2}</li>
-          <li>Subnet ${randomSubnetNumber} begint bij ${subnetN}</li>
-        </ol>`;
+      ? `<h3 class="font-bold mb-2">VLSM Subnet Calculation Step by Step</h3>
+        <div class="p-4 bg-zinc-100 dark:bg-zinc-800 rounded-md mb-4">
+          <p class="font-medium">Task: Divide the ${subnet1}/${startPrefix} network into subnets where each subnet needs to support ${hostsPerSubnet} hosts.</p>
+        </div>
+        
+        <ol class="list-decimal ml-5 mt-3 space-y-3">
+          <li>
+            <strong>Determine required host bits:</strong><br>
+            We need enough host bits to accommodate ${hostsPerSubnet} hosts.<br>
+            Formula: 2<sup>host-bits</sup> - 2 ≥ ${hostsPerSubnet}<br>
+            With ${requiredHostBits} host bits: 2<sup>${requiredHostBits}</sup> - 2 = ${Math.pow(2, requiredHostBits) - 2} usable hosts<br>
+            <span class="text-green-600 dark:text-green-400">✓ This is enough to support ${hostsPerSubnet} hosts</span>
+          </li>
+          
+          <li>
+            <strong>Calculate the new subnet prefix:</strong><br>
+            Total IPv4 bits (32) - Required host bits (${requiredHostBits}) = ${newPrefix}<br>
+            New prefix: <strong>/${newPrefix}</strong>
+          </li>
+          
+          <li>
+            <strong>Determine the subnet mask:</strong><br>
+            The /${newPrefix} prefix as a decimal subnet mask is: <strong>${subnetMask}</strong>
+          </li>
+          
+          <li>
+            <strong>Calculate the number of possible subnets:</strong><br>
+            Original prefix: /${startPrefix}<br>
+            New prefix: /${newPrefix}<br>
+            Subnet bits used: ${newPrefix - startPrefix}<br>
+            Possible subnets: 2<sup>${newPrefix - startPrefix}</sup> = ${possibleSubnets} subnets
+          </li>
+          
+          <li>
+            <strong>Calculate the subnet addresses:</strong><br>
+            <div class="ml-4 font-mono bg-zinc-50 dark:bg-zinc-900 p-2 rounded">
+              <div class="font-semibold text-indigo-600 dark:text-indigo-400">First subnet: ${subnet1}/${newPrefix}</div>
+              <div class="font-semibold text-indigo-600 dark:text-indigo-400">Second subnet: ${subnet2}/${newPrefix}</div>
+              <div class="font-semibold text-indigo-600 dark:text-indigo-400">Subnet ${randomSubnetNumber}: ${subnetN}/${newPrefix}</div>
+            </div>
+          </li>
+        </ol>
+        
+        <div class="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-md text-sm">
+          <p class="font-medium text-blue-800 dark:text-blue-300">VLSM (Variable Length Subnet Masking) allows us to create subnets of different sizes to efficiently use IP address space. In this exercise, we're creating equal-sized subnets, but the same principles apply when creating subnets of different sizes.</p>
+        </div>`
+      : `<h3 class="font-bold mb-2">VLSM Subnet Berekening Stap voor Stap</h3>
+        <div class="p-4 bg-zinc-100 dark:bg-zinc-800 rounded-md mb-4">
+          <p class="font-medium">Opdracht: Verdeel het ${subnet1}/${startPrefix} netwerk in subnetten waarbij elk subnet ${hostsPerSubnet} hosts moet kunnen ondersteunen.</p>
+        </div>
+        
+        <ol class="list-decimal ml-5 mt-3 space-y-3">
+          <li>
+            <strong>Bepaal benodigde host-bits:</strong><br>
+            We hebben genoeg host-bits nodig voor ${hostsPerSubnet} hosts.<br>
+            Formule: 2<sup>host-bits</sup> - 2 ≥ ${hostsPerSubnet}<br>
+            Met ${requiredHostBits} host-bits: 2<sup>${requiredHostBits}</sup> - 2 = ${Math.pow(2, requiredHostBits) - 2} bruikbare hosts<br>
+            <span class="text-green-600 dark:text-green-400">✓ Dit is voldoende voor ${hostsPerSubnet} hosts</span>
+          </li>
+          
+          <li>
+            <strong>Bereken de nieuwe subnet prefix:</strong><br>
+            Totaal IPv4 bits (32) - Benodigde host-bits (${requiredHostBits}) = ${newPrefix}<br>
+            Nieuwe prefix: <strong>/${newPrefix}</strong>
+          </li>
+          
+          <li>
+            <strong>Bepaal het subnet masker:</strong><br>
+            De /${newPrefix} prefix als decimaal subnet masker is: <strong>${subnetMask}</strong>
+          </li>
+          
+          <li>
+            <strong>Bereken het aantal mogelijke subnetten:</strong><br>
+            Originele prefix: /${startPrefix}<br>
+            Nieuwe prefix: /${newPrefix}<br>
+            Subnet bits gebruikt: ${newPrefix - startPrefix}<br>
+            Mogelijke subnetten: 2<sup>${newPrefix - startPrefix}</sup> = ${possibleSubnets} subnetten
+          </li>
+          
+          <li>
+            <strong>Bereken de subnet adressen:</strong><br>
+            <div class="ml-4 font-mono bg-zinc-50 dark:bg-zinc-900 p-2 rounded">
+              <div class="font-semibold text-indigo-600 dark:text-indigo-400">Eerste subnet: ${subnet1}/${newPrefix}</div>
+              <div class="font-semibold text-indigo-600 dark:text-indigo-400">Tweede subnet: ${subnet2}/${newPrefix}</div>
+              <div class="font-semibold text-indigo-600 dark:text-indigo-400">Subnet ${randomSubnetNumber}: ${subnetN}/${newPrefix}</div>
+            </div>
+          </li>
+        </ol>
+        
+        <div class="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-md text-sm">
+          <p class="font-medium text-blue-800 dark:text-blue-300">VLSM (Variable Length Subnet Masking) stelt ons in staat om subnetten van verschillende groottes te creëren om efficiënt gebruik te maken van de IP-adresruimte. In deze oefening maken we subnetten van gelijke grootte, maar dezelfde principes gelden bij het maken van subnetten van verschillende groottes.</p>
+        </div>`;
       
     explanation = fixedHostExplanation;
   }
