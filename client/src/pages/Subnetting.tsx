@@ -13,7 +13,7 @@ import SubnettingExerciseCard from "@/components/SubnettingExerciseCard";
 import { useLanguage } from "@/lib/languageContext";
 
 export default function Subnetting() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [subnetType, setSubnetType] = useState("basic");
   const [difficulty, setDifficulty] = useState("easy");
 
@@ -64,7 +64,7 @@ export default function Subnetting() {
           <div className="grid gap-6 grid-cols-1 lg:grid-cols-2">
             <div>
               <h4 className="font-medium text-slate-800 mb-3 dark:text-zinc-200">{t('subnetting.reference.table.title')}</h4>
-              <div className="bg-slate-50 p-3 rounded-md overflow-x-auto dark:bg-zinc-900">
+              <div className="bg-slate-50 p-3 rounded-md overflow-x-auto dark:bg-black">
                 <table className="min-w-full text-sm">
                   <thead>
                     <tr className="bg-slate-100 dark:bg-zinc-800">
@@ -173,19 +173,20 @@ export default function Subnetting() {
               <div className="bg-slate-50 p-4 rounded-md text-sm dark:bg-zinc-900">
                 <div className="space-y-2 text-slate-700 dark:text-zinc-300">
                   <p className="font-medium">{t('subnetting.reference.formula.hosts')}</p>
-                  <p className="font-mono">Usable Hosts = 2<sup>n</sup> - 2</p>
+                  <p className="font-mono">{t('subnetting.reference.formula.usable')} = 2<sup>n</sup> - 2</p>
                   <p className="text-xs">{t('subnetting.reference.formula.hosts.desc')}</p>
                   
                   <div className="pt-2 mt-2 border-t border-slate-200 dark:border-zinc-700">
                     <p className="font-medium">{t('subnetting.reference.formula.subnets')}</p>
-                    <p className="font-mono">Number of Subnets = 2<sup>m</sup></p>
+                    <p className="font-mono">{t('subnetting.reference.formula.number')} = 2<sup>m</sup></p>
                     <p className="text-xs">{t('subnetting.reference.formula.subnets.desc')}</p>
                   </div>
                   
                   <div className="pt-2 mt-2 border-t border-slate-200 dark:border-zinc-700">
                     <p className="font-medium">{t('subnetting.reference.formula.subnet.formula')}</p>
-                    <p className="font-mono">256 - mask_octet = increment</p>
+                    <p className="font-mono">256 - {t('subnetting.reference.formula.mask_octet')} = {t('subnetting.reference.formula.increment')}</p>
                     <p className="text-xs">{t('subnetting.reference.formula.subnet.desc')}</p>
+                    <p className="text-xs mt-1">{t('subnetting.reference.formula.example')}</p>
                   </div>
                 </div>
               </div>
