@@ -13,7 +13,7 @@ interface SubnettingExerciseProps {
 
 export default function SubnettingExerciseCard({ subnetType, difficulty }: SubnettingExerciseProps) {
   const { toast } = useToast();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [questionText, setQuestionText] = useState("");
   const [answerFields, setAnswerFields] = useState<{id: string, label: string, answer: string}[]>([]);
   const [userAnswers, setUserAnswers] = useState<{[key: string]: string}>({});
