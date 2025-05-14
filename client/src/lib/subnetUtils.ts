@@ -150,6 +150,11 @@ function prefixToSubnetMask(prefix: number): string {
   return mask.join('.');
 }
 
+// Helper function to invert a subnet mask
+function invertMask(mask: string): string {
+  return mask.split('.').map(octet => (255 - parseInt(octet)).toString()).join('.');
+}
+
 // Convert CIDR notation to mask
 function cidrToMask(cidr: string): string {
   const prefix = parseInt(cidr.replace('/', ''));
