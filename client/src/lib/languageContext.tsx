@@ -303,7 +303,7 @@ const translations: Record<string, Record<string, string>> = {
   },
   'subnetting.type.wildcard': {
     en: 'Wildcard Masks',
-    nl: 'Wildcard Maskers',
+    nl: 'Wildcard Masks',
   },
   'subnetting.type.network': {
     en: 'Network Calculations',
