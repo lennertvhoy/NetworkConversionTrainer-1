@@ -1405,24 +1405,20 @@ function buildNetworkCalculationProblem(difficulty: string, language: Language =
     // Create bullet points with the same questions as in the screenshot
     const bulletPoints = language === 'en'
       ? `<ul class="list-disc pl-5 space-y-1">
-          <li>Write the subnet mask in decimal</li>
-          <li>How many host bits do you need?</li>
-          <li>What is the CIDR for these subnets?</li>
-          <li>Subnet mask?</li>
-          <li>Subnet 1?</li>
-          <li>Subnet 2?</li>
-          <li>Subnet ${randomSubnetNumber}?</li>
-          <li>List the subnets as slash notation from the Network ID!</li>
+          <li>How many host bits do you need for ${hostsPerSubnet} hosts?</li>
+          <li>What is the CIDR prefix that will be used for these subnets?</li>
+          <li>What is the subnet mask in decimal notation?</li>
+          <li>What is Subnet 1 (in CIDR notation)?</li>
+          <li>What is Subnet 2 (in CIDR notation)?</li>
+          <li>What is Subnet ${randomSubnetNumber} (in CIDR notation)?</li>
         </ul>`
       : `<ul class="list-disc pl-5 space-y-1">
-          <li>Schrijf het subnetmask uit in decimalen</li>
-          <li>Hoeveel host-bits moet je lenen?</li>
-          <li>Wat wordt je CIDR voor deze subnetten?</li>
-          <li>Subnetmask?</li>
-          <li>Subnet 1?</li>
-          <li>Subnet 2?</li>
-          <li>Subnet ${randomSubnetNumber}?</li>
-          <li>Geef de subnetten als een slashnotatie vanuit de Net-ID!</li>
+          <li>Hoeveel host-bits heb je nodig voor ${hostsPerSubnet} hosts?</li>
+          <li>Wat wordt de CIDR prefix die gebruikt wordt voor deze subnetten?</li>
+          <li>Wat is het subnetmask in decimale notatie?</li>
+          <li>Wat is Subnet 1 (in CIDR notatie)?</li>
+          <li>Wat is Subnet 2 (in CIDR notatie)?</li>
+          <li>Wat is Subnet ${randomSubnetNumber} (in CIDR notatie)?</li>
         </ul>`;
     
     questionText = `<p class="text-slate-800 mb-3 dark:text-zinc-200">${fixedHostPrompt}</p>${bulletPoints}`;
@@ -1435,11 +1431,11 @@ function buildNetworkCalculationProblem(difficulty: string, language: Language =
     const subnet2Label = language === 'en' ? 'Subnet 2' : 'Subnet 2';
     const subnetNLabel = language === 'en' ? `Subnet ${randomSubnetNumber}` : `Subnet ${randomSubnetNumber}`;
     
-    // Create separate answer fields for each question
+    // Create separate answer fields for each question, in the same order as the bullet points
     answerFields = [
-      { id: 'subnet-mask', label: subnetMaskLabel, answer: subnetMask },
       { id: 'host-bits', label: hostBitsLabel, answer: requiredHostBits.toString() },
       { id: 'subnet-prefix', label: cidrLabel, answer: `/${newPrefix}` },
+      { id: 'subnet-mask', label: subnetMaskLabel, answer: subnetMask },
       { id: 'subnet-1', label: subnet1Label, answer: `${subnet1}/${newPrefix}` },
       { id: 'subnet-2', label: subnet2Label, answer: `${subnet2}/${newPrefix}` },
       { id: 'subnet-n', label: subnetNLabel, answer: `${subnetN}/${newPrefix}` }
@@ -1578,24 +1574,20 @@ function buildNetworkCalculationProblem(difficulty: string, language: Language =
     
     const bulletPoints = language === 'en'
       ? `<ul class="list-disc pl-5 space-y-1">
-          <li>Write the subnet mask in decimal</li>
-          <li>How many host bits do you need?</li>
-          <li>What is the CIDR for these subnets?</li>
-          <li>Subnet mask?</li>
-          <li>Subnet 1?</li>
-          <li>Subnet 2?</li>
-          <li>Subnet ${numSubnets}?</li>
-          <li>List the subnets as slash notation from the Network ID!</li>
+          <li>How many subnet bits do you need for ${numSubnets} subnets?</li>
+          <li>What is the new CIDR prefix that will be used?</li>
+          <li>What is the subnet mask in decimal notation?</li>
+          <li>What is Subnet 1 (in CIDR notation)?</li>
+          <li>What is Subnet 2 (in CIDR notation)?</li>
+          <li>What is Subnet ${numSubnets} (in CIDR notation)?</li>
         </ul>`
       : `<ul class="list-disc pl-5 space-y-1">
-          <li>Schrijf het subnetmask uit in decimalen</li>
-          <li>Hoeveel host-bits moet je lenen?</li>
-          <li>Wat wordt je CIDR voor deze subnetten?</li>
-          <li>Subnetmask?</li>
-          <li>Subnet 1?</li>
-          <li>Subnet 2?</li>
-          <li>Subnet ${numSubnets}?</li>
-          <li>Geef de subnetten als een slashnotatie vanuit de Net-ID!</li>
+          <li>Hoeveel subnet-bits heb je nodig voor ${numSubnets} subnetten?</li>
+          <li>Wat wordt de nieuwe CIDR prefix die gebruikt wordt?</li>
+          <li>Wat is het subnetmask in decimale notatie?</li>
+          <li>Wat is Subnet 1 (in CIDR notatie)?</li>
+          <li>Wat is Subnet 2 (in CIDR notatie)?</li>
+          <li>Wat is Subnet ${numSubnets} (in CIDR notatie)?</li>
         </ul>`;
     
     questionText = `<p class="text-slate-800 mb-3 dark:text-zinc-200">${comprehensivePrompt}</p>${bulletPoints}`;
