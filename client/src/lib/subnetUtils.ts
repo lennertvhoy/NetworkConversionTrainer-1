@@ -231,26 +231,29 @@ function buildVlsmProblem(difficulty: string, language: Language = 'nl'): Subnet
   // Generate department requirements
   let departments: { name: string; hosts: number }[] = [];
   
+  // Department prefix based on language
+  const deptPrefix = language === 'en' ? 'Department' : 'Afdeling';
+  
   if (difficulty === 'easy') {
     departments = [
-      { name: 'Department A', hosts: Math.floor(Math.random() * 20) + 10 },
-      { name: 'Department B', hosts: Math.floor(Math.random() * 10) + 5 },
-      { name: 'Department C', hosts: Math.floor(Math.random() * 5) + 2 },
+      { name: `${deptPrefix} A`, hosts: Math.floor(Math.random() * 20) + 10 },
+      { name: `${deptPrefix} B`, hosts: Math.floor(Math.random() * 10) + 5 },
+      { name: `${deptPrefix} C`, hosts: Math.floor(Math.random() * 5) + 2 },
     ];
   } else if (difficulty === 'medium') {
     departments = [
-      { name: 'Department A', hosts: Math.floor(Math.random() * 50) + 30 },
-      { name: 'Department B', hosts: Math.floor(Math.random() * 30) + 15 },
-      { name: 'Department C', hosts: Math.floor(Math.random() * 15) + 5 },
-      { name: 'Department D', hosts: Math.floor(Math.random() * 5) + 2 },
+      { name: `${deptPrefix} A`, hosts: Math.floor(Math.random() * 50) + 30 },
+      { name: `${deptPrefix} B`, hosts: Math.floor(Math.random() * 30) + 15 },
+      { name: `${deptPrefix} C`, hosts: Math.floor(Math.random() * 15) + 5 },
+      { name: `${deptPrefix} D`, hosts: Math.floor(Math.random() * 5) + 2 },
     ];
   } else { // hard
     departments = [
-      { name: 'Department A', hosts: Math.floor(Math.random() * 100) + 50 },
-      { name: 'Department B', hosts: Math.floor(Math.random() * 50) + 20 },
-      { name: 'Department C', hosts: Math.floor(Math.random() * 20) + 10 },
-      { name: 'Department D', hosts: Math.floor(Math.random() * 10) + 5 },
-      { name: 'Department E', hosts: Math.floor(Math.random() * 5) + 2 },
+      { name: `${deptPrefix} A`, hosts: Math.floor(Math.random() * 100) + 50 },
+      { name: `${deptPrefix} B`, hosts: Math.floor(Math.random() * 50) + 20 },
+      { name: `${deptPrefix} C`, hosts: Math.floor(Math.random() * 20) + 10 },
+      { name: `${deptPrefix} D`, hosts: Math.floor(Math.random() * 10) + 5 },
+      { name: `${deptPrefix} E`, hosts: Math.floor(Math.random() * 5) + 2 },
     ];
   }
   
@@ -322,12 +325,22 @@ function buildVlsmProblem(difficulty: string, language: Language = 'nl'): Subnet
   }
   
   // Generate the question
-  let questionText = `<p class="text-slate-800 mb-3 dark:text-zinc-200">You are designing a network with the following requirements:</p>
+  const introText = language === 'en' 
+    ? 'You are designing a network with the following requirements:'
+    : 'Je ontwerpt een netwerk met de volgende vereisten:';
+    
+  const allocatedText = language === 'en'
+    ? 'Network address allocated:'
+    : 'Toegewezen netwerkadres:';
+    
+  const needsListText = language === 'en' ? 'needs' : 'heeft nodig';
+  
+  let questionText = `<p class="text-slate-800 mb-3 dark:text-zinc-200">${introText}</p>
   <ul class="list-disc pl-5 space-y-1 text-slate-700 mb-3 dark:text-zinc-300">
-  <li>Network address allocated: <span class="font-mono font-medium">${baseNetwork}/${basePrefix}</span></li>`;
+  <li>${allocatedText} <span class="font-mono font-medium">${baseNetwork}/${basePrefix}</span></li>`;
   
   departments.forEach(dept => {
-    questionText += `<li>${dept.name} needs ${dept.hosts} hosts</li>`;
+    questionText += `<li>${dept.name} ${needsListText} ${dept.hosts} hosts</li>`;
   });
   
   // Pick a random department to ask about (not the first one for medium/hard)
@@ -335,30 +348,57 @@ function buildVlsmProblem(difficulty: string, language: Language = 'nl'): Subnet
   const targetDept = departments[targetDeptIndex];
   const targetSubnet = subnets[targetDeptIndex];
   
+  const questionPrompt = language === 'en'
+    ? `What subnet address and mask would you assign to ${targetDept.name}?`
+    : `Welk subnet adres en masker zou je toewijzen aan ${targetDept.name}?`;
+    
   questionText += `</ul>
-  <p class="text-slate-800 font-medium dark:text-zinc-200">What subnet address and mask would you assign to ${targetDept.name}?</p>`;
+  <p class="text-slate-800 font-medium dark:text-zinc-200">${questionPrompt}</p>`;
+  
+  // Translate field labels
+  const networkLabel = language === 'en' ? 'Subnet Network Address' : 'Subnet Netwerkadres';
+  const maskLabel = language === 'en' ? 'Subnet Mask' : 'Subnet Masker';
   
   const answerFields = [
     {
       id: 'subnet-address',
-      label: 'Subnet Network Address',
+      label: networkLabel,
       answer: targetSubnet.network
     },
     {
       id: 'subnet-mask',
-      label: 'Subnet Mask',
+      label: maskLabel,
       answer: targetSubnet.mask
     }
   ];
   
   // Create detailed explanation
-  let explanation = `<p>The subnet <span class="font-mono font-bold">${targetSubnet.network}/${targetSubnet.prefix}</span> (mask <span class="font-mono font-bold">${targetSubnet.mask}</span>) is correct for ${targetDept.name}.</p>
-  <p class="mt-2">Working through the VLSM process:</p>
+  const correctSubnetText = language === 'en'
+    ? `The subnet <span class="font-mono font-bold">${targetSubnet.network}/${targetSubnet.prefix}</span> (mask <span class="font-mono font-bold">${targetSubnet.mask}</span>) is correct for ${targetDept.name}.`
+    : `Het subnet <span class="font-mono font-bold">${targetSubnet.network}/${targetSubnet.prefix}</span> (masker <span class="font-mono font-bold">${targetSubnet.mask}</span>) is correct voor ${targetDept.name}.`;
+    
+  const processText = language === 'en'
+    ? `Working through the VLSM process:`
+    : `Uitwerking van het VLSM-proces:`;
+    
+  const orderText = language === 'en'
+    ? `Order departments by host count:`
+    : `Rangschik afdelingen op aantal hosts:`;
+    
+  const needsExplText = language === 'en' ? 'needs' : 'heeft';
+  const hostsText = language === 'en' ? 'hosts' : 'hosts nodig';
+  const requiringText = language === 'en' ? 'requiring' : 'vereist';
+  const hostBitsText = language === 'en' ? 'host bits' : 'host-bits';
+  const soAText = language === 'en' ? 'so a' : 'dus een';
+  const subnetText = language === 'en' ? 'subnet' : 'subnet';
+    
+  let explanation = `<p>${correctSubnetText}</p>
+  <p class="mt-2">${processText}</p>
   <ol class="list-decimal ml-5 mt-1 space-y-1">
-  <li>Order departments by host count: ${departments.map(d => `${d.name} (${d.hosts})`).join(', ')}</li>`;
+  <li>${orderText} ${departments.map(d => `${d.name} (${d.hosts})`).join(', ')}</li>`;
   
   subnets.forEach((subnet, index) => {
-    explanation += `<li>${subnet.department} needs ${subnet.hosts} hosts, requiring ${32 - subnet.prefix} host bits (2<sup>${32 - subnet.prefix}</sup>-2 = ${calculateUsableHosts(subnet.prefix)} > ${subnet.hosts}), so a /${subnet.prefix} subnet (${subnet.network}/${subnet.prefix})</li>`;
+    explanation += `<li>${subnet.department} ${needsText} ${subnet.hosts} ${hostsText}, ${requiringText} ${32 - subnet.prefix} ${hostBitsText} (2<sup>${32 - subnet.prefix}</sup>-2 = ${calculateUsableHosts(subnet.prefix)} > ${subnet.hosts}), ${soAText} /${subnet.prefix} ${subnetText} (${subnet.network}/${subnet.prefix})</li>`;
   });
   
   explanation += `</ol>`;
