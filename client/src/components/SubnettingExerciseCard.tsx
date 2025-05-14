@@ -203,7 +203,7 @@ export default function SubnettingExerciseCard({ subnetType, difficulty }: Subne
                 value={userAnswers[field.id] || ""}
                 onChange={(e) => handleInputChange(field.id, e.target.value)}
                 placeholder={
-                  // Determine appropriate placeholder based on context
+                  // Determine appropriate placeholder based on each field type
                   field.id === 'subnet-mask' 
                     ? (questionText.toLowerCase().includes('cidr') || questionText.toLowerCase().includes('prefix')
                       ? t('subnetting.placeholder.cidr') 
@@ -214,7 +214,11 @@ export default function SubnettingExerciseCard({ subnetType, difficulty }: Subne
                       ? "2001:0db8:0000:0000:0000:0000:0000:0001"
                       : field.id === 'abbreviated-ipv6'
                         ? "2001:db8::1"
-                        : t('subnetting.placeholder.ip')
+                        : field.id === 'usable-hosts' || field.id === 'host-count' || field.id === 'subnet-count'
+                          ? "16777214"  // Voorbeeld van een antwoord op een getalsvraag
+                          : field.id.includes('host') || field.id.includes('network') || field.id.includes('broadcast')
+                            ? "192.0.2.1"  // Voorbeeld van een IP-adres formaat
+                            : t('subnetting.placeholder.ip')
                 }
                 className="shadow-sm focus:ring-secondary focus:border-secondary block w-full sm:text-sm border-slate-300"
               />
