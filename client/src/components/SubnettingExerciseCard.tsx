@@ -134,6 +134,8 @@ export default function SubnettingExerciseCard({ subnetType, difficulty }: Subne
     setIsAnswered(true);
   };
 
+
+  
   const handleNextQuestion = () => {
     generateNewQuestion();
   };
@@ -203,22 +205,21 @@ export default function SubnettingExerciseCard({ subnetType, difficulty }: Subne
                 value={userAnswers[field.id] || ""}
                 onChange={(e) => handleInputChange(field.id, e.target.value)}
                 placeholder={
-                  // Determine appropriate placeholder based on each field type
-                  field.id === 'subnet-mask' 
-                    ? (questionText.toLowerCase().includes('cidr') || questionText.toLowerCase().includes('prefix')
-                      ? t('subnetting.placeholder.cidr') 
-                      : questionText.toLowerCase().includes('decimal')
-                        ? t('subnetting.placeholder.decimal')
-                        : t('subnetting.placeholder.mask'))
-                    : field.id === 'expanded-ipv6'
-                      ? "2001:0db8:0000:0000:0000:0000:0000:0001"
-                      : field.id === 'abbreviated-ipv6'
-                        ? "2001:db8::1"
-                        : field.id === 'usable-hosts' || field.id === 'host-count' || field.id === 'subnet-count'
-                          ? "16777214"  // Voorbeeld van een antwoord op een getalsvraag
-                          : field.id.includes('host') || field.id.includes('network') || field.id.includes('broadcast')
-                            ? "192.0.2.1"  // Voorbeeld van een IP-adres formaat
-                            : t('subnetting.placeholder.ip')
+                  field.id === 'expanded-ipv6'
+                    ? (language === 'en' ? 'eg. ' : 'bijv. ') + "2001:0db8:0000:0000:0000:0000:0000:0001"
+                    : field.id === 'abbreviated-ipv6'
+                      ? (language === 'en' ? 'eg. ' : 'bijv. ') + "2001:db8::1"
+                      : field.id === 'usable-hosts' || field.id === 'host-count' || field.id === 'subnet-count'
+                        ? (language === 'en' ? 'eg. ' : 'bijv. ') + "16777214"
+                        : field.id.includes('host') || field.id.includes('network') || field.id.includes('broadcast')
+                          ? (language === 'en' ? 'eg. ' : 'bijv. ') + "192.0.2.1"
+                          : (field.id === 'subnet-mask' && (questionText.toLowerCase().includes('cidr') || questionText.toLowerCase().includes('prefix')))
+                            ? t('subnetting.placeholder.cidr')
+                            : (field.id === 'subnet-mask' && questionText.toLowerCase().includes('decimal'))
+                              ? t('subnetting.placeholder.decimal')
+                              : field.id === 'subnet-mask'
+                                ? t('subnetting.placeholder.mask')
+                                : t('subnetting.placeholder.ip')
                 }
                 className="shadow-sm focus:ring-secondary focus:border-secondary block w-full sm:text-sm border-slate-300"
               />
