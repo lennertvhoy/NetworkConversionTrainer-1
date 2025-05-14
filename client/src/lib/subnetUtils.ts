@@ -398,7 +398,7 @@ function buildVlsmProblem(difficulty: string, language: Language = 'nl'): Subnet
   <li>${orderText} ${departments.map(d => `${d.name} (${d.hosts})`).join(', ')}</li>`;
   
   subnets.forEach((subnet, index) => {
-    explanation += `<li>${subnet.department} ${needsText} ${subnet.hosts} ${hostsText}, ${requiringText} ${32 - subnet.prefix} ${hostBitsText} (2<sup>${32 - subnet.prefix}</sup>-2 = ${calculateUsableHosts(subnet.prefix)} > ${subnet.hosts}), ${soAText} /${subnet.prefix} ${subnetText} (${subnet.network}/${subnet.prefix})</li>`;
+    explanation += `<li>${subnet.department} ${needsExplText} ${subnet.hosts} ${hostsText}, ${requiringText} ${32 - subnet.prefix} ${hostBitsText} (2<sup>${32 - subnet.prefix}</sup>-2 = ${calculateUsableHosts(subnet.prefix)} > ${subnet.hosts}), ${soAText} /${subnet.prefix} ${subnetText} (${subnet.network}/${subnet.prefix})</li>`;
   });
   
   explanation += `</ol>`;
