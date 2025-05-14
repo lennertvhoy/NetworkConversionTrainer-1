@@ -870,7 +870,7 @@ function buildNetworkCalculationProblem(difficulty: string, language: Language =
   let explanation = '';
   
   // Choose what kind of calculation to test
-  const questionTypes = ['subnet-count', 'host-count', 'vlsm'];
+  const questionTypes = ['subnet-count', 'host-count', 'vlsm', 'comprehensive-subnet'];
   let questionType = 'subnet-count';
   
   if (difficulty === 'easy') {
@@ -878,7 +878,13 @@ function buildNetworkCalculationProblem(difficulty: string, language: Language =
   } else if (difficulty === 'medium') {
     questionType = questionTypes[Math.floor(Math.random() * 2)]; // subnet-count or host-count
   } else { // hard
-    questionType = questionTypes[Math.floor(Math.random() * 3)]; // any type
+    // Add probability for the new comprehensive subnet question type
+    const rand = Math.random();
+    if (rand < 0.5) {
+      questionType = 'comprehensive-subnet'; // 50% kans op een uitgebreide vraag op moeilijk niveau
+    } else {
+      questionType = questionTypes[Math.floor(Math.random() * 3)]; // other types
+    }
   }
   
   if (questionType === 'subnet-count') {
@@ -1039,6 +1045,121 @@ function buildNetworkCalculationProblem(difficulty: string, language: Language =
       <p class="mt-2">Een /${requiredPrefix} subnet heeft ${actualHosts} bruikbare host-adressen, wat voldoende is voor de vereiste ${requiredHosts} hosts.</p>`;
     
     explanation = mediumExplanation;
+  }
+  else if (questionType === 'comprehensive-subnet') {
+    // CCNA-style comprehensive subnet calculation question with multiple parts
+    // Generate a base network with a specific number of subnets
+    const baseNetwork = `${Math.floor(Math.random() * 223) + 1}.${Math.floor(Math.random() * 255)}`; // Start with first two octets
+    let prefix: number;
+    
+    if (difficulty === 'medium') {
+      prefix = [16, 17, 18, 19, 20][Math.floor(Math.random() * 5)]; // Medium difficulty: /16-/20
+    } else { // Hard
+      prefix = [16, 17, 18, 19, 20, 21, 22][Math.floor(Math.random() * 7)]; // Hard: /16-/22
+    }
+    
+    // Calculate how many bits we need for subnets
+    const numSubnets = Math.floor(Math.random() * 40) + 10; // Between 10-50 subnets
+    const subnetBits = Math.ceil(Math.log2(numSubnets));
+    const newPrefix = prefix + subnetBits;
+    
+    // Calculate subnet mask in decimal
+    const subnetMask = prefixToSubnetMask(newPrefix);
+    
+    // Calculate the number of host bits
+    const hostBits = 32 - newPrefix;
+    const usableHosts = Math.pow(2, hostBits) - 2;
+    
+    // Calculate the first few subnets
+    const subnet1 = `${baseNetwork}.${Math.floor(Math.random() * 2) * (256 / Math.pow(2, subnetBits))}.0`;
+    const subnet2 = `${baseNetwork}.${Math.floor(Math.random() * 2) * (256 / Math.pow(2, subnetBits)) + (256 / Math.pow(2, subnetBits))}.0`;
+    const subnetLast = `${baseNetwork}.${(numSubnets - 1) * (256 / Math.pow(2, subnetBits))}.0`;
+    
+    // Create the question with multiple parts
+    const comprehensivePrompt = language === 'en'
+      ? `${baseNetwork}.0.0/${prefix} divided into ${numSubnets} subnets.<br><br>Answer the following questions:`
+      : `${baseNetwork}.0.0/${prefix} verdelen in ${numSubnets} subnetten.<br><br>Beantwoord de volgende vragen:`;
+    
+    const bulletPoints = language === 'en'
+      ? `<ul class="list-disc pl-5 space-y-1">
+          <li>Write the subnet mask in decimal</li>
+          <li>How many host bits do you need?</li>
+          <li>What is the CIDR for these subnets?</li>
+          <li>Subnet mask?</li>
+          <li>Subnet 1?</li>
+          <li>Subnet 2?</li>
+          <li>Subnet ${numSubnets}?</li>
+          <li>List the subnets as slash notation from the Network ID!</li>
+        </ul>`
+      : `<ul class="list-disc pl-5 space-y-1">
+          <li>Schrijf het subnetmask uit in decimalen</li>
+          <li>Hoeveel host-bits moet je lenen?</li>
+          <li>Wat wordt je CIDR voor deze subnetten?</li>
+          <li>Subnetmask?</li>
+          <li>Subnet 1?</li>
+          <li>Subnet 2?</li>
+          <li>Subnet ${numSubnets}?</li>
+          <li>Geef de subnetten als een slashnotatie vanuit de Net-ID!</li>
+        </ul>`;
+    
+    questionText = `<p class="text-slate-800 mb-3 dark:text-zinc-200">${comprehensivePrompt}</p>${bulletPoints}`;
+    
+    // Create a textarea for the comprehensive answer
+    const textarea = language === 'en' 
+      ? 'Comprehensive Answer'
+      : 'Uitgebreid Antwoord';
+    
+    // Create model answer for explanation
+    const modelAnswer = language === 'en'
+      ? `Subnet mask in decimal: ${subnetMask}
+Host bits: ${hostBits}
+CIDR for subnets: /${newPrefix}
+Subnet mask: ${subnetMask}
+Subnet 1: ${subnet1}/${newPrefix}
+Subnet 2: ${subnet2}/${newPrefix}
+Subnet ${numSubnets}: ${subnetLast}/${newPrefix}
+Slash notation: ${baseNetwork}.0.0/${prefix} -> ${subnet1}/${newPrefix}`
+      : `Subnetmask in decimalen: ${subnetMask}
+Host-bits: ${hostBits}
+CIDR voor subnetten: /${newPrefix}
+Subnetmask: ${subnetMask}
+Subnet 1: ${subnet1}/${newPrefix}
+Subnet 2: ${subnet2}/${newPrefix}
+Subnet ${numSubnets}: ${subnetLast}/${newPrefix}
+Slashnotatie: ${baseNetwork}.0.0/${prefix} -> ${subnet1}/${newPrefix}`;
+    
+    answerFields = [
+      { id: 'comprehensive-answer', label: textarea, answer: modelAnswer }
+    ];
+    
+    // Create explanation
+    const comprehensiveExplanation = language === 'en'
+      ? `<p>Detailed steps for this subnet calculation:</p>
+        <ol class="list-decimal ml-5 mt-2 space-y-1">
+          <li>Starting with network ${baseNetwork}.0.0/${prefix}</li>
+          <li>Need to create ${numSubnets} subnets, which requires ${subnetBits} subnet bits</li>
+          <li>New prefix = ${prefix} + ${subnetBits} = /${newPrefix}</li>
+          <li>Subnet mask for /${newPrefix} is ${subnetMask}</li>
+          <li>Host bits = 32 - ${newPrefix} = ${hostBits}</li>
+          <li>Each subnet has ${usableHosts} usable host addresses</li>
+          <li>First subnet starts at ${subnet1}</li>
+          <li>Second subnet starts at ${subnet2}</li>
+          <li>Last subnet (${numSubnets}) starts at ${subnetLast}</li>
+        </ol>`
+      : `<p>Gedetailleerde stappen voor deze subnet berekening:</p>
+        <ol class="list-decimal ml-5 mt-2 space-y-1">
+          <li>Beginnend met netwerk ${baseNetwork}.0.0/${prefix}</li>
+          <li>Er zijn ${numSubnets} subnetten nodig, wat ${subnetBits} subnet-bits vereist</li>
+          <li>Nieuwe prefix = ${prefix} + ${subnetBits} = /${newPrefix}</li>
+          <li>Subnetmasker voor /${newPrefix} is ${subnetMask}</li>
+          <li>Host-bits = 32 - ${newPrefix} = ${hostBits}</li>
+          <li>Elk subnet heeft ${usableHosts} bruikbare host-adressen</li>
+          <li>Eerste subnet begint bij ${subnet1}</li>
+          <li>Tweede subnet begint bij ${subnet2}</li>
+          <li>Laatste subnet (${numSubnets}) begint bij ${subnetLast}</li>
+        </ol>`;
+      
+    explanation = comprehensiveExplanation;
   }
   
   return {
