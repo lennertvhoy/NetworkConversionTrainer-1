@@ -159,7 +159,7 @@ export default function BinaryExerciseCard({ conversionType, difficulty }: Binar
               variant="outline"
               size="sm"
               onClick={generateNewQuestion}
-              className="flex items-center gap-1"
+              className="flex items-center gap-1 hover:bg-blue-100 dark:hover:bg-blue-900"
             >
               <RefreshCw className="h-4 w-4" />
               {t('binary.newQuestion')}
