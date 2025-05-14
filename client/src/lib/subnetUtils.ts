@@ -967,12 +967,54 @@ function buildNetworkCalculationProblem(difficulty: string, language: Language =
     const hostBitsLabel = language === 'en' ? 'Host Bits' : 'Host-bits';
     const cidrLabel = language === 'en' ? 'CIDR Prefix' : 'CIDR Prefix';
     
+    // Generate the first 4 subnet addresses for examples
+    const baseOctets = baseNetwork.split('.').map(octet => parseInt(octet));
+    const subnetIncrementValue = Math.pow(2, Math.max(0, 8 - (subnetPrefix % 8)));
+    
+    // Calculate which octet will change based on the subnet prefix
+    const changingOctetIndex = Math.min(3, Math.floor(subnetPrefix / 8));
+    
+    // Calculate subnet addresses
+    const subnetAddresses = [];
+    for (let i = 0; i < Math.min(4, actualSubnets); i++) {
+      // Clone the base octets
+      const subnetOctets = [...baseOctets];
+      
+      // Calculate the value for the changing octet
+      if (changingOctetIndex < 4) {
+        subnetOctets[changingOctetIndex] = 
+          baseOctets[changingOctetIndex] + (i * subnetIncrementValue);
+      }
+      
+      // Make sure all octets after the changing one are zero
+      for (let j = changingOctetIndex + 1; j < 4; j++) {
+        subnetOctets[j] = 0;
+      }
+      
+      // Format as a CIDR notation
+      subnetAddresses.push(`${subnetOctets.join('.')}/${subnetPrefix}`);
+    }
+    
+    const subnet1Label = language === 'en' ? 'First Subnet (CIDR)' : 'Eerste Subnet (CIDR)';
+    const subnet2Label = language === 'en' ? 'Second Subnet (CIDR)' : 'Tweede Subnet (CIDR)';
+    const subnet3Label = language === 'en' ? 'Third Subnet (CIDR)' : 'Derde Subnet (CIDR)';
+    const subnet4Label = language === 'en' ? 'Fourth Subnet (CIDR)' : 'Vierde Subnet (CIDR)';
+    
     answerFields = [
       { id: 'subnet-mask', label: subnetMaskLabel, answer: subnetMask },
       { id: 'host-bits', label: hostBitsLabel, answer: hostBits.toString() },
-      { id: 'subnet-prefix', label: cidrLabel, answer: `/${subnetPrefix}` }
+      { id: 'subnet-prefix', label: cidrLabel, answer: `/${subnetPrefix}` },
+      { id: 'subnet-1', label: subnet1Label, answer: subnetAddresses[0] || '' },
+      { id: 'subnet-2', label: subnet2Label, answer: subnetAddresses[1] || '' },
+      { id: 'subnet-3', label: subnet3Label, answer: subnetAddresses[2] || '' },
+      { id: 'subnet-4', label: subnet4Label, answer: subnetAddresses[3] || '' }
     ];
     
+    // Generate list of subnets for explanation
+    const subnetList = subnetAddresses
+      .map((subnet, index) => `<li>Subnet ${index + 1}: ${subnet}</li>`)
+      .join('');
+      
     // Generate explanation
     const hostExplanation = language === 'en'
       ? `<p>To subnet a network into ${targetSubnets} subnets:</p>
@@ -983,7 +1025,11 @@ function buildNetworkCalculationProblem(difficulty: string, language: Language =
         <li>Calculate host bits: 32 - ${subnetPrefix} = ${hostBits} bits</li>
         <li>Actual number of subnets possible: 2<sup>${requiredPrefixBits}</sup> = ${actualSubnets}</li>
       </ol>
-      <p class="mt-2">With a /${subnetPrefix} subnet, you can create ${actualSubnets} subnets from the ${baseNetwork}/${basePrefix} network.</p>`
+      <p class="mt-2">With a /${subnetPrefix} subnet, you can create ${actualSubnets} subnets from the ${baseNetwork}/${basePrefix} network.</p>
+      <p class="mt-2">The first few subnets are:</p>
+      <ul class="list-disc ml-5 mt-2 space-y-1 font-mono">
+        ${subnetList}
+      </ul>`
       : `<p>Om een netwerk te subnetten in ${targetSubnets} subnetten:</p>
       <ol class="list-decimal ml-5 mt-2 space-y-1">
         <li>Bereken hoeveel subnet-bits nodig zijn: ceil(log₂(${targetSubnets})) = ${requiredPrefixBits} bits</li>
@@ -992,7 +1038,11 @@ function buildNetworkCalculationProblem(difficulty: string, language: Language =
         <li>Bereken host-bits: 32 - ${subnetPrefix} = ${hostBits} bits</li>
         <li>Werkelijk aantal mogelijke subnetten: 2<sup>${requiredPrefixBits}</sup> = ${actualSubnets}</li>
       </ol>
-      <p class="mt-2">Met een /${subnetPrefix} subnet kun je ${actualSubnets} subnetten maken van het ${baseNetwork}/${basePrefix} netwerk.</p>`;
+      <p class="mt-2">Met een /${subnetPrefix} subnet kun je ${actualSubnets} subnetten maken van het ${baseNetwork}/${basePrefix} netwerk.</p>
+      <p class="mt-2">De eerste paar subnetten zijn:</p>
+      <ul class="list-disc ml-5 mt-2 space-y-1 font-mono">
+        ${subnetList}
+      </ul>`;
     
     explanation = hostExplanation;
   } 
