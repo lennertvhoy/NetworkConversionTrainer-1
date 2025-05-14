@@ -543,79 +543,116 @@ function buildBasicSubnettingProblem(difficulty: string, language: Language = 'n
   
   switch (questionType) {
     case 'network':
-      const networkExplanationText = language === 'en'
-        ? `<p>To find the network address, perform a bitwise AND operation between the IP address and the subnet mask:</p>
-        <p class="mt-2 font-mono">IP: ${ip}<br>Mask: ${mask}<br>Network: ${networkAddress}</p>`
-        : `<p>Om het netwerkadres te vinden, voer je een bitwise AND-bewerking uit tussen het IP-adres en het subnet masker:</p>
-        <p class="mt-2 font-mono">IP: ${ip}<br>Masker: ${mask}<br>Netwerk: ${networkAddress}</p>`;
-      explanation = networkExplanationText;
+      // For hard difficulty, only show the minimal explanation without image-like formatting
+      if (difficulty === 'hard') {
+        explanation = language === 'en'
+          ? `Network address: ${networkAddress}`
+          : `Netwerkadres: ${networkAddress}`;
+      } else {
+        const networkExplanationText = language === 'en'
+          ? `<p>To find the network address, perform a bitwise AND operation between the IP address and the subnet mask:</p>
+          <p class="mt-2 font-mono">IP: ${ip}<br>Mask: ${mask}<br>Network: ${networkAddress}</p>`
+          : `<p>Om het netwerkadres te vinden, voer je een bitwise AND-bewerking uit tussen het IP-adres en het subnet masker:</p>
+          <p class="mt-2 font-mono">IP: ${ip}<br>Masker: ${mask}<br>Netwerk: ${networkAddress}</p>`;
+        explanation = networkExplanationText;
+      }
       break;
     case 'broadcast':
-      const broadcastExplanationText = language === 'en'
-        ? `<p>To find the broadcast address, set all host bits to 1:</p>
-        <p class="mt-2 font-mono">Network: ${networkAddress}<br>Mask: ${mask}<br>Broadcast: ${broadcastAddress}</p>`
-        : `<p>Om het broadcastadres te vinden, zet je alle host-bits op 1:</p>
-        <p class="mt-2 font-mono">Netwerk: ${networkAddress}<br>Masker: ${mask}<br>Broadcast: ${broadcastAddress}</p>`;
-      explanation = broadcastExplanationText;
+      if (difficulty === 'hard') {
+        explanation = language === 'en'
+          ? `Broadcast address: ${broadcastAddress}`
+          : `Broadcastadres: ${broadcastAddress}`;
+      } else {
+        const broadcastExplanationText = language === 'en'
+          ? `<p>To find the broadcast address, set all host bits to 1:</p>
+          <p class="mt-2 font-mono">Network: ${networkAddress}<br>Mask: ${mask}<br>Broadcast: ${broadcastAddress}</p>`
+          : `<p>Om het broadcastadres te vinden, zet je alle host-bits op 1:</p>
+          <p class="mt-2 font-mono">Netwerk: ${networkAddress}<br>Masker: ${mask}<br>Broadcast: ${broadcastAddress}</p>`;
+        explanation = broadcastExplanationText;
+      }
       break;
     case 'hosts':
-      const hostsExplanationText = language === 'en'
-        ? `<p>To calculate the number of usable hosts:</p>
-        <p class="mt-2 font-mono">2<sup>(32 - prefix)</sup> - 2 = 2<sup>${32 - prefix}</sup> - 2 = ${usableHosts}</p>
-        <p>We subtract 2 to account for the network and broadcast addresses, which can't be assigned to hosts.</p>`
-        : `<p>Om het aantal bruikbare hosts te berekenen:</p>
-        <p class="mt-2 font-mono">2<sup>(32 - prefix)</sup> - 2 = 2<sup>${32 - prefix}</sup> - 2 = ${usableHosts}</p>
-        <p>We trekken 2 af voor het netwerk- en broadcastadres, die niet aan hosts kunnen worden toegewezen.</p>`;
-      explanation = hostsExplanationText;
+      if (difficulty === 'hard') {
+        explanation = language === 'en'
+          ? `Usable hosts: ${usableHosts}`
+          : `Bruikbare hosts: ${usableHosts}`;
+      } else {
+        const hostsExplanationText = language === 'en'
+          ? `<p>To calculate the number of usable hosts:</p>
+          <p class="mt-2 font-mono">2<sup>(32 - prefix)</sup> - 2 = 2<sup>${32 - prefix}</sup> - 2 = ${usableHosts}</p>
+          <p>We subtract 2 to account for the network and broadcast addresses, which can't be assigned to hosts.</p>`
+          : `<p>Om het aantal bruikbare hosts te berekenen:</p>
+          <p class="mt-2 font-mono">2<sup>(32 - prefix)</sup> - 2 = 2<sup>${32 - prefix}</sup> - 2 = ${usableHosts}</p>
+          <p>We trekken 2 af voor het netwerk- en broadcastadres, die niet aan hosts kunnen worden toegewezen.</p>`;
+        explanation = hostsExplanationText;
+      }
       break;
     case 'first-last':
-      const firstLastExplanationText = language === 'en'
-        ? `<p>The first usable host is the network address + 1:</p>
-        <p class="mt-2 font-mono">Network: ${networkAddress}<br>First Host: ${firstHost}</p>
-        <p class="mt-2">The last usable host is the broadcast address - 1:</p>
-        <p class="mt-2 font-mono">Broadcast: ${broadcastAddress}<br>Last Host: ${lastHost}</p>`
-        : `<p>De eerste bruikbare host is het netwerkadres + 1:</p>
-        <p class="mt-2 font-mono">Netwerk: ${networkAddress}<br>Eerste Host: ${firstHost}</p>
-        <p class="mt-2">De laatste bruikbare host is het broadcastadres - 1:</p>
-        <p class="mt-2 font-mono">Broadcast: ${broadcastAddress}<br>Laatste Host: ${lastHost}</p>`;
-      explanation = firstLastExplanationText;
+      if (difficulty === 'hard') {
+        explanation = language === 'en'
+          ? `First usable host: ${firstHost}<br>Last usable host: ${lastHost}`
+          : `Eerste bruikbare host: ${firstHost}<br>Laatste bruikbare host: ${lastHost}`;
+      } else {
+        const firstLastExplanationText = language === 'en'
+          ? `<p>The first usable host is the network address + 1:</p>
+          <p class="mt-2 font-mono">Network: ${networkAddress}<br>First Host: ${firstHost}</p>
+          <p class="mt-2">The last usable host is the broadcast address - 1:</p>
+          <p class="mt-2 font-mono">Broadcast: ${broadcastAddress}<br>Last Host: ${lastHost}</p>`
+          : `<p>De eerste bruikbare host is het netwerkadres + 1:</p>
+          <p class="mt-2 font-mono">Netwerk: ${networkAddress}<br>Eerste Host: ${firstHost}</p>
+          <p class="mt-2">De laatste bruikbare host is het broadcastadres - 1:</p>
+          <p class="mt-2 font-mono">Broadcast: ${broadcastAddress}<br>Laatste Host: ${lastHost}</p>`;
+        explanation = firstLastExplanationText;
+      }
       break;
     case 'prefix':
-      const prefixExplanationText = language === 'en'
-        ? `<p>The CIDR prefix counts the number of contiguous 1 bits in the subnet mask:</p>
-        <p class="mt-2 font-mono">Mask: ${mask}<br>CIDR: /${prefix}</p>
-        <p class="mt-2 text-sm text-slate-600 dark:text-zinc-400"><i>Note: Both CIDR notation (e.g., /24) and decimal format (e.g., 255.255.255.0) are equivalent representations of subnet masks.</i></p>`
-        : `<p>De CIDR prefix telt het aantal aaneengesloten 1-bits in het subnet masker:</p>
-        <p class="mt-2 font-mono">Masker: ${mask}<br>CIDR: /${prefix}</p>
-        <p class="mt-2 text-sm text-slate-600 dark:text-zinc-400"><i>Let op: Zowel CIDR notatie (bijv. /24) als decimaal formaat (bijv. 255.255.255.0) zijn gelijkwaardige representaties van subnet maskers.</i></p>`;
-      explanation = prefixExplanationText;
+      if (difficulty === 'hard') {
+        explanation = language === 'en'
+          ? `CIDR prefix: /${prefix}`
+          : `CIDR prefix: /${prefix}`;
+      } else {
+        const prefixExplanationText = language === 'en'
+          ? `<p>The CIDR prefix counts the number of contiguous 1 bits in the subnet mask:</p>
+          <p class="mt-2 font-mono">Mask: ${mask}<br>CIDR: /${prefix}</p>
+          <p class="mt-2 text-sm text-slate-600 dark:text-zinc-400"><i>Note: Both CIDR notation (e.g., /24) and decimal format (e.g., 255.255.255.0) are equivalent representations of subnet masks.</i></p>`
+          : `<p>De CIDR prefix telt het aantal aaneengesloten 1-bits in het subnet masker:</p>
+          <p class="mt-2 font-mono">Masker: ${mask}<br>CIDR: /${prefix}</p>
+          <p class="mt-2 text-sm text-slate-600 dark:text-zinc-400"><i>Let op: Zowel CIDR notatie (bijv. /24) als decimaal formaat (bijv. 255.255.255.0) zijn gelijkwaardige representaties van subnet maskers.</i></p>`;
+        explanation = prefixExplanationText;
+      }
       break;
     case 'mask':
       // If mask is shown in decimal format, explain conversion to CIDR
       // If mask is shown in CIDR format, explain conversion to decimal
       const isMaskToPrefix = questionText.includes(mask);
       
-      const maskExplanationText = isMaskToPrefix
-        ? (language === 'en'
-            ? `<p>Converting from subnet mask to CIDR prefix:</p>
-            <p class="mt-2 font-mono">Mask: ${mask}<br>CIDR: /${prefix}</p>
-            <p class="mt-2">To find the prefix, count the number of consecutive 1 bits in the binary representation of the subnet mask.</p>
-            <p class="mt-2 text-sm text-slate-600 dark:text-zinc-400"><i>Note: Both CIDR notation (e.g., /24) and decimal format (e.g., 255.255.255.0) are equivalent representations of subnet masks.</i></p>`
-            : `<p>Omzetten van subnet masker naar CIDR prefix:</p>
-            <p class="mt-2 font-mono">Masker: ${mask}<br>CIDR: /${prefix}</p>
-            <p class="mt-2">Om de prefix te vinden, tel je het aantal opeenvolgende 1-bits in de binaire representatie van het subnet masker.</p>
-            <p class="mt-2 text-sm text-slate-600 dark:text-zinc-400"><i>Let op: Zowel CIDR notatie (bijv. /24) als decimaal formaat (bijv. 255.255.255.0) zijn gelijkwaardige representaties van subnet maskers.</i></p>`)
-        : (language === 'en'
-            ? `<p>Converting from CIDR prefix to subnet mask:</p>
-            <p class="mt-2 font-mono">CIDR: /${prefix}<br>Mask: ${mask}</p>
-            <p class="mt-2">To convert a prefix to a subnet mask, set the first (prefix) bits to 1 and the remaining bits to 0, then convert to decimal.</p>
-            <p class="mt-2 text-sm text-slate-600 dark:text-zinc-400"><i>Note: Both CIDR notation (e.g., /24) and decimal format (e.g., 255.255.255.0) are equivalent representations of subnet masks.</i></p>`
-            : `<p>Omzetten van CIDR prefix naar subnet masker:</p>
-            <p class="mt-2 font-mono">CIDR: /${prefix}<br>Masker: ${mask}</p>
-            <p class="mt-2">Om een prefix naar een subnet masker om te zetten, zet je de eerste (prefix) bits op 1 en de overige bits op 0, en zet je dit vervolgens om naar decimaal.</p>
-            <p class="mt-2 text-sm text-slate-600 dark:text-zinc-400"><i>Let op: Zowel CIDR notatie (bijv. /24) als decimaal formaat (bijv. 255.255.255.0) zijn gelijkwaardige representaties van subnet maskers.</i></p>`);
-      
-      explanation = maskExplanationText;
+      if (difficulty === 'hard') {
+        explanation = isMaskToPrefix
+          ? (language === 'en' ? `CIDR prefix: /${prefix}` : `CIDR prefix: /${prefix}`)
+          : (language === 'en' ? `Subnet mask: ${mask}` : `Subnet mask: ${mask}`);
+      } else {
+        const maskExplanationText = isMaskToPrefix
+          ? (language === 'en'
+              ? `<p>Converting from subnet mask to CIDR prefix:</p>
+              <p class="mt-2 font-mono">Mask: ${mask}<br>CIDR: /${prefix}</p>
+              <p class="mt-2">To find the prefix, count the number of consecutive 1 bits in the binary representation of the subnet mask.</p>
+              <p class="mt-2 text-sm text-slate-600 dark:text-zinc-400"><i>Note: Both CIDR notation (e.g., /24) and decimal format (e.g., 255.255.255.0) are equivalent representations of subnet masks.</i></p>`
+              : `<p>Omzetten van subnet masker naar CIDR prefix:</p>
+              <p class="mt-2 font-mono">Masker: ${mask}<br>CIDR: /${prefix}</p>
+              <p class="mt-2">Om de prefix te vinden, tel je het aantal opeenvolgende 1-bits in de binaire representatie van het subnet masker.</p>
+              <p class="mt-2 text-sm text-slate-600 dark:text-zinc-400"><i>Let op: Zowel CIDR notatie (bijv. /24) als decimaal formaat (bijv. 255.255.255.0) zijn gelijkwaardige representaties van subnet maskers.</i></p>`)
+          : (language === 'en'
+              ? `<p>Converting from CIDR prefix to subnet mask:</p>
+              <p class="mt-2 font-mono">CIDR: /${prefix}<br>Mask: ${mask}</p>
+              <p class="mt-2">To convert a prefix to a subnet mask, set the first (prefix) bits to 1 and the remaining bits to 0, then convert to decimal.</p>
+              <p class="mt-2 text-sm text-slate-600 dark:text-zinc-400"><i>Note: Both CIDR notation (e.g., /24) and decimal format (e.g., 255.255.255.0) are equivalent representations of subnet masks.</i></p>`
+              : `<p>Omzetten van CIDR prefix naar subnet masker:</p>
+              <p class="mt-2 font-mono">CIDR: /${prefix}<br>Masker: ${mask}</p>
+              <p class="mt-2">Om een prefix naar een subnet masker om te zetten, zet je de eerste (prefix) bits op 1 en de overige bits op 0, en zet je dit vervolgens om naar decimaal.</p>
+              <p class="mt-2 text-sm text-slate-600 dark:text-zinc-400"><i>Let op: Zowel CIDR notatie (bijv. /24) als decimaal formaat (bijv. 255.255.255.0) zijn gelijkwaardige representaties van subnet maskers.</i></p>`);
+        
+        explanation = maskExplanationText;
+      }
       break;
     case 'all':
       const allExplanationText = language === 'en'
