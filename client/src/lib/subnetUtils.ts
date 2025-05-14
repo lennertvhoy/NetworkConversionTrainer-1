@@ -769,7 +769,7 @@ function buildBasicSubnettingProblem(difficulty: string, language: Language = 'n
               
               <div class="mt-3 p-2 bg-zinc-50 dark:bg-zinc-800 rounded font-mono">
                 <div><span class="text-slate-500 mr-2">Network:</span> ${networkAddress}</div>
-                <div><span class="text-slate-500 mr-2">Inverted Mask:</span> ${invertMask(mask)}</div>
+                <div><span class="text-slate-500 mr-2">Inverted Mask:</span> ${mask.split('.').map(octet => (255 - parseInt(octet)).toString()).join('.')}</div>
                 <div class="mt-1 pt-1 border-t border-dashed border-zinc-300 dark:border-zinc-600">
                   <span class="text-slate-500 mr-2">Broadcast:</span> <span class="font-semibold">${broadcastAddress}</span>
                 </div>
@@ -811,7 +811,7 @@ function buildBasicSubnettingProblem(difficulty: string, language: Language = 'n
               
               <div class="mt-3 p-2 bg-zinc-50 dark:bg-zinc-800 rounded font-mono">
                 <div><span class="text-slate-500 mr-2">Netwerk:</span> ${networkAddress}</div>
-                <div><span class="text-slate-500 mr-2">Geïnverteerd Masker:</span> ${invertMask(mask)}</div>
+                <div><span class="text-slate-500 mr-2">Geïnverteerd Masker:</span> ${mask.split('.').map(octet => (255 - parseInt(octet)).toString()).join('.')}</div>
                 <div class="mt-1 pt-1 border-t border-dashed border-zinc-300 dark:border-zinc-600">
                   <span class="text-slate-500 mr-2">Broadcast:</span> <span class="font-semibold">${broadcastAddress}</span>
                 </div>
