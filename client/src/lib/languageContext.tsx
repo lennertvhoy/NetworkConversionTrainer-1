@@ -506,7 +506,7 @@ const defaultState: LanguageContextType = {
 const LanguageContext = createContext<LanguageContextType>(defaultState);
 
 // Create a hook to use the context
-export function useLanguage() {
+export const useLanguage = () => {
   return useContext(LanguageContext);
 }
 

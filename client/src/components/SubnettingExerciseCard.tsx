@@ -201,9 +201,16 @@ export default function SubnettingExerciseCard({ subnetType, difficulty }: Subne
                 id={field.id}
                 value={userAnswers[field.id] || ""}
                 onChange={(e) => handleInputChange(field.id, e.target.value)}
-                placeholder={field.id.includes("mask") 
-                  ? t('subnetting.placeholder.mask') 
-                  : t('subnetting.placeholder.ip')}
+                placeholder={
+                  // Determine appropriate placeholder based on context
+                  field.id === 'subnet-mask' 
+                    ? (questionText.toLowerCase().includes('cidr') || questionText.toLowerCase().includes('prefix')
+                      ? t('subnetting.placeholder.cidr') 
+                      : questionText.toLowerCase().includes('decimal')
+                        ? t('subnetting.placeholder.decimal')
+                        : t('subnetting.placeholder.mask'))
+                    : t('subnetting.placeholder.ip')
+                }
                 className="shadow-sm focus:ring-secondary focus:border-secondary block w-full sm:text-sm border-slate-300"
               />
             </div>
