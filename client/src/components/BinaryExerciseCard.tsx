@@ -190,14 +190,14 @@ export default function BinaryExerciseCard({ conversionType, difficulty }: Binar
               }}
               placeholder={
                 conversionType === 'bin2dec' 
-                  ? (language === 'en' ? 'eg. ' : 'bv. ') + "42"
+                  ? (language === 'en' ? 'eg. 42' : 'bv. 42')
                   : conversionType === 'bin2hex'
-                    ? (language === 'en' ? 'eg. ' : 'bv. ') + "2A"
+                    ? (language === 'en' ? 'eg. 2A' : 'bv. 2A')
                     : conversionType === 'hex2bin'
-                      ? (language === 'en' ? 'eg. ' : 'bv. ') + "1010"
+                      ? (language === 'en' ? 'eg. 1010' : 'bv. 1010')
                       : conversionType === 'dec2bin'
-                        ? (language === 'en' ? 'eg. ' : 'bv. ') + "1010"
-                        : t('binary.yourAnswer')
+                        ? (language === 'en' ? 'eg. 1010' : 'bv. 1010')
+                        : language === 'en' ? 'Enter your answer here' : 'Voer je antwoord hier in'
               }
               className="shadow-sm focus:ring-primary focus:border-primary block w-full sm:text-sm border-slate-300"
             />

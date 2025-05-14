@@ -218,22 +218,32 @@ export default function SubnettingExerciseCard({ subnetType, difficulty }: Subne
                   onChange={(e) => handleInputChange(field.id, e.target.value)}
                   placeholder={
                     field.id === 'expanded-ipv6'
-                      ? (language === 'en' ? 'eg. ' : 'bv. ') + "2001:0db8:0000:0000:0000:0000:0000:0001"
+                      ? (language === 'en' ? 'eg. 2001:0db8:0000:0000:0000:0000:0000:0001' : 'bv. 2001:0db8:0000:0000:0000:0000:0000:0001')
                       : field.id === 'abbreviated-ipv6'
-                        ? (language === 'en' ? 'eg. ' : 'bv. ') + "2001:db8::1"
+                        ? (language === 'en' ? 'eg. 2001:db8::1' : 'bv. 2001:db8::1')
                         : field.id === 'usable-hosts' || field.id === 'host-count' || field.id === 'subnet-count'
-                          ? (language === 'en' ? 'eg. ' : 'bv. ') + "16777214"
+                          ? (language === 'en' ? 'eg. 16777214' : 'bv. 16777214')
                         : field.id === 'host-bits'
-                          ? (language === 'en' ? 'eg. ' : 'bv. ') + "4"
+                          ? (language === 'en' ? 'eg. 4' : 'bv. 4')
                         : field.id === 'subnet-mask'
-                          ? (language === 'en' ? 'eg. ' : 'bv. ') + "255.255.255.0"
+                          ? (language === 'en' ? 'eg. 255.255.255.0' : 'bv. 255.255.255.0')
                         : field.id === 'subnet-prefix' || field.id === 'cidr-prefix' || field.id.includes('cidr')
-                          ? (language === 'en' ? 'eg. ' : 'bv. ') + "/24"
-                        : field.id.includes('subnet-1') || field.id.includes('subnet-2') || field.id.includes('subnet-n')
-                          ? (language === 'en' ? 'eg. ' : 'bv. ') + "192.168.1.0/24"
-                        : field.id.includes('host') || field.id.includes('network') || field.id.includes('broadcast')
-                          ? (language === 'en' ? 'eg. ' : 'bv. ') + "192.0.2.1"
-                        : t('subnetting.placeholder.ip')
+                          ? (language === 'en' ? 'eg. /24' : 'bv. /24')
+                        : field.id.indexOf('subnet-1') !== -1
+                          ? (language === 'en' ? 'eg. 192.168.1.0/24' : 'bv. 192.168.1.0/24')
+                        : field.id.indexOf('subnet-2') !== -1
+                          ? (language === 'en' ? 'eg. 192.168.1.16/28' : 'bv. 192.168.1.16/28')
+                        : field.id.indexOf('subnet-3') !== -1
+                          ? (language === 'en' ? 'eg. 192.168.1.32/28' : 'bv. 192.168.1.32/28')  
+                        : field.id.indexOf('subnet-4') !== -1
+                          ? (language === 'en' ? 'eg. 192.168.1.48/28' : 'bv. 192.168.1.48/28')
+                        : field.id.includes('network')
+                          ? (language === 'en' ? 'eg. 192.168.1.0' : 'bv. 192.168.1.0')
+                        : field.id.includes('broadcast')
+                          ? (language === 'en' ? 'eg. 192.168.1.255' : 'bv. 192.168.1.255')
+                        : field.id.includes('host')
+                          ? (language === 'en' ? 'eg. 192.168.1.1' : 'bv. 192.168.1.1')
+                        : language === 'en' ? 'Enter answer here' : 'Voer antwoord hier in'
                   }
                   className="shadow-sm focus:ring-secondary focus:border-secondary block w-full sm:text-sm border-slate-300 dark:border-zinc-900 dark:bg-zinc-900"
                 />
@@ -249,7 +259,7 @@ export default function SubnettingExerciseCard({ subnetType, difficulty }: Subne
           </h4>
           <textarea 
             className="shadow-sm focus:ring-secondary focus:border-secondary block w-full h-24 p-3 border-slate-300 rounded-md font-mono text-sm resize-y dark:bg-zinc-900 dark:border-zinc-700 dark:text-zinc-200"
-            placeholder={language === 'en' ? 'Use this space for calculations...' : 'Gebruik deze ruimte voor berekeningen...'}
+            placeholder={language === 'en' ? 'Use this space for calculations and notes...' : 'Gebruik deze ruimte voor berekeningen en notities...'}
           ></textarea>
         </div>
         
