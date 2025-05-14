@@ -229,15 +229,15 @@ export default function SubnettingExerciseCard({ subnetType, difficulty }: Subne
                           ? (language === 'en' ? 'eg. 255.255.255.0' : 'bv. 255.255.255.0')
                         : field.id === 'subnet-prefix' || field.id === 'cidr-prefix' || field.id.includes('cidr')
                           ? (language === 'en' ? 'eg. /24' : 'bv. /24')
-                        : field.id.indexOf('subnet-1') !== -1
+                        : field.id === 'subnet-1' || field.label === 'Subnet 1' || field.label === 'Eerste Subnet (CIDR)'
                           ? (language === 'en' ? 'eg. 192.168.1.0/24' : 'bv. 192.168.1.0/24')
-                        : field.id.indexOf('subnet-2') !== -1
+                        : field.id === 'subnet-2' || field.label === 'Subnet 2' || field.label === 'Tweede Subnet (CIDR)'
                           ? (language === 'en' ? 'eg. 192.168.1.16/28' : 'bv. 192.168.1.16/28')
-                        : field.id.indexOf('subnet-3') !== -1
+                        : field.id === 'subnet-3' || field.label === 'Subnet 3' || field.label === 'Derde Subnet (CIDR)'
                           ? (language === 'en' ? 'eg. 192.168.1.32/28' : 'bv. 192.168.1.32/28')  
-                        : field.id.indexOf('subnet-4') !== -1
+                        : field.id === 'subnet-4' || field.label === 'Subnet 4' || field.label === 'Vierde Subnet (CIDR)'
                           ? (language === 'en' ? 'eg. 192.168.1.48/28' : 'bv. 192.168.1.48/28')
-                        : field.id.match(/subnet-\d+/)
+                        : (field.id.includes('subnet') || field.label.includes('Subnet') || field.label.toLowerCase().includes('subnet'))
                           ? (language === 'en' ? 'eg. 192.168.1.64/28' : 'bv. 192.168.1.64/28')
                         : field.id.includes('network')
                           ? (language === 'en' ? 'eg. 192.168.1.0' : 'bv. 192.168.1.0')
