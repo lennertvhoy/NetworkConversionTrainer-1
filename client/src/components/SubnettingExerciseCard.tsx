@@ -233,8 +233,12 @@ export default function SubnettingExerciseCard({ subnetType, difficulty }: Subne
                               : (field.id === 'subnet-mask' && questionText.toLowerCase().includes('decimal'))
                                 ? t('subnetting.placeholder.decimal')
                                 : field.id === 'subnet-mask'
-                                  ? t('subnetting.placeholder.mask')
-                                  : t('subnetting.placeholder.ip')
+                                  ? t('subnetting.placeholder.decimal')
+                                  : field.id === 'subnet-prefix' || field.id === 'cidr-prefix' || field.id.includes('cidr')
+                                    ? t('subnetting.placeholder.cidr')
+                                    : field.id === 'host-bits' || field.id.includes('host-count')
+                                      ? (language === 'en' ? 'eg. ' : 'bv. ') + "4"
+                                      : t('subnetting.placeholder.ip')
                   }
                   className="shadow-sm focus:ring-secondary focus:border-secondary block w-full sm:text-sm border-slate-300 dark:border-zinc-900 dark:bg-zinc-900"
                 />
