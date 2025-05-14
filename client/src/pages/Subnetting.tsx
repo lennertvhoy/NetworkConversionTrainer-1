@@ -36,7 +36,6 @@ export default function Subnetting() {
               <SelectItem value="subnets-count">{t('subnetting.type.subnets-count')}</SelectItem>
               <SelectItem value="vlsm">{t('subnetting.type.vlsm')}</SelectItem>
               <SelectItem value="wildcard">{t('subnetting.type.wildcard')}</SelectItem>
-              <SelectItem value="network">{t('subnetting.type.network')}</SelectItem>
               <SelectItem value="ipv6">{t('subnetting.type.ipv6')}</SelectItem>
             </SelectContent>
           </Select>

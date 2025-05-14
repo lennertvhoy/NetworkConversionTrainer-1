@@ -1865,8 +1865,9 @@ export function generateSubnettingQuestion(subnetType: string, difficulty: strin
       question = buildWildcardMaskProblem(difficulty, language);
       break;
     case 'network':
-      // Update buildNetworkCalculationProblem to accept language parameter
-      question = buildNetworkCalculationProblem(difficulty, language);
+      // Redirect network type to subnet-count to maintain compatibility with existing code
+      // This case is kept for backward compatibility but is no longer exposed in the UI
+      question = buildNetworkCalculationProblem(difficulty, language, 'subnet-count');
       break;
     case 'ipv6':
       // Add IPv6 subnetting problem
