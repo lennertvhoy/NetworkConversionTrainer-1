@@ -210,7 +210,11 @@ export default function SubnettingExerciseCard({ subnetType, difficulty }: Subne
                       : questionText.toLowerCase().includes('decimal')
                         ? t('subnetting.placeholder.decimal')
                         : t('subnetting.placeholder.mask'))
-                    : t('subnetting.placeholder.ip')
+                    : field.id === 'expanded-ipv6'
+                      ? "2001:0db8:0000:0000:0000:0000:0000:0001"
+                      : field.id === 'abbreviated-ipv6'
+                        ? "2001:db8::1"
+                        : t('subnetting.placeholder.ip')
                 }
                 className="shadow-sm focus:ring-secondary focus:border-secondary block w-full sm:text-sm border-slate-300"
               />
