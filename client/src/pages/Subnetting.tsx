@@ -74,28 +74,76 @@ export default function Subnetting() {
                   </thead>
                   <tbody className="font-mono">
                     <tr>
+                      <td className="px-3 py-2 border-t border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300">/16</td>
+                      <td className="px-3 py-2 border-t border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300">255.255.0.0</td>
+                      <td className="px-3 py-2 border-t border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300">65,534</td>
+                      <td className="px-3 py-2 border-t border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300">16</td>
+                    </tr>
+                    <tr>
+                      <td className="px-3 py-2 border-t border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300">/17</td>
+                      <td className="px-3 py-2 border-t border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300">255.255.128.0</td>
+                      <td className="px-3 py-2 border-t border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300">32,766</td>
+                      <td className="px-3 py-2 border-t border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300">15</td>
+                    </tr>
+                    <tr>
+                      <td className="px-3 py-2 border-t border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300">/18</td>
+                      <td className="px-3 py-2 border-t border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300">255.255.192.0</td>
+                      <td className="px-3 py-2 border-t border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300">16,382</td>
+                      <td className="px-3 py-2 border-t border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300">14</td>
+                    </tr>
+                    <tr>
+                      <td className="px-3 py-2 border-t border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300">/19</td>
+                      <td className="px-3 py-2 border-t border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300">255.255.224.0</td>
+                      <td className="px-3 py-2 border-t border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300">8,190</td>
+                      <td className="px-3 py-2 border-t border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300">13</td>
+                    </tr>
+                    <tr>
+                      <td className="px-3 py-2 border-t border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300">/20</td>
+                      <td className="px-3 py-2 border-t border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300">255.255.240.0</td>
+                      <td className="px-3 py-2 border-t border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300">4,094</td>
+                      <td className="px-3 py-2 border-t border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300">12</td>
+                    </tr>
+                    <tr>
+                      <td className="px-3 py-2 border-t border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300">/21</td>
+                      <td className="px-3 py-2 border-t border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300">255.255.248.0</td>
+                      <td className="px-3 py-2 border-t border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300">2,046</td>
+                      <td className="px-3 py-2 border-t border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300">11</td>
+                    </tr>
+                    <tr>
+                      <td className="px-3 py-2 border-t border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300">/22</td>
+                      <td className="px-3 py-2 border-t border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300">255.255.252.0</td>
+                      <td className="px-3 py-2 border-t border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300">1,022</td>
+                      <td className="px-3 py-2 border-t border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300">10</td>
+                    </tr>
+                    <tr>
+                      <td className="px-3 py-2 border-t border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300">/23</td>
+                      <td className="px-3 py-2 border-t border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300">255.255.254.0</td>
+                      <td className="px-3 py-2 border-t border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300">510</td>
+                      <td className="px-3 py-2 border-t border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300">9</td>
+                    </tr>
+                    <tr>
                       <td className="px-3 py-2 border-t border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300">/24</td>
                       <td className="px-3 py-2 border-t border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300">255.255.255.0</td>
                       <td className="px-3 py-2 border-t border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300">254</td>
-                      <td className="px-3 py-2 border-t border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300">0</td>
+                      <td className="px-3 py-2 border-t border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300">8</td>
                     </tr>
                     <tr>
                       <td className="px-3 py-2 border-t border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300">/25</td>
                       <td className="px-3 py-2 border-t border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300">255.255.255.128</td>
                       <td className="px-3 py-2 border-t border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300">126</td>
-                      <td className="px-3 py-2 border-t border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300">1</td>
+                      <td className="px-3 py-2 border-t border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300">7</td>
                     </tr>
                     <tr>
                       <td className="px-3 py-2 border-t border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300">/26</td>
                       <td className="px-3 py-2 border-t border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300">255.255.255.192</td>
                       <td className="px-3 py-2 border-t border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300">62</td>
-                      <td className="px-3 py-2 border-t border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300">2</td>
+                      <td className="px-3 py-2 border-t border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300">6</td>
                     </tr>
                     <tr>
                       <td className="px-3 py-2 border-t border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300">/27</td>
                       <td className="px-3 py-2 border-t border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300">255.255.255.224</td>
                       <td className="px-3 py-2 border-t border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300">30</td>
-                      <td className="px-3 py-2 border-t border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300">3</td>
+                      <td className="px-3 py-2 border-t border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300">5</td>
                     </tr>
                     <tr>
                       <td className="px-3 py-2 border-t border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300">/28</td>
@@ -107,16 +155,37 @@ export default function Subnetting() {
                       <td className="px-3 py-2 border-t border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300">/29</td>
                       <td className="px-3 py-2 border-t border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300">255.255.255.248</td>
                       <td className="px-3 py-2 border-t border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300">6</td>
-                      <td className="px-3 py-2 border-t border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300">5</td>
+                      <td className="px-3 py-2 border-t border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300">3</td>
                     </tr>
                     <tr>
                       <td className="px-3 py-2 border-t border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300">/30</td>
                       <td className="px-3 py-2 border-t border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300">255.255.255.252</td>
                       <td className="px-3 py-2 border-t border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300">2</td>
-                      <td className="px-3 py-2 border-t border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300">6</td>
+                      <td className="px-3 py-2 border-t border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300">2</td>
                     </tr>
                   </tbody>
                 </table>
+              </div>
+              
+              <h4 className="font-medium text-slate-800 mt-6 mb-3 dark:text-zinc-200">{t('subnetting.reference.formula.title')}</h4>
+              <div className="bg-slate-50 p-4 rounded-md text-sm dark:bg-zinc-900">
+                <div className="space-y-2 text-slate-700 dark:text-zinc-300">
+                  <p className="font-medium">{t('subnetting.reference.formula.hosts')}</p>
+                  <p className="font-mono">Usable Hosts = 2<sup>n</sup> - 2</p>
+                  <p className="text-xs">{t('subnetting.reference.formula.hosts.desc')}</p>
+                  
+                  <div className="pt-2 mt-2 border-t border-slate-200 dark:border-zinc-700">
+                    <p className="font-medium">{t('subnetting.reference.formula.subnets')}</p>
+                    <p className="font-mono">Number of Subnets = 2<sup>m</sup></p>
+                    <p className="text-xs">{t('subnetting.reference.formula.subnets.desc')}</p>
+                  </div>
+                  
+                  <div className="pt-2 mt-2 border-t border-slate-200 dark:border-zinc-700">
+                    <p className="font-medium">{t('subnetting.reference.formula.subnet.formula')}</p>
+                    <p className="font-mono">256 - mask_octet = increment</p>
+                    <p className="text-xs">{t('subnetting.reference.formula.subnet.desc')}</p>
+                  </div>
+                </div>
               </div>
             </div>
             
@@ -150,6 +219,40 @@ export default function Subnetting() {
                     <p>Net B: 50 hosts → /26 → 192.168.1.128/26 (128-191)</p>
                     <p>Net C: 20 hosts → /27 → 192.168.1.192/27 (192-223)</p>
                     <p>Net D: 5 hosts → /29 → 192.168.1.224/29 (224-231)</p>
+                  </div>
+                </div>
+              </div>
+              
+              <h4 className="font-medium text-slate-800 mt-6 mb-3 dark:text-zinc-200">{t('subnetting.reference.process.title')}</h4>
+              <div className="bg-slate-50 p-4 rounded-md text-sm dark:bg-zinc-900">
+                <div className="space-y-3 text-slate-700 dark:text-zinc-300">
+                  <p className="font-medium">{t('subnetting.reference.process.comprehensive.title')}</p>
+                  <ol className="list-decimal pl-5 space-y-1">
+                    <li>{t('subnetting.reference.process.comprehensive.step1')}</li>
+                    <li>{t('subnetting.reference.process.comprehensive.step2')}</li>
+                    <li>{t('subnetting.reference.process.comprehensive.step3')}</li>
+                    <li>{t('subnetting.reference.process.comprehensive.step4')}</li>
+                    <li>{t('subnetting.reference.process.comprehensive.step5')}</li>
+                  </ol>
+
+                  <div className="pt-3 mt-3 border-t border-slate-200 dark:border-zinc-700">
+                    <p className="font-medium">{t('subnetting.reference.wildcards.title')}</p>
+                    <p className="mt-1">{t('subnetting.reference.wildcards.desc')}</p>
+                    <div className="mt-2 font-mono text-xs">
+                      <p>Subnet Mask: 255.255.255.0 (/24)</p>
+                      <p>Wildcard Mask: 0.0.0.255</p>
+                      <p>Access Control List Example:</p>
+                      <p>permit ip 192.168.1.0 0.0.0.255 any</p>
+                    </div>
+                  </div>
+                  
+                  <div className="pt-3 mt-3 border-t border-slate-200 dark:border-zinc-700">
+                    <p className="font-medium">{t('subnetting.reference.ipv6.title')}</p>
+                    <p className="mt-1">{t('subnetting.reference.ipv6.desc')}</p>
+                    <div className="mt-2 font-mono text-xs">
+                      <p>Full: 2001:0db8:0000:0000:0000:0000:0000:0001</p>
+                      <p>Compressed: 2001:db8::1</p>
+                    </div>
                   </div>
                 </div>
               </div>

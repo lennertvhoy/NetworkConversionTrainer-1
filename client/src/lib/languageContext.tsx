@@ -438,6 +438,86 @@ const translations: Record<string, Record<string, string>> = {
     nl: 'Voorbeeld VLSM Berekening',
   },
   
+  // Reference formulas section
+  'subnetting.reference.formula.title': {
+    en: 'Subnetting Formulas',
+    nl: 'Subnetting Formules',
+  },
+  'subnetting.reference.formula.hosts': {
+    en: 'Number of Usable Hosts',
+    nl: 'Aantal Bruikbare Hosts',
+  },
+  'subnetting.reference.formula.hosts.desc': {
+    en: 'Where n is the number of host bits (bits set to 0 in the subnet mask)',
+    nl: 'Waarbij n het aantal host-bits is (bits ingesteld op 0 in het subnetmasker)',
+  },
+  'subnetting.reference.formula.subnets': {
+    en: 'Number of Subnets',
+    nl: 'Aantal Subnetten',
+  },
+  'subnetting.reference.formula.subnets.desc': {
+    en: 'Where m is the number of subnet bits (borrowed from host bits)',
+    nl: 'Waarbij m het aantal subnet-bits is (geleend van host-bits)',
+  },
+  'subnetting.reference.formula.subnet.formula': {
+    en: 'Subnet Increment Calculation',
+    nl: 'Subnet Increment Berekening',
+  },
+  'subnetting.reference.formula.subnet.desc': {
+    en: 'Calculate the increment between subnets in the octet where the subnet boundary falls',
+    nl: 'Bereken de increment tussen subnetten in het octet waar de subnetgrens valt',
+  },
+  
+  // Reference process section
+  'subnetting.reference.process.title': {
+    en: 'Subnetting Process',
+    nl: 'Subnetting Proces',
+  },
+  'subnetting.reference.process.comprehensive.title': {
+    en: 'Comprehensive Subnet Calculation',
+    nl: 'Uitgebreide Subnet Berekening',
+  },
+  'subnetting.reference.process.comprehensive.step1': {
+    en: 'Identify how many subnets are needed',
+    nl: 'Identificeer hoeveel subnetten nodig zijn',
+  },
+  'subnetting.reference.process.comprehensive.step2': {
+    en: 'Calculate how many subnet bits are required',
+    nl: 'Bereken hoeveel subnet-bits vereist zijn',
+  },
+  'subnetting.reference.process.comprehensive.step3': {
+    en: 'Determine the new subnet mask and CIDR',
+    nl: 'Bepaal het nieuwe subnetmasker en CIDR',
+  },
+  'subnetting.reference.process.comprehensive.step4': {
+    en: 'Calculate the subnet address range for each subnet',
+    nl: 'Bereken het subnetadresbereik voor elk subnet',
+  },
+  'subnetting.reference.process.comprehensive.step5': {
+    en: 'Calculate the usable host range for each subnet',
+    nl: 'Bereken het bruikbare hostbereik voor elk subnet',
+  },
+  
+  // Wildcards section
+  'subnetting.reference.wildcards.title': {
+    en: 'Wildcard Masks',
+    nl: 'Wildcard Maskers',
+  },
+  'subnetting.reference.wildcards.desc': {
+    en: 'Wildcard masks are the inverse of subnet masks, typically used in ACLs. Invert each bit of the subnet mask to get the wildcard mask.',
+    nl: 'Wildcard-maskers zijn het omgekeerde van subnetmaskers, meestal gebruikt in ACLs. Inverteer elk bit van het subnetmasker om het wildcard-masker te krijgen.',
+  },
+  
+  // IPv6 section
+  'subnetting.reference.ipv6.title': {
+    en: 'IPv6 Notation',
+    nl: 'IPv6 Notatie',
+  },
+  'subnetting.reference.ipv6.desc': {
+    en: 'IPv6 addresses can be abbreviated by removing leading zeros in each hextet and replacing consecutive groups of zeros with a double colon (::).',
+    nl: 'IPv6-adressen kunnen worden afgekort door voorloopnullen in elk hextet te verwijderen en opeenvolgende groepen nullen te vervangen door een dubbele dubbele punt (::).',
+  },
+  
   // Subnetting field labels
   'subnetting.fields.networkAddress': {
     en: 'Network Address',

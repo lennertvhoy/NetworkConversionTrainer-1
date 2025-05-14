@@ -870,20 +870,23 @@ function buildNetworkCalculationProblem(difficulty: string, language: Language =
   let explanation = '';
   
   // Choose what kind of calculation to test
-  const questionTypes = ['subnet-count', 'host-count', 'vlsm', 'comprehensive-subnet'];
+  const questionTypes = ['subnet-count', 'host-count', 'vlsm', 'comprehensive-subnet', 'fixed-hosts-subnet'];
   let questionType = 'subnet-count';
   
   if (difficulty === 'easy') {
     questionType = 'subnet-count';
   } else if (difficulty === 'medium') {
-    questionType = questionTypes[Math.floor(Math.random() * 2)]; // subnet-count or host-count
+    questionType = questionTypes[Math.floor(Math.random() * 3)]; // subnet-count, host-count, or vlsm
   } else { // hard
-    // Add probability for the new comprehensive subnet question type
+    // Add probability for the comprehensive subnet question types
     const rand = Math.random();
-    if (rand < 0.5) {
-      questionType = 'comprehensive-subnet'; // 50% kans op een uitgebreide vraag op moeilijk niveau
+    if (rand < 0.35) {
+      questionType = 'comprehensive-subnet'; // 35% kans op dit type
+    } else if (rand < 0.7) {
+      questionType = 'fixed-hosts-subnet'; // 35% kans op dit type
     } else {
-      questionType = questionTypes[Math.floor(Math.random() * 3)]; // other types
+      // 30% kans op andere typen
+      questionType = ['subnet-count', 'host-count', 'vlsm'][Math.floor(Math.random() * 3)];
     }
   }
   
@@ -1045,6 +1048,191 @@ function buildNetworkCalculationProblem(difficulty: string, language: Language =
       <p class="mt-2">Een /${requiredPrefix} subnet heeft ${actualHosts} bruikbare host-adressen, wat voldoende is voor de vereiste ${requiredHosts} hosts.</p>`;
     
     explanation = mediumExplanation;
+  }
+  else if (questionType === 'fixed-hosts-subnet') {
+    // This is a question about splitting a network to accommodate a specific number of hosts per subnet
+    // similar to the screenshot example with "232.148.201.54/20 verdelen zodat elk subnet 31 hosts heeft"
+    
+    // Generate a base network
+    const firstOctet = Math.floor(Math.random() * 223) + 1; // 1-223 (avoiding reserved ranges)
+    const secondOctet = Math.floor(Math.random() * 256); // 0-255
+    const thirdOctet = Math.floor(Math.random() * 256); // 0-255
+    const fourthOctet = 0; // Always 0 for the network address
+    
+    // Generate a suitable starting prefix (usually /16 to /24)
+    let startPrefix: number;
+    if (difficulty === 'medium') {
+      startPrefix = [16, 20, 24][Math.floor(Math.random() * 3)];
+    } else { // hard
+      startPrefix = [16, 18, 20, 22, 24][Math.floor(Math.random() * 5)];
+    }
+    
+    // Generate a random number of hosts needed per subnet (typically a small number for CCNA questions)
+    const hostsPerSubnet = Math.floor(Math.random() * 50) + 5; // 5-54 hosts per subnet
+    
+    // Calculate how many host bits we need based on the hosts per subnet
+    const requiredHostBits = Math.ceil(Math.log2(hostsPerSubnet + 2)); // +2 for network and broadcast
+    
+    // Calculate the new prefix
+    const newPrefix = 32 - requiredHostBits;
+    
+    // Calculate the subnet mask
+    const subnetMask = prefixToSubnetMask(newPrefix);
+    
+    // Calculate number of possible subnets
+    const possibleSubnets = Math.pow(2, newPrefix - startPrefix);
+    
+    // Calculate the first few subnets
+    const subnet1 = `${firstOctet}.${secondOctet}.${thirdOctet}.${fourthOctet}`;
+    
+    // Calculate subnet 2 by adding the correct increment
+    let subnet2Address = subnet1.split('.').map(octet => parseInt(octet));
+    const increment = Math.pow(2, 32 - newPrefix);
+    
+    // Handle wrap-around for subnet boundaries
+    const incrementOctet = Math.floor(increment / 16777216) > 0 ? 0 :
+                         Math.floor(increment / 65536) > 0 ? 1 :
+                         Math.floor(increment / 256) > 0 ? 2 : 3;
+                         
+    const incrementValue = incrementOctet === 0 ? Math.floor(increment / 16777216) :
+                         incrementOctet === 1 ? Math.floor(increment / 65536) :
+                         incrementOctet === 2 ? Math.floor(increment / 256) : increment;
+    
+    subnet2Address[incrementOctet] += incrementValue;
+    
+    // Handle carry
+    if (subnet2Address[3] > 255) {
+      subnet2Address[3] -= 256;
+      subnet2Address[2] += 1;
+    }
+    if (subnet2Address[2] > 255) {
+      subnet2Address[2] -= 256;
+      subnet2Address[1] += 1;
+    }
+    if (subnet2Address[1] > 255) {
+      subnet2Address[1] -= 256;
+      subnet2Address[0] += 1;
+    }
+    
+    const subnet2 = subnet2Address.join('.');
+    
+    // Calculate an arbitrary nth subnet (e.g., subnet 14)
+    const randomSubnetNumber = Math.floor(Math.random() * 20) + 3; // Between 3 and 22
+    
+    let subnetNAddress = subnet1.split('.').map(octet => parseInt(octet));
+    const nIncrement = increment * (randomSubnetNumber - 1);
+    
+    const nIncrementOctet = Math.floor(nIncrement / 16777216) > 0 ? 0 :
+                            Math.floor(nIncrement / 65536) > 0 ? 1 :
+                            Math.floor(nIncrement / 256) > 0 ? 2 : 3;
+    
+    const nIncrementValue = nIncrementOctet === 0 ? Math.floor(nIncrement / 16777216) :
+                            nIncrementOctet === 1 ? Math.floor(nIncrement / 65536) :
+                            nIncrementOctet === 2 ? Math.floor(nIncrement / 256) : nIncrement;
+    
+    subnetNAddress[nIncrementOctet] += nIncrementValue;
+    
+    // Handle carry
+    if (subnetNAddress[3] > 255) {
+      subnetNAddress[3] -= 256;
+      subnetNAddress[2] += 1;
+    }
+    if (subnetNAddress[2] > 255) {
+      subnetNAddress[2] -= 256;
+      subnetNAddress[1] += 1;
+    }
+    if (subnetNAddress[1] > 255) {
+      subnetNAddress[1] -= 256;
+      subnetNAddress[0] += 1;
+    }
+    
+    const subnetN = subnetNAddress.join('.');
+    
+    // Create the question text
+    const hostPhrase = language === 'en' ? `has ${hostsPerSubnet} hosts` : `${hostsPerSubnet} hosts heeft`;
+    const fixedHostPrompt = language === 'en'
+      ? `${firstOctet}.${secondOctet}.${thirdOctet}.${fourthOctet}/${startPrefix} divided so that each subnet ${hostPhrase}.<br><br>Answer the following questions:`
+      : `${firstOctet}.${secondOctet}.${thirdOctet}.${fourthOctet}/${startPrefix} verdelen zodat elk subnet ${hostPhrase}.<br><br>Beantwoord de volgende vragen:`;
+    
+    // Create bullet points with the same questions as in the screenshot
+    const bulletPoints = language === 'en'
+      ? `<ul class="list-disc pl-5 space-y-1">
+          <li>Write the subnet mask in decimal</li>
+          <li>How many host bits do you need?</li>
+          <li>What is the CIDR for these subnets?</li>
+          <li>Subnet mask?</li>
+          <li>Subnet 1?</li>
+          <li>Subnet 2?</li>
+          <li>Subnet ${randomSubnetNumber}?</li>
+          <li>List the subnets as slash notation from the Network ID!</li>
+        </ul>`
+      : `<ul class="list-disc pl-5 space-y-1">
+          <li>Schrijf het subnetmask uit in decimalen</li>
+          <li>Hoeveel host-bits moet je lenen?</li>
+          <li>Wat wordt je CIDR voor deze subnetten?</li>
+          <li>Subnetmask?</li>
+          <li>Subnet 1?</li>
+          <li>Subnet 2?</li>
+          <li>Subnet ${randomSubnetNumber}?</li>
+          <li>Geef de subnetten als een slashnotatie vanuit de Net-ID!</li>
+        </ul>`;
+    
+    questionText = `<p class="text-slate-800 mb-3 dark:text-zinc-200">${fixedHostPrompt}</p>${bulletPoints}`;
+    
+    // Create a textarea for the comprehensive answer
+    const textarea = language === 'en' 
+      ? 'Comprehensive Answer'
+      : 'Uitgebreid Antwoord';
+    
+    // Create model answer for explanation
+    const modelAnswer = language === 'en'
+      ? `Subnet mask in decimal: ${subnetMask}
+Host bits: ${requiredHostBits}
+CIDR for subnets: /${newPrefix}
+Subnet mask: ${subnetMask}
+Subnet 1: ${subnet1}/${newPrefix}
+Subnet 2: ${subnet2}/${newPrefix}
+Subnet ${randomSubnetNumber}: ${subnetN}/${newPrefix}
+Slash notation: ${subnet1}/${startPrefix} -> ${subnet1}/${newPrefix}`
+      : `Subnetmask in decimalen: ${subnetMask}
+Host-bits: ${requiredHostBits}
+CIDR voor subnetten: /${newPrefix}
+Subnetmask: ${subnetMask}
+Subnet 1: ${subnet1}/${newPrefix}
+Subnet 2: ${subnet2}/${newPrefix}
+Subnet ${randomSubnetNumber}: ${subnetN}/${newPrefix}
+Slashnotatie: ${subnet1}/${startPrefix} -> ${subnet1}/${newPrefix}`;
+    
+    answerFields = [
+      { id: 'comprehensive-answer', label: textarea, answer: modelAnswer }
+    ];
+    
+    // Create explanation
+    const fixedHostExplanation = language === 'en'
+      ? `<p>Detailed steps for this subnet calculation:</p>
+        <ol class="list-decimal ml-5 mt-2 space-y-1">
+          <li>Starting with network ${subnet1}/${startPrefix}</li>
+          <li>Need ${hostsPerSubnet} hosts per subnet, which requires ${requiredHostBits} host bits (2<sup>${requiredHostBits}</sup> - 2 = ${Math.pow(2, requiredHostBits) - 2} usable hosts)</li>
+          <li>New prefix = 32 - ${requiredHostBits} = /${newPrefix}</li>
+          <li>Subnet mask for /${newPrefix} is ${subnetMask}</li>
+          <li>The original network can be divided into ${possibleSubnets} subnets of size /${newPrefix}</li>
+          <li>First subnet starts at ${subnet1}</li>
+          <li>Second subnet starts at ${subnet2}</li>
+          <li>Subnet ${randomSubnetNumber} starts at ${subnetN}</li>
+        </ol>`
+      : `<p>Gedetailleerde stappen voor deze subnet berekening:</p>
+        <ol class="list-decimal ml-5 mt-2 space-y-1">
+          <li>Beginnend met netwerk ${subnet1}/${startPrefix}</li>
+          <li>Er zijn ${hostsPerSubnet} hosts per subnet nodig, wat ${requiredHostBits} host-bits vereist (2<sup>${requiredHostBits}</sup> - 2 = ${Math.pow(2, requiredHostBits) - 2} bruikbare hosts)</li>
+          <li>Nieuwe prefix = 32 - ${requiredHostBits} = /${newPrefix}</li>
+          <li>Subnetmasker voor /${newPrefix} is ${subnetMask}</li>
+          <li>Het oorspronkelijke netwerk kan worden verdeeld in ${possibleSubnets} subnetten van formaat /${newPrefix}</li>
+          <li>Eerste subnet begint bij ${subnet1}</li>
+          <li>Tweede subnet begint bij ${subnet2}</li>
+          <li>Subnet ${randomSubnetNumber} begint bij ${subnetN}</li>
+        </ol>`;
+      
+    explanation = fixedHostExplanation;
   }
   else if (questionType === 'comprehensive-subnet') {
     // CCNA-style comprehensive subnet calculation question with multiple parts
