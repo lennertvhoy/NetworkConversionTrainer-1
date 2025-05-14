@@ -1067,38 +1067,78 @@ function buildNetworkCalculationProblem(difficulty: string, language: Language =
     // Calculate the actual number of hosts this prefix provides
     const actualHosts = Math.pow(2, hostBitsNeeded) - 2;
     
-    // Create the question
-    const vlsmQuestion = language === 'en'
-      ? `<p class="text-slate-800 mb-3 dark:text-zinc-200">What is the smallest subnet prefix (largest subnet) that can accommodate ${requiredHosts} hosts?</p>`
-      : `<p class="text-slate-800 mb-3 dark:text-zinc-200">Wat is de kleinste subnet-prefix (grootste subnet) die ${requiredHosts} hosts kan accommoderen?</p>`;
+    // Generate a network to work with
+    const baseNetwork = generateRandomIP();
+    const basePrefix = [16, 20, 24][Math.floor(Math.random() * 3)];
     
-    questionText = vlsmQuestion;
+    // Calculate the subnet mask in decimal notation
+    const subnetMask = prefixToSubnetMask(requiredPrefix);
     
-    const prefixLabel = language === 'en' ? 'Subnet Prefix' : 'Subnet Prefix';
+    // Calculate number of host bits
+    const hostBits = 32 - requiredPrefix;
+    
+    // Create a more comprehensive question
+    const questionTitle = language === 'en'
+      ? `<p class="text-slate-800 mb-3 dark:text-zinc-200">${baseNetwork}/${basePrefix} verdelen zodat elk subnet ${requiredHosts} hosts heeft.</p>`
+      : `<p class="text-slate-800 mb-3 dark:text-zinc-200">${baseNetwork}/${basePrefix} verdelen zodat elk subnet ${requiredHosts} hosts heeft.</p>`;
+    
+    const questionPrompt = language === 'en'
+      ? `<p class="text-slate-700 mb-3 dark:text-zinc-300">Answer the following questions:</p>
+         <ul class="list-disc pl-5 space-y-1 text-slate-700 mb-3 dark:text-zinc-300">
+         <li>Write the subnet mask in decimal notation</li>
+         <li>How many host bits must you borrow?</li>
+         <li>What is the CIDR for these subnets?</li>
+         </ul>`
+      : `<p class="text-slate-700 mb-3 dark:text-zinc-300">Beantwoord de volgende vragen:</p>
+         <ul class="list-disc pl-5 space-y-1 text-slate-700 mb-3 dark:text-zinc-300">
+         <li>Schrijf het subnetmask uit in decimalen</li>
+         <li>Hoeveel host-bits moet je lenen?</li>
+         <li>Wat wordt je CIDR voor deze subnetten?</li>
+         </ul>`;
+    
+    questionText = questionTitle + questionPrompt;
+    
+    // Multiple fields for the answer
+    const subnetMaskLabel = language === 'en' ? 'Subnet Mask (decimal)' : 'Subnetmask (decimaal)';
+    const hostBitsLabel = language === 'en' ? 'Host Bits' : 'Host-bits';
+    const cidrLabel = language === 'en' ? 'CIDR Prefix' : 'CIDR Prefix';
+    
     answerFields = [
-      { id: 'subnet-prefix', label: prefixLabel, answer: `/${requiredPrefix}` }
+      { id: 'subnet-mask', label: subnetMaskLabel, answer: subnetMask },
+      { id: 'host-bits', label: hostBitsLabel, answer: hostBits.toString() },
+      { id: 'subnet-prefix', label: cidrLabel, answer: `/${requiredPrefix}` }
     ];
     
     // Generate explanation
     const mediumExplanation = language === 'en'
-      ? `<p>To find the smallest subnet that can accommodate ${requiredHosts} hosts:</p>
+      ? `<p>To subnet a network for ${requiredHosts} hosts per subnet:</p>
       <ol class="list-decimal ml-5 mt-2 space-y-1">
         <li>We need at least ${requiredHosts} usable host addresses</li>
         <li>We need to add 2 for the network and broadcast addresses: ${requiredHosts} + 2 = ${requiredHosts + 2}</li>
         <li>We need to find the smallest power of 2 that gives us at least ${requiredHosts + 2} addresses: 2<sup>${hostBitsNeeded}</sup> = ${Math.pow(2, hostBitsNeeded)}</li>
         <li>This requires ${hostBitsNeeded} host bits</li>
         <li>Therefore, the prefix is 32 - ${hostBitsNeeded} = /${requiredPrefix}</li>
+        <li>The subnet mask in decimal notation is ${subnetMask}</li>
       </ol>
-      <p class="mt-2">A /${requiredPrefix} subnet has ${actualHosts} usable host addresses, which is enough for the required ${requiredHosts} hosts.</p>`
-      : `<p>Om het kleinste subnet te vinden dat ${requiredHosts} hosts kan accommoderen:</p>
+      <p class="mt-2">With a /${requiredPrefix} subnet (${subnetMask}), each subnet will have:</p>
+      <ul class="list-disc ml-5 mt-2 space-y-1">
+        <li>Host bits: ${hostBits}</li>
+        <li>Usable host addresses: ${actualHosts} per subnet</li>
+      </ul>`
+      : `<p>Om een netwerk te subnetten voor ${requiredHosts} hosts per subnet:</p>
       <ol class="list-decimal ml-5 mt-2 space-y-1">
         <li>We hebben minstens ${requiredHosts} bruikbare host-adressen nodig</li>
         <li>We moeten 2 toevoegen voor het netwerk- en broadcastadres: ${requiredHosts} + 2 = ${requiredHosts + 2}</li>
         <li>We moeten de kleinste macht van 2 vinden die ons minstens ${requiredHosts + 2} adressen geeft: 2<sup>${hostBitsNeeded}</sup> = ${Math.pow(2, hostBitsNeeded)}</li>
         <li>Dit vereist ${hostBitsNeeded} host-bits</li>
         <li>Daarom is de prefix 32 - ${hostBitsNeeded} = /${requiredPrefix}</li>
+        <li>Het subnetmask in decimale notatie is ${subnetMask}</li>
       </ol>
-      <p class="mt-2">Een /${requiredPrefix} subnet heeft ${actualHosts} bruikbare host-adressen, wat voldoende is voor de vereiste ${requiredHosts} hosts.</p>`;
+      <p class="mt-2">Met een /${requiredPrefix} subnet (${subnetMask}), heeft elk subnet:</p>
+      <ul class="list-disc ml-5 mt-2 space-y-1">
+        <li>Host-bits: ${hostBits}</li>
+        <li>Bruikbare host-adressen: ${actualHosts} per subnet</li>
+      </ul>`;
     
     explanation = mediumExplanation;
   }

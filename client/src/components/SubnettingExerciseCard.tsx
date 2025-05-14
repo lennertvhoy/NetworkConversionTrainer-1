@@ -171,7 +171,7 @@ export default function SubnettingExerciseCard({ subnetType, difficulty }: Subne
               variant="outline"
               size="sm"
               onClick={generateNewQuestion}
-              className="flex items-center gap-1 hover:bg-gray-200 dark:hover:bg-zinc-800"
+              className="flex items-center gap-1 hover:bg-gray-300 dark:hover:bg-zinc-700"
             >
               <RefreshCw className="h-4 w-4" />
               {t('subnetting.newQuestion')}
@@ -326,6 +326,7 @@ export default function SubnettingExerciseCard({ subnetType, difficulty }: Subne
               variant="outline" 
               onClick={handleSkip}
               disabled={isAnswered}
+              className="hover:bg-gray-300 dark:hover:bg-zinc-700"
             >
               {t('subnetting.skip')}
             </Button>
