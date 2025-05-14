@@ -864,16 +864,19 @@ function buildWildcardMaskProblem(difficulty: string, language: Language = 'nl')
 }
 
 // Build a network calculation problem (e.g., "How many /28 subnets can you get from a /24 network?")
-function buildNetworkCalculationProblem(difficulty: string, language: Language = 'nl'): SubnettingQuestion {
+function buildNetworkCalculationProblem(difficulty: string, language: Language = 'nl', forcedType: string = ''): SubnettingQuestion {
   let questionText = '';
   let answerFields: { id: string; label: string; answer: string }[] = [];
   let explanation = '';
   
-  // Choose what kind of calculation to test
+  // Choose what kind of calculation to test or use the forced type
   const questionTypes = ['subnet-count', 'host-count', 'vlsm', 'comprehensive-subnet', 'fixed-hosts-subnet'];
   let questionType = 'subnet-count';
   
-  if (difficulty === 'easy') {
+  // If a forced type is provided, use it; otherwise, select based on difficulty
+  if (forcedType) {
+    questionType = forcedType;
+  } else if (difficulty === 'easy') {
     questionType = 'subnet-count';
   } else if (difficulty === 'medium') {
     questionType = questionTypes[Math.floor(Math.random() * 3)]; // subnet-count, host-count, or vlsm
@@ -1536,6 +1539,14 @@ export function generateSubnettingQuestion(subnetType: string, difficulty: strin
   let question: SubnettingQuestion;
   
   switch (subnetType) {
+    case 'hosts-per-subnet':
+      // Force fixed-hosts-subnet type for the subnet by host count category
+      question = buildNetworkCalculationProblem(difficulty, language, 'fixed-hosts-subnet');
+      break;
+    case 'subnets-count':
+      // Force subnet-count type for the subnet by network count category
+      question = buildNetworkCalculationProblem(difficulty, language, 'subnet-count');
+      break;
     case 'basic':
       // Update buildBasicSubnettingProblem to accept language parameter
       question = buildBasicSubnettingProblem(difficulty, language);
