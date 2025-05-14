@@ -354,8 +354,16 @@ const translations: Record<string, Record<string, string>> = {
     nl: 'Vul alle velden in voordat je je antwoord controleert.',
   },
   'subnetting.placeholder.mask': {
-    en: 'both 255.255.255.0 and /24 accepted',
-    nl: 'zowel 255.255.255.0 als /24 geaccepteerd',
+    en: 'Enter answer in requested format',
+    nl: 'Geef antwoord in gevraagd formaat',
+  },
+  'subnetting.placeholder.cidr': {
+    en: 'e.g., /24',
+    nl: 'bijv. /24',
+  },
+  'subnetting.placeholder.decimal': {
+    en: 'e.g., 255.255.255.0',
+    nl: 'bijv. 255.255.255.0',
   },
   'subnetting.placeholder.ip': {
     en: 'e.g., 192.168.1.0',
