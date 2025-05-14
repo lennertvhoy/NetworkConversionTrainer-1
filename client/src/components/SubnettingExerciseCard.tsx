@@ -171,7 +171,7 @@ export default function SubnettingExerciseCard({ subnetType, difficulty }: Subne
               variant="outline"
               size="sm"
               onClick={generateNewQuestion}
-              className="flex items-center gap-1 hover:bg-blue-100 dark:hover:bg-blue-900"
+              className="flex items-center gap-1 hover:bg-gray-200 dark:hover:bg-zinc-800"
             >
               <RefreshCw className="h-4 w-4" />
               {t('subnetting.newQuestion')}
@@ -212,7 +212,7 @@ export default function SubnettingExerciseCard({ subnetType, difficulty }: Subne
                       : "Subnetmask in decimalen: 255.255.255.0\nHost-bits: 8\nCIDR voor subnetten: /24\n...")
                   }
                   rows={10}
-                  className="shadow-sm focus:ring-secondary focus:border-secondary block w-full sm:text-sm border-slate-300 font-mono"
+                  className="shadow-sm focus:ring-secondary focus:border-secondary block w-full sm:text-sm border-slate-300 dark:border-zinc-900 dark:bg-zinc-900 font-mono"
                 />
               ) : (
                 <Input
@@ -236,7 +236,7 @@ export default function SubnettingExerciseCard({ subnetType, difficulty }: Subne
                                   ? t('subnetting.placeholder.mask')
                                   : t('subnetting.placeholder.ip')
                   }
-                  className="shadow-sm focus:ring-secondary focus:border-secondary block w-full sm:text-sm border-slate-300"
+                  className="shadow-sm focus:ring-secondary focus:border-secondary block w-full sm:text-sm border-slate-300 dark:border-zinc-900 dark:bg-zinc-900"
                 />
               )}
             </div>
