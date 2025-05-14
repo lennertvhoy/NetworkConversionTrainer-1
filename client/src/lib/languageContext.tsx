@@ -371,15 +371,15 @@ const translations: Record<string, Record<string, string>> = {
   },
   'subnetting.placeholder.cidr': {
     en: 'e.g., /24',
-    nl: 'bijv. /24',
+    nl: 'bv. /24',
   },
   'subnetting.placeholder.decimal': {
     en: 'e.g., 255.255.255.0',
-    nl: 'bijv. 255.255.255.0',
+    nl: 'bv. 255.255.255.0',
   },
   'subnetting.placeholder.ip': {
     en: 'e.g., 192.168.1.0',
-    nl: 'bijv. 192.168.1.0',
+    nl: 'bv. 192.168.1.0',
   },
   'subnetting.reference.title': {
     en: 'Subnetting Reference',

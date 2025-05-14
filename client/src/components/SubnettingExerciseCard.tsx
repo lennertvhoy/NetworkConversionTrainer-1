@@ -206,7 +206,7 @@ export default function SubnettingExerciseCard({ subnetType, difficulty }: Subne
                   value={userAnswers[field.id] || ""}
                   onChange={(e) => handleInputChange(field.id, e.target.value)}
                   placeholder={
-                    (language === 'en' ? 'eg. ' : 'bijv. ') + 
+                    (language === 'en' ? 'eg. ' : 'bv. ') + 
                     (language === 'en' 
                       ? "Subnet mask in decimal: 255.255.255.0\nHost bits: 8\nCIDR for subnets: /24\n..."
                       : "Subnetmask in decimalen: 255.255.255.0\nHost-bits: 8\nCIDR voor subnetten: /24\n...")
@@ -221,13 +221,13 @@ export default function SubnettingExerciseCard({ subnetType, difficulty }: Subne
                   onChange={(e) => handleInputChange(field.id, e.target.value)}
                   placeholder={
                     field.id === 'expanded-ipv6'
-                      ? (language === 'en' ? 'eg. ' : 'bijv. ') + "2001:0db8:0000:0000:0000:0000:0000:0001"
+                      ? (language === 'en' ? 'eg. ' : 'bv. ') + "2001:0db8:0000:0000:0000:0000:0000:0001"
                       : field.id === 'abbreviated-ipv6'
-                        ? (language === 'en' ? 'eg. ' : 'bijv. ') + "2001:db8::1"
+                        ? (language === 'en' ? 'eg. ' : 'bv. ') + "2001:db8::1"
                         : field.id === 'usable-hosts' || field.id === 'host-count' || field.id === 'subnet-count'
-                          ? (language === 'en' ? 'eg. ' : 'bijv. ') + "16777214"
+                          ? (language === 'en' ? 'eg. ' : 'bv. ') + "16777214"
                           : field.id.includes('host') || field.id.includes('network') || field.id.includes('broadcast')
-                            ? (language === 'en' ? 'eg. ' : 'bijv. ') + "192.0.2.1"
+                            ? (language === 'en' ? 'eg. ' : 'bv. ') + "192.0.2.1"
                             : (field.id === 'subnet-mask' && (questionText.toLowerCase().includes('cidr') || questionText.toLowerCase().includes('prefix')))
                               ? t('subnetting.placeholder.cidr')
                               : (field.id === 'subnet-mask' && questionText.toLowerCase().includes('decimal'))
