@@ -655,24 +655,30 @@ function buildBasicSubnettingProblem(difficulty: string, language: Language = 'n
       }
       break;
     case 'all':
-      const allExplanationText = language === 'en'
-        ? `<p>Given IP ${ip} with mask ${mask} (/${prefix}):</p>
-        <ol class="list-decimal ml-5 mt-2 space-y-1">
-          <li>Network address: ${networkAddress} (bitwise AND of IP and mask)</li>
-          <li>Broadcast address: ${broadcastAddress} (network with host bits set to 1)</li>
-          <li>First usable host: ${firstHost} (network address + 1)</li>
-          <li>Last usable host: ${lastHost} (broadcast address - 1)</li>
-          <li>Total usable hosts: ${usableHosts} (2<sup>${32 - prefix}</sup> - 2)</li>
-        </ol>`
-        : `<p>Gegeven IP ${ip} met masker ${mask} (/${prefix}):</p>
-        <ol class="list-decimal ml-5 mt-2 space-y-1">
-          <li>Netwerkadres: ${networkAddress} (bitwise AND van IP en masker)</li>
-          <li>Broadcastadres: ${broadcastAddress} (netwerk met host-bits op 1 gezet)</li>
-          <li>Eerste bruikbare host: ${firstHost} (netwerkadres + 1)</li>
-          <li>Laatste bruikbare host: ${lastHost} (broadcastadres - 1)</li>
-          <li>Totaal bruikbare hosts: ${usableHosts} (2<sup>${32 - prefix}</sup> - 2)</li>
-        </ol>`;
-      explanation = allExplanationText;
+      if (difficulty === 'hard') {
+        explanation = language === 'en'
+          ? `Network address: ${networkAddress}<br>Broadcast address: ${broadcastAddress}<br>First usable host: ${firstHost}<br>Last usable host: ${lastHost}<br>Total usable hosts: ${usableHosts}`
+          : `Netwerkadres: ${networkAddress}<br>Broadcastadres: ${broadcastAddress}<br>Eerste bruikbare host: ${firstHost}<br>Laatste bruikbare host: ${lastHost}<br>Totaal bruikbare hosts: ${usableHosts}`;
+      } else {
+        const allExplanationText = language === 'en'
+          ? `<p>Given IP ${ip} with mask ${mask} (/${prefix}):</p>
+          <ol class="list-decimal ml-5 mt-2 space-y-1">
+            <li>Network address: ${networkAddress} (bitwise AND of IP and mask)</li>
+            <li>Broadcast address: ${broadcastAddress} (network with host bits set to 1)</li>
+            <li>First usable host: ${firstHost} (network address + 1)</li>
+            <li>Last usable host: ${lastHost} (broadcast address - 1)</li>
+            <li>Total usable hosts: ${usableHosts} (2<sup>${32 - prefix}</sup> - 2)</li>
+          </ol>`
+          : `<p>Gegeven IP ${ip} met masker ${mask} (/${prefix}):</p>
+          <ol class="list-decimal ml-5 mt-2 space-y-1">
+            <li>Netwerkadres: ${networkAddress} (bitwise AND van IP en masker)</li>
+            <li>Broadcastadres: ${broadcastAddress} (netwerk met host-bits op 1 gezet)</li>
+            <li>Eerste bruikbare host: ${firstHost} (netwerkadres + 1)</li>
+            <li>Laatste bruikbare host: ${lastHost} (broadcastadres - 1)</li>
+            <li>Totaal bruikbare hosts: ${usableHosts} (2<sup>${32 - prefix}</sup> - 2)</li>
+          </ol>`;
+        explanation = allExplanationText;
+      }
       break;
   }
   
