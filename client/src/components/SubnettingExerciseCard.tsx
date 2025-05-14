@@ -237,6 +237,8 @@ export default function SubnettingExerciseCard({ subnetType, difficulty }: Subne
                           ? (language === 'en' ? 'eg. 192.168.1.32/28' : 'bv. 192.168.1.32/28')  
                         : field.id.indexOf('subnet-4') !== -1
                           ? (language === 'en' ? 'eg. 192.168.1.48/28' : 'bv. 192.168.1.48/28')
+                        : field.id.match(/subnet-\d+/)
+                          ? (language === 'en' ? 'eg. 192.168.1.64/28' : 'bv. 192.168.1.64/28')
                         : field.id.includes('network')
                           ? (language === 'en' ? 'eg. 192.168.1.0' : 'bv. 192.168.1.0')
                         : field.id.includes('broadcast')
