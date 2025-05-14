@@ -1145,6 +1145,249 @@ function buildNetworkCalculationProblem(difficulty: string, language: Language =
   };
 }
 
+// Generate a random IPv6 address
+function generateRandomIPv6(): string {
+  const segments: string[] = [];
+  for (let i = 0; i < 8; i++) {
+    // Generate a random 16-bit hexadecimal number
+    const segment = Math.floor(Math.random() * 65536).toString(16).padStart(4, '0');
+    segments.push(segment);
+  }
+  return segments.join(':');
+}
+
+// Build an IPv6 subnetting problem
+function buildIPv6Problem(difficulty: string, language: Language = 'nl'): SubnettingQuestion {
+  // Generate a random IPv6 prefix based on difficulty
+  let prefix: number;
+  
+  if (difficulty === 'easy') {
+    // For easy, use common prefixes like /48, /56, or /64
+    const easyPrefixes = [48, 56, 64];
+    prefix = easyPrefixes[Math.floor(Math.random() * easyPrefixes.length)];
+  } else if (difficulty === 'medium') {
+    // For medium, use more varied prefixes
+    const mediumPrefixes = [32, 40, 48, 52, 56, 60, 64];
+    prefix = mediumPrefixes[Math.floor(Math.random() * mediumPrefixes.length)];
+  } else { // hard
+    // For hard, use any valid prefix (multiple of 4 for nibble boundaries)
+    const hardPrefixes = [16, 20, 24, 28, 32, 36, 40, 44, 48, 52, 56, 60, 64, 68, 72, 76, 80, 88, 96, 112];
+    prefix = hardPrefixes[Math.floor(Math.random() * hardPrefixes.length)];
+  }
+  
+  // Generate a random IPv6 address
+  const ipv6Address = generateRandomIPv6();
+  
+  // Choose a random scenario based on difficulty
+  let questionText = "";
+  let answerFields: { id: string; label: string; answer: string }[] = [];
+  let explanation = "";
+  
+  // Choose a random problem type
+  const problemTypes = ['subnet-id', 'expand-address', 'prefix-calculation'];
+  let problemType = '';
+  
+  if (difficulty === 'easy') {
+    problemType = 'expand-address';
+  } else if (difficulty === 'medium') {
+    problemType = problemTypes[Math.floor(Math.random() * 2)]; // expand or subnet-id
+  } else { // hard
+    problemType = problemTypes[Math.floor(Math.random() * problemTypes.length)]; // any type
+  }
+  
+  if (problemType === 'expand-address') {
+    // Create an abbreviated IPv6 address
+    const segments = ipv6Address.split(':');
+    
+    // Choose a position to insert the :: abbreviation
+    const zeroPosition = Math.floor(Math.random() * 6); // Ensure we leave at least 2 segments
+    let zeroCount = Math.floor(Math.random() * 3) + 2; // Between 2 and 4 zero segments
+    
+    // Make sure we don't go past the end of the array
+    if (zeroPosition + zeroCount > 7) {
+      zeroCount = 8 - zeroPosition;
+    }
+    
+    // Replace segments with zeros
+    for (let i = 0; i < zeroCount; i++) {
+      segments[zeroPosition + i] = '0000';
+    }
+    
+    // Create abbreviated address
+    let abbreviatedAddress = segments.join(':');
+    abbreviatedAddress = abbreviatedAddress.replace(/:(0000:)+/g, '::');
+    
+    // Create question
+    const expandPrompt = language === 'en'
+      ? `Expand the following abbreviated IPv6 address <span class="font-mono font-medium">${abbreviatedAddress}</span> to its full uncompressed form.`
+      : `Vouw het volgende afgekorte IPv6-adres <span class="font-mono font-medium">${abbreviatedAddress}</span> uit naar zijn volledige vorm.`;
+    
+    questionText = `<p class="text-slate-800 mb-3 dark:text-zinc-200">${expandPrompt}</p>`;
+    
+    answerFields = [
+      { id: 'expanded-ipv6', label: language === 'en' ? 'Expanded IPv6 Address' : 'Volledig IPv6-adres', answer: ipv6Address }
+    ];
+    
+    // Prepare explanation
+    const expandExplanation = language === 'en'
+      ? `<p>To expand an abbreviated IPv6 address:</p>
+         <ol class="list-decimal ml-5 mt-2 space-y-1">
+           <li>Replace the double colon (::) with the correct number of zero groups</li>
+           <li>Ensure each hexadecimal group has all 4 digits by adding leading zeros</li>
+         </ol>
+         <p class="mt-2">For address <span class="font-mono">${abbreviatedAddress}</span>:</p>
+         <p class="mt-1">Replace :: with ${zeroCount} groups of zeros</p>
+         <p class="mt-1">Result: <span class="font-mono">${ipv6Address}</span></p>`
+      : `<p>Om een afgekort IPv6-adres uit te vouwen:</p>
+         <ol class="list-decimal ml-5 mt-2 space-y-1">
+           <li>Vervang de dubbele dubbele punt (::) door het juiste aantal nulgroepen</li>
+           <li>Zorg ervoor dat elke hexadecimale groep alle 4 cijfers heeft door voorloopnullen toe te voegen</li>
+         </ol>
+         <p class="mt-2">Voor adres <span class="font-mono">${abbreviatedAddress}</span>:</p>
+         <p class="mt-1">Vervang :: door ${zeroCount} groepen nullen</p>
+         <p class="mt-1">Resultaat: <span class="font-mono">${ipv6Address}</span></p>`;
+    
+    explanation = expandExplanation;
+  }
+  else if (problemType === 'subnet-id') {
+    // Create a subnet calculation problem
+    const networkBits = prefix;
+    const subnetBits = difficulty === 'easy' ? 8 : difficulty === 'medium' ? 12 : 16;
+    const totalPrefix = networkBits + subnetBits;
+    
+    // Calculate how many subnets can be created
+    const numberOfSubnets = Math.pow(2, subnetBits);
+    
+    // Random subnet ID (start from 1 to make it more intuitive)
+    const subnetId = Math.floor(Math.random() * (numberOfSubnets - 1)) + 1;
+    
+    // Break down the IPv6 address into its components
+    const segments = ipv6Address.split(':');
+    
+    // Calculate the segment and bit position where the subnet ID starts
+    const segmentIndex = Math.floor(networkBits / 16);
+    const bitPosition = networkBits % 16;
+    
+    // Create subnet prefix address by manipulating the correct segments
+    let segmentsWithSubnet = [...segments];
+    
+    // Handle the first segment of the subnet ID
+    if (bitPosition === 0) {
+      // The subnet ID starts at the beginning of a segment
+      segmentsWithSubnet[segmentIndex] = subnetId.toString(16).padStart(4, '0');
+    } else {
+      // The subnet ID crosses a segment boundary
+      const currentSegmentValue = parseInt(segments[segmentIndex], 16);
+      const currentSegmentMask = 0xFFFF & (0xFFFF << (16 - bitPosition));
+      const firstPartOfSubnetId = subnetId >> (subnetBits - bitPosition);
+      
+      const newSegmentValue = (currentSegmentValue & currentSegmentMask) | firstPartOfSubnetId;
+      segmentsWithSubnet[segmentIndex] = newSegmentValue.toString(16).padStart(4, '0');
+      
+      // If the subnet ID crosses to the next segment
+      if (bitPosition + subnetBits > 16) {
+        const remainingBits = subnetBits - (16 - bitPosition);
+        const nextSegmentValue = subnetId & ((1 << remainingBits) - 1);
+        const shiftedValue = nextSegmentValue << (16 - remainingBits);
+        
+        segmentsWithSubnet[segmentIndex + 1] = shiftedValue.toString(16).padStart(4, '0');
+      }
+    }
+    
+    // For simplicity, set the rest of the segments to 0
+    for (let i = segmentIndex + Math.ceil((bitPosition + subnetBits) / 16); i < 8; i++) {
+      segmentsWithSubnet[i] = '0000';
+    }
+    
+    // Assemble the final subnet prefix
+    const subnetPrefix = segmentsWithSubnet.join(':') + `/${totalPrefix}`;
+    
+    // Create question
+    const subnetPrompt = language === 'en'
+      ? `<p>You have been assigned the IPv6 network <span class="font-mono font-medium">${ipv6Address}/${prefix}</span> and need to create ${numberOfSubnets} equal-sized subnets.</p>
+         <p class="mt-3">What would be the network prefix for subnet #${subnetId}?</p>`
+      : `<p>Je hebt het IPv6-netwerk <span class="font-mono font-medium">${ipv6Address}/${prefix}</span> toegewezen gekregen en moet ${numberOfSubnets} subnetten van gelijke grootte maken.</p>
+         <p class="mt-3">Wat zou het netwerkprefix zijn voor subnet #${subnetId}?</p>`;
+    
+    questionText = `<p class="text-slate-800 mb-3 dark:text-zinc-200">${subnetPrompt}</p>`;
+    
+    answerFields = [
+      { id: 'subnet-prefix', label: language === 'en' ? 'Subnet Prefix' : 'Subnet Prefix', answer: subnetPrefix }
+    ];
+    
+    // Prepare explanation
+    const subnetExplanation = language === 'en'
+      ? `<p>To calculate an IPv6 subnet prefix:</p>
+         <ol class="list-decimal ml-5 mt-2 space-y-1">
+           <li>Start with the base network: ${ipv6Address}/${prefix}</li>
+           <li>Add subnet bits: ${prefix} + ${subnetBits} = /${totalPrefix}</li>
+           <li>Calculate the subnet ID location: Begins at bit position ${networkBits} (segment ${segmentIndex + 1}, bit ${bitPosition})</li>
+           <li>Convert subnet #${subnetId} to binary and place it in the subnet bit field</li>
+           <li>Result: ${subnetPrefix}</li>
+         </ol>
+         <p class="mt-2">This subnet can contain ${Math.pow(2, 128 - totalPrefix)} IPv6 addresses.</p>`
+      : `<p>Om een IPv6-subnet prefix te berekenen:</p>
+         <ol class="list-decimal ml-5 mt-2 space-y-1">
+           <li>Begin met het basisnetwerk: ${ipv6Address}/${prefix}</li>
+           <li>Voeg subnet-bits toe: ${prefix} + ${subnetBits} = /${totalPrefix}</li>
+           <li>Bereken de subnet-ID-locatie: Begint op bitpositie ${networkBits} (segment ${segmentIndex + 1}, bit ${bitPosition})</li>
+           <li>Zet subnet #${subnetId} om naar binair en plaats het in het subnet-bitveld</li>
+           <li>Resultaat: ${subnetPrefix}</li>
+         </ol>
+         <p class="mt-2">Dit subnet kan ${Math.pow(2, 128 - totalPrefix)} IPv6-adressen bevatten.</p>`;
+    
+    explanation = subnetExplanation;
+  }
+  else if (problemType === 'prefix-calculation') {
+    // Create a prefix calculation problem
+    const requiredHosts = Math.pow(2, difficulty === 'easy' ? 8 : difficulty === 'medium' ? 16 : 32);
+    
+    // Calculate the needed host bits
+    const hostBits = Math.ceil(Math.log2(requiredHosts));
+    const requiredPrefix = 128 - hostBits;
+    
+    // Create question
+    const prefixPrompt = language === 'en'
+      ? `<p>You need to design an IPv6 subnet that can support ${requiredHosts} hosts.</p>
+         <p class="mt-3">What is the maximum IPv6 prefix length you should use?</p>`
+      : `<p>Je moet een IPv6-subnet ontwerpen dat ${requiredHosts} hosts kan ondersteunen.</p>
+         <p class="mt-3">Wat is de maximale IPv6-prefixlengte die je zou moeten gebruiken?</p>`;
+    
+    questionText = `<p class="text-slate-800 mb-3 dark:text-zinc-200">${prefixPrompt}</p>`;
+    
+    answerFields = [
+      { id: 'prefix-length', label: language === 'en' ? 'Prefix Length' : 'Prefix Lengte', answer: `/${requiredPrefix}` }
+    ];
+    
+    // Prepare explanation
+    const prefixExplanation = language === 'en'
+      ? `<p>To calculate the required IPv6 prefix length:</p>
+         <ol class="list-decimal ml-5 mt-2 space-y-1">
+           <li>Determine how many hosts are needed: ${requiredHosts} hosts</li>
+           <li>Calculate how many bits are needed to address these hosts: log₂(${requiredHosts}) = ${Math.log2(requiredHosts)} ≈ ${hostBits} bits</li>
+           <li>Subtract from total IPv6 address space: 128 - ${hostBits} = ${requiredPrefix}</li>
+         </ol>
+         <p class="mt-2">Therefore, a /${requiredPrefix} prefix would provide enough addresses for ${requiredHosts} hosts.</p>
+         <p class="mt-1">This gives you 2<sup>${hostBits}</sup> = ${Math.pow(2, hostBits)} addresses in total.</p>`
+      : `<p>Om de vereiste IPv6-prefixlengte te berekenen:</p>
+         <ol class="list-decimal ml-5 mt-2 space-y-1">
+           <li>Bepaal hoeveel hosts er nodig zijn: ${requiredHosts} hosts</li>
+           <li>Bereken hoeveel bits er nodig zijn om deze hosts te adresseren: log₂(${requiredHosts}) = ${Math.log2(requiredHosts)} ≈ ${hostBits} bits</li>
+           <li>Trek af van de totale IPv6-adresruimte: 128 - ${hostBits} = ${requiredPrefix}</li>
+         </ol>
+         <p class="mt-2">Daarom zou een /${requiredPrefix} prefix voldoende adressen bieden voor ${requiredHosts} hosts.</p>
+         <p class="mt-1">Dit geeft je 2<sup>${hostBits}</sup> = ${Math.pow(2, hostBits)} adressen in totaal.</p>`;
+    
+    explanation = prefixExplanation;
+  }
+  
+  return {
+    questionText,
+    answerFields,
+    explanation
+  };
+}
+
 export function generateSubnettingQuestion(subnetType: string, difficulty: string, language: Language = 'nl'): SubnettingQuestion {
   // Pass language parameter to each function that builds questions
   let question: SubnettingQuestion;
@@ -1165,6 +1408,10 @@ export function generateSubnettingQuestion(subnetType: string, difficulty: strin
     case 'network':
       // Update buildNetworkCalculationProblem to accept language parameter
       question = buildNetworkCalculationProblem(difficulty, language);
+      break;
+    case 'ipv6':
+      // Add IPv6 subnetting problem
+      question = buildIPv6Problem(difficulty, language);
       break;
     default:
       question = buildBasicSubnettingProblem(difficulty, language);

@@ -149,6 +149,7 @@ export default function SubnettingExerciseCard({ subnetType, difficulty }: Subne
       case "vlsm": return t('subnetting.type.vlsm');
       case "wildcard": return t('subnetting.type.wildcard');
       case "network": return t('subnetting.type.network');
+      case "ipv6": return t('subnetting.type.ipv6');
       default: return t('subnetting.title');
     }
   };
@@ -168,7 +169,7 @@ export default function SubnettingExerciseCard({ subnetType, difficulty }: Subne
               variant="outline"
               size="sm"
               onClick={generateNewQuestion}
-              className="flex items-center gap-1"
+              className="flex items-center gap-1 hover:bg-blue-50 dark:hover:bg-blue-950"
             >
               <RefreshCw className="h-4 w-4" />
               {t('subnetting.newQuestion')}
@@ -215,6 +216,17 @@ export default function SubnettingExerciseCard({ subnetType, difficulty }: Subne
               />
             </div>
           ))}
+        </div>
+        
+        {/* Kladblok / Scratch space */}
+        <div className="mb-6">
+          <h4 className="block text-sm font-medium text-slate-700 mb-2 dark:text-zinc-300">
+            {language === 'en' ? 'Scratch pad' : 'Kladblok'}
+          </h4>
+          <textarea 
+            className="shadow-sm focus:ring-secondary focus:border-secondary block w-full h-24 p-3 border-slate-300 rounded-md font-mono text-sm resize-y dark:bg-zinc-900 dark:border-zinc-700 dark:text-zinc-200"
+            placeholder={language === 'en' ? 'Use this space for calculations...' : 'Gebruik deze ruimte voor berekeningen...'}
+          ></textarea>
         </div>
         
         <Button 

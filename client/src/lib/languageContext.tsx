@@ -309,6 +309,10 @@ const translations: Record<string, Record<string, string>> = {
     en: 'Network Calculations',
     nl: 'Netwerkberekeningen',
   },
+  'subnetting.type.ipv6': {
+    en: 'IPv6 Subnetting',
+    nl: 'IPv6 Subnetting',
+  },
   'subnetting.calculateSubnet': {
     en: 'Calculate subnet information',
     nl: 'Bereken subnet informatie',
