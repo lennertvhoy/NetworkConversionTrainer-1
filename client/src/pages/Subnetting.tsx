@@ -32,6 +32,8 @@ export default function Subnetting() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="basic">{t('subnetting.type.basic')}</SelectItem>
+              <SelectItem value="hosts-per-subnet">{t('subnetting.type.hosts-per-subnet')}</SelectItem>
+              <SelectItem value="subnets-count">{t('subnetting.type.subnets-count')}</SelectItem>
               <SelectItem value="vlsm">{t('subnetting.type.vlsm')}</SelectItem>
               <SelectItem value="wildcard">{t('subnetting.type.wildcard')}</SelectItem>
               <SelectItem value="network">{t('subnetting.type.network')}</SelectItem>

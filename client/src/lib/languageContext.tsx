@@ -297,6 +297,14 @@ const translations: Record<string, Record<string, string>> = {
     en: 'Basic Subnetting',
     nl: 'Basis Subnetting',
   },
+  'subnetting.type.hosts-per-subnet': {
+    en: 'Subnet by Host Count',
+    nl: 'Subnetten op Basis van Hosts',
+  },
+  'subnetting.type.subnets-count': {
+    en: 'Subnet by Network Count',
+    nl: 'Subnetten op Basis van Aantal',
+  },
   'subnetting.type.vlsm': {
     en: 'VLSM Subnetting',
     nl: 'VLSM Subnetting',
