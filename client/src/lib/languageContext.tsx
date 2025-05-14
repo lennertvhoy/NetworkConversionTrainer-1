@@ -475,6 +475,26 @@ const translations: Record<string, Record<string, string>> = {
     en: 'Calculate the increment between subnets in the octet where the subnet boundary falls',
     nl: 'Bereken de increment tussen subnetten in het octet waar de subnetgrens valt',
   },
+  'subnetting.reference.formula.usable': {
+    en: 'Usable Hosts',
+    nl: 'Bruikbare Hosts',
+  },
+  'subnetting.reference.formula.number': {
+    en: 'Number of Subnets',
+    nl: 'Aantal Subnetten',
+  },
+  'subnetting.reference.formula.mask_octet': {
+    en: 'subnet_mask_octet',
+    nl: 'subnetmask_octet',
+  },
+  'subnetting.reference.formula.increment': {
+    en: 'increment',
+    nl: 'increment',
+  },
+  'subnetting.reference.formula.example': {
+    en: 'Example: For subnet mask 255.255.255.192, the interesting octet is 192. So 256 - 192 = 64. This means subnets increment by 64 in the fourth octet.',
+    nl: 'Voorbeeld: Voor subnetmask 255.255.255.192 is het interessante octet 192. Dus 256 - 192 = 64. Dit betekent dat subnetten toenemen met stappen van 64 in het vierde octet.',
+  },
   
   // Reference process section
   'subnetting.reference.process.title': {

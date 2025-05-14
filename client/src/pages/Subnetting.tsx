@@ -170,7 +170,7 @@ export default function Subnetting() {
               </div>
               
               <h4 className="font-medium text-slate-800 mt-6 mb-3 dark:text-zinc-200">{t('subnetting.reference.formula.title')}</h4>
-              <div className="bg-slate-50 p-4 rounded-md text-sm dark:bg-zinc-900">
+              <div className="bg-slate-50 p-4 rounded-md text-sm dark:bg-black">
                 <div className="space-y-2 text-slate-700 dark:text-zinc-300">
                   <p className="font-medium">{t('subnetting.reference.formula.hosts')}</p>
                   <p className="font-mono">{t('subnetting.reference.formula.usable')} = 2<sup>n</sup> - 2</p>
@@ -227,7 +227,7 @@ export default function Subnetting() {
               </div>
               
               <h4 className="font-medium text-slate-800 mt-6 mb-3 dark:text-zinc-200">{t('subnetting.reference.process.title')}</h4>
-              <div className="bg-slate-50 p-4 rounded-md text-sm dark:bg-zinc-900">
+              <div className="bg-slate-50 p-4 rounded-md text-sm dark:bg-black">
                 <div className="space-y-3 text-slate-700 dark:text-zinc-300">
                   <p className="font-medium">{t('subnetting.reference.process.comprehensive.title')}</p>
                   <ol className="list-decimal pl-5 space-y-1">
