@@ -435,14 +435,42 @@ function buildBasicSubnettingProblem(difficulty: string, language: Language = 'n
   const lastHost = calculateLastHost(broadcastAddress);
   const usableHosts = calculateUsableHosts(prefix);
   
-  // Choose what to ask based on difficulty
+  // Choose what to ask based on difficulty, and balance host vs subnet questions
   let questionType: string;
+  const rand = Math.random();
+  
   if (difficulty === 'easy') {
-    questionType = ['network', 'broadcast', 'hosts'][Math.floor(Math.random() * 3)];
+    if (rand < 0.33) {
+      questionType = 'network';
+    } else if (rand < 0.67) {
+      questionType = 'broadcast';
+    } else {
+      questionType = 'hosts';
+    }
   } else if (difficulty === 'medium') {
-    questionType = ['network', 'broadcast', 'first-last', 'prefix'][Math.floor(Math.random() * 4)];
+    if (rand < 0.25) {
+      questionType = 'network';
+    } else if (rand < 0.5) {
+      questionType = 'broadcast';
+    } else if (rand < 0.75) {
+      questionType = 'first-last';
+    } else {
+      questionType = 'prefix';
+    }
   } else { // hard
-    questionType = ['network', 'broadcast', 'first-last', 'prefix', 'mask', 'all'][Math.floor(Math.random() * 6)];
+    if (rand < 0.17) {
+      questionType = 'network';
+    } else if (rand < 0.34) {
+      questionType = 'broadcast';
+    } else if (rand < 0.51) {
+      questionType = 'first-last';
+    } else if (rand < 0.68) {
+      questionType = 'prefix';
+    } else if (rand < 0.85) {
+      questionType = 'mask';
+    } else {
+      questionType = 'all';
+    }
   }
   
   // Create introduction text based on language
@@ -690,48 +718,43 @@ function buildBasicSubnettingProblem(difficulty: string, language: Language = 'n
           ? (language === 'en'
               ? `<p>Converting from subnet mask to CIDR prefix:</p>
               <p class="mt-2 font-mono">Mask: ${mask}<br>CIDR: /${prefix}</p>
-              <p class="mt-2">To find the prefix, count the number of consecutive 1 bits in the binary representation of the subnet mask.</p>
-              <p class="mt-2 text-sm text-slate-600 dark:text-zinc-400"><i>Note: Both CIDR notation (e.g., /24) and decimal format (e.g., 255.255.255.0) are equivalent representations of subnet masks.</i></p>`
+              <p class="mt-2">To find the prefix, count the number of consecutive 1 bits in the binary representation of the subnet mask.</p>`
               : `<p>Omzetten van subnet masker naar CIDR prefix:</p>
               <p class="mt-2 font-mono">Masker: ${mask}<br>CIDR: /${prefix}</p>
-              <p class="mt-2">Om de prefix te vinden, tel je het aantal opeenvolgende 1-bits in de binaire representatie van het subnet masker.</p>
-              <p class="mt-2 text-sm text-slate-600 dark:text-zinc-400"><i>Let op: Zowel CIDR notatie (bijv. /24) als decimaal formaat (bijv. 255.255.255.0) zijn gelijkwaardige representaties van subnet maskers.</i></p>`)
+              <p class="mt-2">Om de prefix te vinden, tel het aantal opeenvolgende 1-bits in de binaire representatie van het subnet masker.</p>`)
           : (language === 'en'
               ? `<p>Converting from CIDR prefix to subnet mask:</p>
               <p class="mt-2 font-mono">CIDR: /${prefix}<br>Mask: ${mask}</p>
-              <p class="mt-2">To convert a prefix to a subnet mask, set the first (prefix) bits to 1 and the remaining bits to 0, then convert to decimal.</p>
-              <p class="mt-2 text-sm text-slate-600 dark:text-zinc-400"><i>Note: Both CIDR notation (e.g., /24) and decimal format (e.g., 255.255.255.0) are equivalent representations of subnet masks.</i></p>`
+              <p class="mt-2">To find the mask, set ${prefix} bits to 1 from the left, and the rest to 0, then convert to decimal.</p>`
               : `<p>Omzetten van CIDR prefix naar subnet masker:</p>
               <p class="mt-2 font-mono">CIDR: /${prefix}<br>Masker: ${mask}</p>
-              <p class="mt-2">Om een prefix naar een subnet masker om te zetten, zet je de eerste (prefix) bits op 1 en de overige bits op 0, en zet je dit vervolgens om naar decimaal.</p>
-              <p class="mt-2 text-sm text-slate-600 dark:text-zinc-400"><i>Let op: Zowel CIDR notatie (bijv. /24) als decimaal formaat (bijv. 255.255.255.0) zijn gelijkwaardige representaties van subnet maskers.</i></p>`);
-        
+              <p class="mt-2">Om het masker te vinden, zet ${prefix} bits op 1 van links, en de rest op 0, converteer dan naar decimaal.</p>`);
         explanation = maskExplanationText;
       }
       break;
     case 'all':
       if (difficulty === 'hard') {
         explanation = language === 'en'
-          ? `Network address: ${networkAddress}<br>Broadcast address: ${broadcastAddress}<br>First usable host: ${firstHost}<br>Last usable host: ${lastHost}<br>Total usable hosts: ${usableHosts}`
-          : `Netwerkadres: ${networkAddress}<br>Broadcastadres: ${broadcastAddress}<br>Eerste bruikbare host: ${firstHost}<br>Laatste bruikbare host: ${lastHost}<br>Totaal bruikbare hosts: ${usableHosts}`;
+          ? `Network address: ${networkAddress}<br>Broadcast address: ${broadcastAddress}<br>First usable host: ${firstHost}<br>Last usable host: ${lastHost}`
+          : `Netwerkadres: ${networkAddress}<br>Broadcastadres: ${broadcastAddress}<br>Eerste bruikbare host: ${firstHost}<br>Laatste bruikbare host: ${lastHost}`;
       } else {
         const allExplanationText = language === 'en'
-          ? `<p>Given IP ${ip} with mask ${mask} (/${prefix}):</p>
-          <ol class="list-decimal ml-5 mt-2 space-y-1">
-            <li>Network address: ${networkAddress} (bitwise AND of IP and mask)</li>
-            <li>Broadcast address: ${broadcastAddress} (network with host bits set to 1)</li>
-            <li>First usable host: ${firstHost} (network address + 1)</li>
-            <li>Last usable host: ${lastHost} (broadcast address - 1)</li>
-            <li>Total usable hosts: ${usableHosts} (2<sup>${32 - prefix}</sup> - 2)</li>
-          </ol>`
-          : `<p>Gegeven IP ${ip} met masker ${mask} (/${prefix}):</p>
-          <ol class="list-decimal ml-5 mt-2 space-y-1">
-            <li>Netwerkadres: ${networkAddress} (bitwise AND van IP en masker)</li>
-            <li>Broadcastadres: ${broadcastAddress} (netwerk met host-bits op 1 gezet)</li>
-            <li>Eerste bruikbare host: ${firstHost} (netwerkadres + 1)</li>
-            <li>Laatste bruikbare host: ${lastHost} (broadcastadres - 1)</li>
-            <li>Totaal bruikbare hosts: ${usableHosts} (2<sup>${32 - prefix}</sup> - 2)</li>
-          </ol>`;
+          ? `<p>Network address calculation (IP AND Mask):</p>
+          <p class="mt-2 font-mono">IP: ${ip}<br>Mask: ${mask}<br>Network: ${networkAddress}</p>
+          <p class="mt-3">Broadcast address calculation (Network OR (NOT Mask)):</p>
+          <p class="mt-2 font-mono">Network: ${networkAddress}<br>Mask: ${mask}<br>Broadcast: ${broadcastAddress}</p>
+          <p class="mt-3">First usable host is the network address + 1:</p>
+          <p class="mt-2 font-mono">First host: ${firstHost}</p>
+          <p class="mt-3">Last usable host is the broadcast address - 1:</p>
+          <p class="mt-2 font-mono">Last host: ${lastHost}</p>`
+          : `<p>Netwerkadres berekening (IP AND Masker):</p>
+          <p class="mt-2 font-mono">IP: ${ip}<br>Masker: ${mask}<br>Netwerk: ${networkAddress}</p>
+          <p class="mt-3">Broadcastadres berekening (Netwerk OR (NOT Masker)):</p>
+          <p class="mt-2 font-mono">Netwerk: ${networkAddress}<br>Masker: ${mask}<br>Broadcast: ${broadcastAddress}</p>
+          <p class="mt-3">Eerste bruikbare host is het netwerkadres + 1:</p>
+          <p class="mt-2 font-mono">Eerste host: ${firstHost}</p>
+          <p class="mt-3">Laatste bruikbare host is het broadcastadres - 1:</p>
+          <p class="mt-2 font-mono">Laatste host: ${lastHost}</p>`;
         explanation = allExplanationText;
       }
       break;
@@ -746,108 +769,91 @@ function buildBasicSubnettingProblem(difficulty: string, language: Language = 'n
 
 // Build a wildcard mask problem
 function buildWildcardMaskProblem(difficulty: string, language: Language = 'nl'): SubnettingQuestion {
+  // Generate a base network
   const ip = generateRandomIP();
   
-  // Choose a prefix based on difficulty
-  let prefix: number;
+  let prefix = 0;
   if (difficulty === 'easy') {
-    prefix = [8, 16, 24][Math.floor(Math.random() * 3)];
+    // Simple network for wildcard mask
+    prefix = [16, 24][Math.floor(Math.random() * 2)];
   } else if (difficulty === 'medium') {
-    prefix = [16, 20, 24, 28][Math.floor(Math.random() * 4)];
+    // More complex networks
+    prefix = [8, 16, 24, 28][Math.floor(Math.random() * 4)];
   } else { // hard
-    prefix = Math.floor(Math.random() * 23) + 8; // 8-30
+    // Any valid prefix
+    prefix = [8, 12, 16, 20, 22, 24, 26, 28, 30][Math.floor(Math.random() * 9)];
   }
   
-  const mask = prefixToSubnetMask(prefix);
+  const subnetMask = prefixToSubnetMask(prefix);
   
   // Calculate wildcard mask (inverse of subnet mask)
-  const wildcardMask = mask.split('.').map(octet => 255 - parseInt(octet)).join('.');
+  const wildcardMask = subnetMask.split('.').map(octet => (255 - parseInt(octet))).join('.');
   
-  // Prepare text based on language
-  const introText = language === 'en' 
-    ? `Access control lists (ACLs) and routing protocols often use wildcard masks, which are the inverse of subnet masks.`
-    : `Accesscontrolelijsten (ACLs) en routeringsprotocollen maken vaak gebruik van wildcard maskers, welke het omgekeerde zijn van subnet maskers.`;
+  // Calculate network information
+  const networkAddress = calculateNetworkAddress(ip, subnetMask);
+  
+  // Create wildcard ACL
+  const aclIp = networkAddress.split('.').map((part, i) => {
+    // Apply wildcard mask to network address for wildcard ACL format
+    const maskPart = parseInt(wildcardMask.split('.')[i]);
+    return parseInt(part) & ~maskPart;
+  }).join('.');
+  
+  // Create question
+  // Create explanation with text based on language
+  const explanationIntro = language === 'en'
+    ? `A wildcard mask is used in access control lists (ACLs) to specify which parts of an IP address are important for matching. It's the <i>inverse</i> of a subnet mask.`
+    : `Een wildcard-masker wordt gebruikt in access control lists (ACL's) om aan te geven welke delen van een IP-adres belangrijk zijn voor matching. Het is het <i>omgekeerde</i> van een subnet masker.`;
     
-  const maskText = language === 'en'
-    ? `Given the subnet mask <span class="font-mono font-medium">${mask}</span> (/${prefix}):`
-    : `Gegeven het subnet masker <span class="font-mono font-medium">${mask}</span> (/${prefix}):`;
-  
-  // Generate question
-  let questionText = `<p class="text-slate-800 mb-3 dark:text-zinc-200">${introText}</p>
-  <p class="text-slate-800 mb-3 dark:text-zinc-200">${maskText}</p>`;
-  
+  let questionText = '';
   let answerFields: { id: string; label: string; answer: string }[] = [];
   
-  if (difficulty === 'easy') {
-    const whatIsText = language === 'en' ? 'What is the wildcard mask?' : 'Wat is het wildcard masker?';
-    questionText += `<p class="text-slate-800 font-medium dark:text-zinc-200">${whatIsText}</p>`;
+  // Different question based on difficulty
+  if (difficulty === 'easy' || difficulty === 'medium') {
+    // For easy and medium: Subnet mask → Wildcard
+    const toWildcardPrompt = language === 'en'
+      ? `<p class="text-slate-800 mb-3 dark:text-zinc-200">Convert the subnet mask <span class="font-mono font-medium">${subnetMask}</span> to a wildcard mask.</p>`
+      : `<p class="text-slate-800 mb-3 dark:text-zinc-200">Converteer het subnet masker <span class="font-mono font-medium">${subnetMask}</span> naar een wildcard masker.</p>`;
     
-    const labelText = language === 'en' ? 'Wildcard Mask' : 'Wildcard Masker';
+    questionText = toWildcardPrompt;
+    
+    const wildcardLabel = language === 'en' ? 'Wildcard Mask' : 'Wildcard Masker';
     answerFields = [
-      { id: 'wildcard-mask', label: labelText, answer: wildcardMask }
+      { id: 'wildcard-mask', label: wildcardLabel, answer: wildcardMask }
     ];
   } else {
-    // For medium and hard, ask about ACL application
-    const networkAddress = calculateNetworkAddress(ip, mask);
+    // For hard: Create ACL format
+    const forAclPrompt = language === 'en'
+      ? `<p class="text-slate-800 mb-3 dark:text-zinc-200">You need to create an ACL that matches packets from the network <span class="font-mono font-medium">${networkAddress}/${prefix}</span>.</p>
+      <p class="text-slate-800 dark:text-zinc-200">What IP address and wildcard mask combination should you use in the ACL statement?</p>`
+      : `<p class="text-slate-800 mb-3 dark:text-zinc-200">Je moet een ACL maken die pakketten matcht van het netwerk <span class="font-mono font-medium">${networkAddress}/${prefix}</span>.</p>
+      <p class="text-slate-800 dark:text-zinc-200">Welke IP-adres en wildcard-masker combinatie moet je gebruiken in de ACL-verklaring?</p>`;
     
-    const aclText = language === 'en'
-      ? `For a router ACL that should match exactly the network <span class="font-mono font-medium">${networkAddress}/${prefix}</span>:`
-      : `Voor een router ACL die exact moet overeenkomen met het netwerk <span class="font-mono font-medium">${networkAddress}/${prefix}</span>:`;
-      
-    const whatIpText = language === 'en'
-      ? 'What IP and wildcard mask should be used in the ACL?'
-      : 'Welk IP en wildcard masker moet worden gebruikt in de ACL?';
+    questionText = forAclPrompt;
     
-    questionText += `<p class="text-slate-800 mb-3 dark:text-zinc-200">${aclText}</p>
-    <p class="text-slate-800 font-medium dark:text-zinc-200">${whatIpText}</p>`;
-    
-    const ipLabel = language === 'en' ? 'IP Address' : 'IP-Adres';
-    const maskLabel = language === 'en' ? 'Wildcard Mask' : 'Wildcard Masker';
-    
+    const ipLabel = language === 'en' ? 'IP Address' : 'IP-adres';
+    const wildcardLabel = language === 'en' ? 'Wildcard Mask' : 'Wildcard Masker';
     answerFields = [
       { id: 'acl-ip', label: ipLabel, answer: networkAddress },
-      { id: 'wildcard-mask', label: maskLabel, answer: wildcardMask }
+      { id: 'acl-wildcard', label: wildcardLabel, answer: wildcardMask }
     ];
   }
   
-  // Create explanation with text based on language
-  const explanationIntro = language === 'en'
-    ? 'A wildcard mask is the inverse of a subnet mask. To calculate it, subtract each octet of the subnet mask from 255:'
-    : 'Een wildcard masker is het omgekeerde van een subnet masker. Om het te berekenen, trek je elk octet van het subnet masker af van 255:';
-    
-  const subnetText = language === 'en' ? 'Subnet mask' : 'Subnet masker';
-  const wildcardText = language === 'en' ? 'Wildcard mask' : 'Wildcard masker';
-  
-  const inWildcardText = language === 'en' ? 'In a wildcard mask:' : 'In een wildcard masker:';
-  const matchExactly = language === 'en' ? '0 bits mean "match exactly"' : '0 bits betekenen "exacte overeenkomst"';
-  const ignoreValue = language === 'en' ? '1 bits mean "ignore" (can be any value)' : '1 bits betekenen "negeren" (kan elke waarde zijn)';
-  
   let explanation = `<p>${explanationIntro}</p>
-  <p class="mt-2 font-mono">${subnetText}: ${mask}<br>${wildcardText}: ${wildcardMask}</p>
-  <p class="mt-2">${inWildcardText}</p>
-  <ul class="list-disc ml-5 mt-1 space-y-1">
-    <li>${matchExactly}</li>
-    <li>${ignoreValue}</li>
-  </ul>`;
+  <p class="mt-2 font-mono bg-slate-100 p-2 rounded dark:bg-zinc-800">
+  Subnet mask: ${subnetMask}<br>
+  Wildcard mask: ${wildcardMask}
+  </p>
+  <p class="mt-2">${language === 'en' ? 'To calculate a wildcard mask, subtract each octet of the subnet mask from 255:' : 'Om een wildcard-masker te berekenen, trek je elk octet van het subnet masker af van 255:'}</p>
+  <p class="mt-2 font-mono">${subnetMask.split('.').map(octet => `255 - ${octet} = ${255 - parseInt(octet)}`).join('<br>')}</p>`;
   
-  if (difficulty !== 'easy') {
-    // Calculate the network address for the example
-    const networkAddr = ip.split('.').map((part, i) => {
-      const maskPart = parseInt(mask.split('.')[i]);
-      return parseInt(part) & maskPart;
-    }).join('.');
+  // Add more explanation for ACL format in hard difficulty
+  if (difficulty === 'hard') {
+    const forAclsText = language === 'en'
+      ? `<b>For ACLs</b>: The IP address stays the same as the network address, and the wildcard mask shows which bits can vary (1s) and which must match exactly (0s).` 
+      : `<b>Voor ACL's</b>: Het IP-adres blijft hetzelfde als het netwerkadres, en het wildcard-masker toont welke bits kunnen variëren (1-en) en welke exact moeten overeenkomen (0-en).`;
     
-    const forAclsText = language === 'en' 
-      ? 'For ACLs, you typically use the network address with the wildcard mask:'
-      : 'Voor ACLs gebruik je meestal het netwerkadres met het wildcard masker:';
-      
-    const matchText = language === 'en'
-      ? `This would match all addresses in the ${networkAddr}/${prefix} network.`
-      : `Dit zou overeenkomen met alle adressen in het ${networkAddr}/${prefix} netwerk.`;
-      
-    explanation += `<p class="mt-2">${forAclsText}</p>
-    <p class="mt-2 font-mono">permit ip ${answerFields[0].answer} ${answerFields[1].answer} any</p>
-    <p>${matchText}</p>`;
+    explanation += `<p class="mt-2">${forAclsText}</p>`;
   }
   
   return {
@@ -857,285 +863,182 @@ function buildWildcardMaskProblem(difficulty: string, language: Language = 'nl')
   };
 }
 
-// Build a network calculation problem
+// Build a network calculation problem (e.g., "How many /28 subnets can you get from a /24 network?")
 function buildNetworkCalculationProblem(difficulty: string, language: Language = 'nl'): SubnettingQuestion {
-  // Choose the type of calculation problem
-  const problemType = difficulty === 'easy' 
-    ? 'required-prefix'
-    : ['required-prefix', 'subnetting', 'supernetting'][Math.floor(Math.random() * 3)];
-  
   let questionText = '';
   let answerFields: { id: string; label: string; answer: string }[] = [];
   let explanation = '';
   
-  if (problemType === 'required-prefix') {
-    // Ask for the required prefix to support a number of hosts or subnets
-    const isHostQuestion = Math.random() > 0.5;
+  // Choose what kind of calculation to test
+  const questionTypes = ['subnet-count', 'host-count', 'vlsm'];
+  let questionType = 'subnet-count';
+  
+  if (difficulty === 'easy') {
+    questionType = 'subnet-count';
+  } else if (difficulty === 'medium') {
+    questionType = questionTypes[Math.floor(Math.random() * 2)]; // subnet-count or host-count
+  } else { // hard
+    questionType = questionTypes[Math.floor(Math.random() * 3)]; // any type
+  }
+  
+  if (questionType === 'subnet-count') {
+    // Ask "How many /X subnets can you get from a /Y network?"
+    let basePrefix = 0;
+    let subnetPrefix = 0;
     
-    let requiredNumber: number;
     if (difficulty === 'easy') {
-      requiredNumber = Math.pow(2, Math.floor(Math.random() * 4) + 2) - 1; // 3 to 63
+      basePrefix = 24;
+      // For easy, have predictable subnet sizes
+      subnetPrefix = [26, 27, 28, 29, 30][Math.floor(Math.random() * 5)];
     } else if (difficulty === 'medium') {
-      requiredNumber = Math.pow(2, Math.floor(Math.random() * 6) + 4) - 1; // 15 to 1023
+      basePrefix = [16, 24][Math.floor(Math.random() * 2)];
+      // Calculate a reasonable subnet prefix
+      const maxSubnetPrefix = Math.min(30, basePrefix + 14); // Don't go too extreme
+      subnetPrefix = basePrefix + 2 + Math.floor(Math.random() * (maxSubnetPrefix - basePrefix - 1));
     } else { // hard
-      // Use non-power-of-2 numbers for hard difficulty
-      requiredNumber = Math.floor(Math.random() * 2000) + 50;
+      basePrefix = [8, 16, 20, 24][Math.floor(Math.random() * 4)];
+      // Calculate a reasonable subnet prefix
+      const maxSubnetPrefix = Math.min(30, basePrefix + 14); // Don't go too extreme
+      subnetPrefix = basePrefix + 2 + Math.floor(Math.random() * (maxSubnetPrefix - basePrefix - 1));
     }
     
-    if (isHostQuestion) {
-      const designText = language === 'en' 
-      ? `You need to design a subnet that can support <span class="font-medium">${requiredNumber}</span> hosts.`
-      : `Je moet een subnet ontwerpen dat ondersteuning biedt voor <span class="font-medium">${requiredNumber}</span> hosts.`;
-      
-    const prefixQuestion = language === 'en'
-      ? `What is the minimum subnet prefix length (CIDR notation) required?`
-      : `Wat is de minimale subnet prefix lengte (CIDR notatie) benodigd?`;
-      
-    questionText = `<p class="text-slate-800 mb-3 dark:text-zinc-200">${designText}</p>
-      <p class="text-slate-800 font-medium dark:text-zinc-200">${prefixQuestion}</p>`;
-      
-      // Calculate required host bits
-      let hostBits = 0;
-      while (Math.pow(2, hostBits) - 2 < requiredNumber) {
-        hostBits++;
-      }
-      
-      const requiredPrefix = 32 - hostBits;
-      
-      answerFields = [
-        { id: 'required-prefix', label: 'Required Prefix Length', answer: `/${requiredPrefix}` }
-      ];
-      
-      const hostExplanation = language === 'en'
-        ? `<p>To find the required prefix length for ${requiredNumber} hosts:</p>
-        <ol class="list-decimal ml-5 mt-2 space-y-1">
-          <li>Calculate how many host bits you need using the formula: 2<sup>host bits</sup> - 2 ≥ ${requiredNumber}</li>
-          <li>We need at least ${hostBits} host bits because 2<sup>${hostBits}</sup> - 2 = ${Math.pow(2, hostBits) - 2} ≥ ${requiredNumber}</li>
-          <li>The prefix length is 32 - (host bits) = 32 - ${hostBits} = /${requiredPrefix}</li>
-        </ol>
-        <p class="mt-2">A /${requiredPrefix} subnet has ${Math.pow(2, hostBits) - 2} usable host addresses.</p>`
-        : `<p>Om de vereiste prefix lengte te vinden voor ${requiredNumber} hosts:</p>
-        <ol class="list-decimal ml-5 mt-2 space-y-1">
-          <li>Bereken hoeveel host-bits je nodig hebt met de formule: 2<sup>host bits</sup> - 2 ≥ ${requiredNumber}</li>
-          <li>We hebben minstens ${hostBits} host-bits nodig omdat 2<sup>${hostBits}</sup> - 2 = ${Math.pow(2, hostBits) - 2} ≥ ${requiredNumber}</li>
-          <li>De prefix lengte is 32 - (host bits) = 32 - ${hostBits} = /${requiredPrefix}</li>
-        </ol>
-        <p class="mt-2">Een /${requiredPrefix} subnet heeft ${Math.pow(2, hostBits) - 2} bruikbare host-adressen.</p>`;
-      
-      explanation = hostExplanation;
-      
-    } else {
-      // Ask for required prefix to support a number of subnets
-      const baseNetwork = generateRandomNetworkClass(difficulty);
-      const baseMask = prefixToSubnetMask(baseNetwork.prefix);
-      
-      const allocatedText = language === 'en'
-        ? `You have been allocated the network <span class="font-mono font-medium">${baseNetwork.ip}/${baseNetwork.prefix}</span> and need to create <span class="font-medium">${requiredNumber}</span> equal-sized subnets.`
-        : `Je hebt toegewezen gekregen het netwerk <span class="font-mono font-medium">${baseNetwork.ip}/${baseNetwork.prefix}</span> en moet <span class="font-medium">${requiredNumber}</span> subnetten van gelijke grootte maken.`;
-        
-      const maskQuestion = language === 'en'
-        ? `What subnet mask should you use for each subnet?`
-        : `Welk subnet masker moet je gebruiken voor elk subnet?`;
-      
-      questionText = `<p class="text-slate-800 mb-3 dark:text-zinc-200">${allocatedText}</p>
-      <p class="text-slate-800 font-medium dark:text-zinc-200">${maskQuestion}</p>`;
-      
-      // Calculate required subnet bits
-      let subnetBits = 0;
-      while (Math.pow(2, subnetBits) < requiredNumber) {
-        subnetBits++;
-      }
-      
-      const newPrefix = baseNetwork.prefix + subnetBits;
-      const newMask = prefixToSubnetMask(newPrefix);
-      
-      answerFields = [
-        { id: 'subnet-mask', label: 'Subnet Mask', answer: newMask }
-      ];
-      
-      const subnetExplanation = language === 'en'
-        ? `<p>To find the subnet mask for ${requiredNumber} equal-sized subnets from a /${baseNetwork.prefix} network:</p>
-        <ol class="list-decimal ml-5 mt-2 space-y-1">
-          <li>Calculate how many subnet bits you need using the formula: 2<sup>subnet bits</sup> ≥ ${requiredNumber}</li>
-          <li>We need at least ${subnetBits} subnet bits because 2<sup>${subnetBits}</sup> = ${Math.pow(2, subnetBits)} ≥ ${requiredNumber}</li>
-          <li>The new prefix length is ${baseNetwork.prefix} + ${subnetBits} = /${newPrefix}</li>
-          <li>The subnet mask for a /${newPrefix} prefix is ${newMask}</li>
-        </ol>
-        <p class="mt-2">This creates ${Math.pow(2, subnetBits)} subnets, each with ${Math.pow(2, 32 - newPrefix) - 2} usable hosts.</p>`
-        : `<p>Om het subnet masker te vinden voor ${requiredNumber} subnetten van gelijke grootte vanuit een /${baseNetwork.prefix} netwerk:</p>
-        <ol class="list-decimal ml-5 mt-2 space-y-1">
-          <li>Bereken hoeveel subnet-bits je nodig hebt met de formule: 2<sup>subnet bits</sup> ≥ ${requiredNumber}</li>
-          <li>We hebben minstens ${subnetBits} subnet-bits nodig omdat 2<sup>${subnetBits}</sup> = ${Math.pow(2, subnetBits)} ≥ ${requiredNumber}</li>
-          <li>De nieuwe prefix lengte is ${baseNetwork.prefix} + ${subnetBits} = /${newPrefix}</li>
-          <li>Het subnet masker voor een /${newPrefix} prefix is ${newMask}</li>
-        </ol>
-        <p class="mt-2">Dit creëert ${Math.pow(2, subnetBits)} subnetten, elk met ${Math.pow(2, 32 - newPrefix) - 2} bruikbare hosts.</p>`;
-        
-      explanation = subnetExplanation;
-    }
-  } else if (problemType === 'subnetting') {
-    // Create a problem to divide a network into subnets
-    const baseNetwork = generateRandomNetworkClass(difficulty);
+    // Calculate the number of subnets
+    const numberOfSubnets = Math.pow(2, subnetPrefix - basePrefix);
     
-    let subnets: number[];
-    if (difficulty === 'medium') {
-      // Equal-sized subnets for medium difficulty
-      const numSubnets = Math.pow(2, Math.floor(Math.random() * 3) + 2); // 4, 8, or 16
-      subnets = Array(numSubnets).fill(Math.pow(2, 32 - baseNetwork.prefix - Math.log2(numSubnets)) - 2);
-    } else { // hard
-      // Variably-sized subnets for hard
-      subnets = [
-        Math.floor(Math.random() * 50) + 50,
-        Math.floor(Math.random() * 30) + 20,
-        Math.floor(Math.random() * 20) + 10,
-        Math.floor(Math.random() * 10) + 5
-      ];
-    }
+    // Create the question
+    const subnetQuestion = language === 'en'
+      ? `<p class="text-slate-800 mb-3 dark:text-zinc-200">How many /${subnetPrefix} subnets can you create from a single /${basePrefix} network?</p>`
+      : `<p class="text-slate-800 mb-3 dark:text-zinc-200">Hoeveel /${subnetPrefix} subnetten kun je maken uit één /${basePrefix} netwerk?</p>`;
     
-    const allocatedText = language === 'en'
-      ? `You have been allocated the network <span class="font-mono font-medium">${baseNetwork.ip}/${baseNetwork.prefix}</span> and need to create the following subnets:`
-      : `Je hebt toegewezen gekregen het netwerk <span class="font-mono font-medium">${baseNetwork.ip}/${baseNetwork.prefix}</span> en moet de volgende subnets maken:`;
+    questionText = subnetQuestion;
     
-    questionText = `<p class="text-slate-800 mb-3 dark:text-zinc-200">${allocatedText}</p>
-    <ul class="list-disc pl-5 space-y-1 text-slate-700 mb-3 dark:text-zinc-300">`;
-    
-    for (let i = 0; i < subnets.length; i++) {
-      questionText += `<li>Subnet ${i+1}: ${subnets[i]} hosts</li>`;
-    }
-    
-    // Pick a random subnet to ask about (not the first one for hard)
-    const targetSubnetIndex = difficulty === 'medium' ? 0 : Math.floor(Math.random() * (subnets.length - 1)) + 1;
-    
-    const subnetMaskQuestion = language === 'en'
-      ? `What is the subnet mask for Subnet ${targetSubnetIndex+1}?`
-      : `Wat is het subnet masker voor Subnet ${targetSubnetIndex+1}?`;
-      
-    questionText += `</ul>
-    <p class="text-slate-800 font-medium dark:text-zinc-200">${subnetMaskQuestion}</p>`;
-    
-    // Calculate answer
-    let hostBits = 0;
-    while (Math.pow(2, hostBits) - 2 < subnets[targetSubnetIndex]) {
-      hostBits++;
-    }
-    
-    const requiredPrefix = 32 - hostBits;
-    const requiredMask = prefixToSubnetMask(requiredPrefix);
-    
+    const subnetCountLabel = language === 'en' ? 'Number of Subnets' : 'Aantal Subnetten';
     answerFields = [
-      { id: 'subnet-mask', label: 'Subnet Mask', answer: requiredMask }
+      { id: 'subnet-count', label: subnetCountLabel, answer: numberOfSubnets.toString() }
     ];
     
-    // For equally sized subnets
-    if (difficulty === 'medium') {
-      const mediumExplanation = language === 'en'
-        ? `<p>When dividing a network into ${subnets.length} equal-sized subnets:</p>
-        <ol class="list-decimal ml-5 mt-2 space-y-1">
-          <li>Add ${Math.log2(subnets.length)} bits to the original prefix: ${baseNetwork.prefix} + ${Math.log2(subnets.length)} = /${requiredPrefix}</li>
-          <li>The subnet mask for a /${requiredPrefix} prefix is ${requiredMask}</li>
-        </ol>
-        <p class="mt-2">Each subnet will have ${Math.pow(2, 32 - requiredPrefix) - 2} usable hosts.</p>`
-        : `<p>Bij het verdelen van een netwerk in ${subnets.length} subnetten van gelijke grootte:</p>
-        <ol class="list-decimal ml-5 mt-2 space-y-1">
-          <li>Voeg ${Math.log2(subnets.length)} bits toe aan de originele prefix: ${baseNetwork.prefix} + ${Math.log2(subnets.length)} = /${requiredPrefix}</li>
-          <li>Het subnet masker voor een /${requiredPrefix} prefix is ${requiredMask}</li>
-        </ol>
-        <p class="mt-2">Elk subnet zal ${Math.pow(2, 32 - requiredPrefix) - 2} bruikbare hosts hebben.</p>`;
-        
-      explanation = mediumExplanation;
-    } else { // For variably sized subnets (VLSM)
-      const vlsmExplanation = language === 'en'
-        ? `<p>For Subnet ${targetSubnetIndex+1} which needs ${subnets[targetSubnetIndex]} hosts:</p>
-        <ol class="list-decimal ml-5 mt-2 space-y-1">
-          <li>Calculate required host bits: 2<sup>host bits</sup> - 2 ≥ ${subnets[targetSubnetIndex]}</li>
-          <li>We need ${hostBits} host bits (2<sup>${hostBits}</sup> - 2 = ${Math.pow(2, hostBits) - 2} hosts)</li>
-          <li>The prefix length is 32 - ${hostBits} = /${requiredPrefix}</li>
-          <li>The subnet mask is ${requiredMask}</li>
-        </ol>
-        <p class="mt-2">This allows for ${Math.pow(2, hostBits) - 2} usable hosts in Subnet ${targetSubnetIndex+1}.</p>`
-        : `<p>Voor Subnet ${targetSubnetIndex+1} dat ${subnets[targetSubnetIndex]} hosts nodig heeft:</p>
-        <ol class="list-decimal ml-5 mt-2 space-y-1">
-          <li>Bereken benodigde host-bits: 2<sup>host bits</sup> - 2 ≥ ${subnets[targetSubnetIndex]}</li>
-          <li>We hebben ${hostBits} host-bits nodig (2<sup>${hostBits}</sup> - 2 = ${Math.pow(2, hostBits) - 2} hosts)</li>
-          <li>De prefix lengte is 32 - ${hostBits} = /${requiredPrefix}</li>
-          <li>Het subnet masker is ${requiredMask}</li>
-        </ol>
-        <p class="mt-2">Dit biedt ruimte voor ${Math.pow(2, hostBits) - 2} bruikbare hosts in Subnet ${targetSubnetIndex+1}.</p>`;
-        
-      explanation = vlsmExplanation;
-    }
-  } else if (problemType === 'supernetting') {
-    // Supernetting/route summarization problem (hard only)
-    const baseOctet1 = Math.floor(Math.random() * 192) + 1; // Avoid reserved ranges
-    const baseOctet2 = Math.floor(Math.random() * 256);
+    // Generate explanation
+    const hostExplanation = language === 'en'
+      ? `<p>To calculate the number of subnets:</p>
+      <ol class="list-decimal ml-5 mt-2 space-y-1">
+        <li>Find the difference between the subnet prefix and the base network prefix: ${subnetPrefix} - ${basePrefix} = ${subnetPrefix - basePrefix}</li>
+        <li>Calculate 2 raised to that power: 2<sup>${subnetPrefix - basePrefix}</sup> = ${numberOfSubnets}</li>
+      </ol>
+      <p class="mt-2">Therefore, you can create ${numberOfSubnets} subnets with prefix /${subnetPrefix} from a single /${basePrefix} network.</p>`
+      : `<p>Om het aantal subnetten te berekenen:</p>
+      <ol class="list-decimal ml-5 mt-2 space-y-1">
+        <li>Vind het verschil tussen de subnet-prefix en de basisnetwerk-prefix: ${subnetPrefix} - ${basePrefix} = ${subnetPrefix - basePrefix}</li>
+        <li>Bereken 2 tot de macht van dit getal: 2<sup>${subnetPrefix - basePrefix}</sup> = ${numberOfSubnets}</li>
+      </ol>
+      <p class="mt-2">Daarom kun je ${numberOfSubnets} subnetten met prefix /${subnetPrefix} maken uit één /${basePrefix} netwerk.</p>`;
     
-    // Create a series of contiguous networks
-    const networkBase = `${baseOctet1}.${baseOctet2}`;
-    const startThirdOctet = Math.floor(Math.random() * 250); // Leave room for multiple subnets
+    explanation = hostExplanation;
+  } 
+  else if (questionType === 'host-count') {
+    // Ask "How many host addresses can you have with a /X subnet?"
+    let subnetPrefix = 0;
     
-    // Number of networks to summarize (power of 2 for easy summarization)
-    const networkCount = Math.pow(2, Math.floor(Math.random() * 3) + 2); // 4, 8, or 16
-    
-    const networks: string[] = [];
-    for (let i = 0; i < networkCount; i++) {
-      networks.push(`${networkBase}.${startThirdOctet + i}.0/24`);
+    if (difficulty === 'easy') {
+      subnetPrefix = [24, 26, 28][Math.floor(Math.random() * 3)];
+    } else if (difficulty === 'medium') {
+      subnetPrefix = [16, 20, 24, 27, 28, 29][Math.floor(Math.random() * 6)];
+    } else { // hard
+      subnetPrefix = [8, 12, 16, 20, 24, 26, 28, 29, 30][Math.floor(Math.random() * 9)];
     }
     
-    const summaryText = language === 'en'
-      ? `You need to create a summary route for the following networks:`
-      : `Je moet een samenvattingsroute maken voor de volgende netwerken:`;
+    // Calculate usable host addresses (2^host bits - 2)
+    const hostBits = 32 - subnetPrefix;
+    const usableHosts = Math.pow(2, hostBits) - 2;
     
-    questionText = `<p class="text-slate-800 mb-3 dark:text-zinc-200">${summaryText}</p>
-    <ul class="list-disc pl-5 space-y-1 text-slate-700 mb-3 font-mono dark:text-zinc-300">`;
+    // Create the question
+    const hostQuestion = language === 'en'
+      ? `<p class="text-slate-800 mb-3 dark:text-zinc-200">How many usable host addresses are available in a /${subnetPrefix} subnet?</p>`
+      : `<p class="text-slate-800 mb-3 dark:text-zinc-200">Hoeveel bruikbare host-adressen zijn beschikbaar in een /${subnetPrefix} subnet?</p>`;
     
-    for (const network of networks) {
-      questionText += `<li>${network}</li>`;
-    }
+    questionText = hostQuestion;
     
-    const summaryQuestion = language === 'en'
-      ? `What is the most efficient summary route (network and mask)?`
-      : `Wat is de meest efficiënte samenvattingsroute (netwerk en masker)?`;
-    
-    questionText += `</ul>
-    <p class="text-slate-800 font-medium dark:text-zinc-200">${summaryQuestion}</p>`;
-    
-    // Calculate the summary route
-    // Find common bits
-    let commonBits = 24 - Math.log2(networkCount);
-    let summaryPrefix = Math.floor(commonBits);
-    
-    // Create the summary network
-    const summaryNetwork = `${networkBase}.${startThirdOctet & (256 - networkCount)}.0`;
-    const summaryMask = prefixToSubnetMask(summaryPrefix);
-    
+    const hostCountLabel = language === 'en' ? 'Number of Usable Hosts' : 'Aantal Bruikbare Hosts';
     answerFields = [
-      { id: 'summary-network', label: 'Summary Network', answer: summaryNetwork },
-      { id: 'summary-mask', label: 'Summary Mask', answer: summaryMask }
+      { id: 'host-count', label: hostCountLabel, answer: usableHosts.toString() }
     ];
     
-    const summaryExplanation = language === 'en'
-      ? `<p>To find the most efficient summary route for ${networkCount} consecutive /24 networks:</p>
+    // Generate explanation
+    const subnetExplanation = language === 'en'
+      ? `<p>To calculate the number of usable host addresses:</p>
       <ol class="list-decimal ml-5 mt-2 space-y-1">
-        <li>Identify the first network: ${networks[0]}</li>
-        <li>Determine how many networks we're summarizing: ${networkCount}</li>
-        <li>Calculate how many bits are needed to represent ${networkCount} networks: log₂(${networkCount}) = ${Math.log2(networkCount)} bits</li>
-        <li>Subtract from the original prefix: 24 - ${Math.log2(networkCount)} = ${summaryPrefix}</li>
-        <li>The summary network is: ${summaryNetwork}/${summaryPrefix}</li>
-        <li>The subnet mask for /${summaryPrefix} is ${summaryMask}</li>
+        <li>Find the number of host bits: 32 - ${subnetPrefix} = ${hostBits}</li>
+        <li>Calculate 2 raised to that power: 2<sup>${hostBits}</sup> = ${Math.pow(2, hostBits)}</li>
+        <li>Subtract 2 for the network and broadcast addresses: ${Math.pow(2, hostBits)} - 2 = ${usableHosts}</li>
       </ol>
-      <p class="mt-2">This summary route encompasses all ${networkCount} networks efficiently.</p>`
-      : `<p>Om de meest efficiënte samenvattingsroute te vinden voor ${networkCount} opeenvolgende /24 netwerken:</p>
+      <p class="mt-2">Therefore, a /${subnetPrefix} subnet has ${usableHosts} usable host addresses.</p>`
+      : `<p>Om het aantal bruikbare host-adressen te berekenen:</p>
       <ol class="list-decimal ml-5 mt-2 space-y-1">
-        <li>Identificeer het eerste netwerk: ${networks[0]}</li>
-        <li>Bepaal hoeveel netwerken we samenvatten: ${networkCount}</li>
-        <li>Bereken hoeveel bits er nodig zijn om ${networkCount} netwerken weer te geven: log₂(${networkCount}) = ${Math.log2(networkCount)} bits</li>
-        <li>Trek af van de originele prefix: 24 - ${Math.log2(networkCount)} = ${summaryPrefix}</li>
-        <li>Het samenvattingsnetwerk is: ${summaryNetwork}/${summaryPrefix}</li>
-        <li>Het subnet masker voor /${summaryPrefix} is ${summaryMask}</li>
+        <li>Vind het aantal host-bits: 32 - ${subnetPrefix} = ${hostBits}</li>
+        <li>Bereken 2 tot de macht van dit getal: 2<sup>${hostBits}</sup> = ${Math.pow(2, hostBits)}</li>
+        <li>Trek 2 af voor de netwerk- en broadcastadressen: ${Math.pow(2, hostBits)} - 2 = ${usableHosts}</li>
       </ol>
-      <p class="mt-2">Deze samenvattingsroute omvat alle ${networkCount} netwerken op efficiënte wijze.</p>`;
-      
-    explanation = summaryExplanation;
+      <p class="mt-2">Daarom heeft een /${subnetPrefix} subnet ${usableHosts} bruikbare host-adressen.</p>`;
+    
+    explanation = subnetExplanation;
+  } 
+  else if (questionType === 'vlsm') {
+    // VLSM calculation (only for medium/hard)
+    // "What's the smallest subnet that can accommodate X hosts?"
+    
+    let requiredHosts = 0;
+    
+    if (difficulty === 'medium') {
+      // Medium difficulty: common sizes
+      const possibleSizes = [6, 10, 25, 50, 100, 250];
+      requiredHosts = possibleSizes[Math.floor(Math.random() * possibleSizes.length)];
+    } else { // hard
+      // Hard difficulty: less common sizes
+      const possibleSizes = [15, 30, 60, 120, 300, 500, 1000];
+      requiredHosts = possibleSizes[Math.floor(Math.random() * possibleSizes.length)];
+    }
+    
+    // Calculate the required prefix
+    // Find the number of host bits needed (ceiling of log2(hosts+2))
+    const hostBitsNeeded = Math.ceil(Math.log2(requiredHosts + 2));
+    const requiredPrefix = 32 - hostBitsNeeded;
+    
+    // Calculate the actual number of hosts this prefix provides
+    const actualHosts = Math.pow(2, hostBitsNeeded) - 2;
+    
+    // Create the question
+    const vlsmQuestion = language === 'en'
+      ? `<p class="text-slate-800 mb-3 dark:text-zinc-200">What is the smallest subnet prefix (largest subnet) that can accommodate ${requiredHosts} hosts?</p>`
+      : `<p class="text-slate-800 mb-3 dark:text-zinc-200">Wat is de kleinste subnet-prefix (grootste subnet) die ${requiredHosts} hosts kan accommoderen?</p>`;
+    
+    questionText = vlsmQuestion;
+    
+    const prefixLabel = language === 'en' ? 'Subnet Prefix' : 'Subnet Prefix';
+    answerFields = [
+      { id: 'subnet-prefix', label: prefixLabel, answer: `/${requiredPrefix}` }
+    ];
+    
+    // Generate explanation
+    const mediumExplanation = language === 'en'
+      ? `<p>To find the smallest subnet that can accommodate ${requiredHosts} hosts:</p>
+      <ol class="list-decimal ml-5 mt-2 space-y-1">
+        <li>We need at least ${requiredHosts} usable host addresses</li>
+        <li>We need to add 2 for the network and broadcast addresses: ${requiredHosts} + 2 = ${requiredHosts + 2}</li>
+        <li>We need to find the smallest power of 2 that gives us at least ${requiredHosts + 2} addresses: 2<sup>${hostBitsNeeded}</sup> = ${Math.pow(2, hostBitsNeeded)}</li>
+        <li>This requires ${hostBitsNeeded} host bits</li>
+        <li>Therefore, the prefix is 32 - ${hostBitsNeeded} = /${requiredPrefix}</li>
+      </ol>
+      <p class="mt-2">A /${requiredPrefix} subnet has ${actualHosts} usable host addresses, which is enough for the required ${requiredHosts} hosts.</p>`
+      : `<p>Om het kleinste subnet te vinden dat ${requiredHosts} hosts kan accommoderen:</p>
+      <ol class="list-decimal ml-5 mt-2 space-y-1">
+        <li>We hebben minstens ${requiredHosts} bruikbare host-adressen nodig</li>
+        <li>We moeten 2 toevoegen voor het netwerk- en broadcastadres: ${requiredHosts} + 2 = ${requiredHosts + 2}</li>
+        <li>We moeten de kleinste macht van 2 vinden die ons minstens ${requiredHosts + 2} adressen geeft: 2<sup>${hostBitsNeeded}</sup> = ${Math.pow(2, hostBitsNeeded)}</li>
+        <li>Dit vereist ${hostBitsNeeded} host-bits</li>
+        <li>Daarom is de prefix 32 - ${hostBitsNeeded} = /${requiredPrefix}</li>
+      </ol>
+      <p class="mt-2">Een /${requiredPrefix} subnet heeft ${actualHosts} bruikbare host-adressen, wat voldoende is voor de vereiste ${requiredHosts} hosts.</p>`;
+    
+    explanation = mediumExplanation;
   }
   
   return {
@@ -1145,77 +1048,63 @@ function buildNetworkCalculationProblem(difficulty: string, language: Language =
   };
 }
 
-// Generate a random IPv6 address
+// Helper to generate a random IPv6 address
 function generateRandomIPv6(): string {
-  const segments: string[] = [];
+  const segments = [];
   for (let i = 0; i < 8; i++) {
     // Generate a random 16-bit hexadecimal number
-    const segment = Math.floor(Math.random() * 65536).toString(16).padStart(4, '0');
-    segments.push(segment);
+    segments.push(Math.floor(Math.random() * 65536).toString(16).padStart(4, '0'));
   }
   return segments.join(':');
 }
 
-// Build an IPv6 subnetting problem
+// Build an IPv6 problem (focusing only on expanding/shortening IPv6 addresses)
 function buildIPv6Problem(difficulty: string, language: Language = 'nl'): SubnettingQuestion {
-  // Generate a random IPv6 prefix based on difficulty
-  let prefix: number;
-  
-  if (difficulty === 'easy') {
-    // For easy, use common prefixes like /48, /56, or /64
-    const easyPrefixes = [48, 56, 64];
-    prefix = easyPrefixes[Math.floor(Math.random() * easyPrefixes.length)];
-  } else if (difficulty === 'medium') {
-    // For medium, use more varied prefixes
-    const mediumPrefixes = [32, 40, 48, 52, 56, 60, 64];
-    prefix = mediumPrefixes[Math.floor(Math.random() * mediumPrefixes.length)];
-  } else { // hard
-    // For hard, use any valid prefix (multiple of 4 for nibble boundaries)
-    const hardPrefixes = [16, 20, 24, 28, 32, 36, 40, 44, 48, 52, 56, 60, 64, 68, 72, 76, 80, 88, 96, 112];
-    prefix = hardPrefixes[Math.floor(Math.random() * hardPrefixes.length)];
-  }
-  
-  // Generate a random IPv6 address
-  const ipv6Address = generateRandomIPv6();
-  
-  // Choose a random scenario based on difficulty
   let questionText = "";
   let answerFields: { id: string; label: string; answer: string }[] = [];
   let explanation = "";
   
-  // Choose a random problem type
-  const problemTypes = ['subnet-id', 'expand-address', 'prefix-calculation'];
-  let problemType = '';
-  
-  if (difficulty === 'easy') {
-    problemType = 'expand-address';
-  } else if (difficulty === 'medium') {
-    problemType = problemTypes[Math.floor(Math.random() * 2)]; // expand or subnet-id
-  } else { // hard
-    problemType = problemTypes[Math.floor(Math.random() * problemTypes.length)]; // any type
-  }
+  // Based on user request, we'll only use expand/contract IPv6 addresses
+  const problemTypes = ['expand-address', 'contract-address'];
+  const problemType = problemTypes[Math.floor(Math.random() * problemTypes.length)];
   
   if (problemType === 'expand-address') {
-    // Create an abbreviated IPv6 address
-    const segments = ipv6Address.split(':');
-    
-    // Choose a position to insert the :: abbreviation
-    const zeroPosition = Math.floor(Math.random() * 6); // Ensure we leave at least 2 segments
-    let zeroCount = Math.floor(Math.random() * 3) + 2; // Between 2 and 4 zero segments
-    
-    // Make sure we don't go past the end of the array
-    if (zeroPosition + zeroCount > 7) {
-      zeroCount = 8 - zeroPosition;
+    // Create a full IPv6 address first
+    const fullSegments: string[] = [];
+    for (let i = 0; i < 8; i++) {
+      // Random hexadecimal segment
+      const segment = Math.floor(Math.random() * 65536).toString(16).padStart(4, '0');
+      fullSegments.push(segment);
     }
     
-    // Replace segments with zeros
+    // Full uncompressed address with all segments
+    const fullAddress = fullSegments.join(':');
+    
+    // Create a compressed version by adding zero segments and abbreviating them
+    const zeroPosition = Math.floor(Math.random() * 5); // Position for a block of zeros
+    const zeroCount = Math.floor(Math.random() * 3) + 2; // 2-4 consecutive zero segments
+    
+    // Set segments to zero
     for (let i = 0; i < zeroCount; i++) {
-      segments[zeroPosition + i] = '0000';
+      if (zeroPosition + i < fullSegments.length) {
+        fullSegments[zeroPosition + i] = '0000';
+      }
     }
     
-    // Create abbreviated address
-    let abbreviatedAddress = segments.join(':');
-    abbreviatedAddress = abbreviatedAddress.replace(/:(0000:)+/g, '::');
+    // Create abbreviated version by replacing zero segments with ::
+    const abbreviatedSegments = [...fullSegments];
+    abbreviatedSegments.splice(zeroPosition, zeroCount, '');
+    
+    let abbreviatedAddress = abbreviatedSegments.join(':');
+    
+    // Fix double colons in the abbreviated address
+    abbreviatedAddress = abbreviatedAddress.replace(/::+/g, '::');
+    if (abbreviatedAddress.startsWith(':') && !abbreviatedAddress.startsWith('::')) {
+      abbreviatedAddress = ':' + abbreviatedAddress;
+    }
+    if (abbreviatedAddress.endsWith(':') && !abbreviatedAddress.endsWith('::')) {
+      abbreviatedAddress = abbreviatedAddress + ':';
+    }
     
     // Create question
     const expandPrompt = language === 'en'
@@ -1225,7 +1114,7 @@ function buildIPv6Problem(difficulty: string, language: Language = 'nl'): Subnet
     questionText = `<p class="text-slate-800 mb-3 dark:text-zinc-200">${expandPrompt}</p>`;
     
     answerFields = [
-      { id: 'expanded-ipv6', label: language === 'en' ? 'Expanded IPv6 Address' : 'Volledig IPv6-adres', answer: ipv6Address }
+      { id: 'expanded-ipv6', label: language === 'en' ? 'Expanded IPv6 Address' : 'Volledig IPv6-adres', answer: fullAddress }
     ];
     
     // Prepare explanation
@@ -1237,7 +1126,7 @@ function buildIPv6Problem(difficulty: string, language: Language = 'nl'): Subnet
          </ol>
          <p class="mt-2">For address <span class="font-mono">${abbreviatedAddress}</span>:</p>
          <p class="mt-1">Replace :: with ${zeroCount} groups of zeros</p>
-         <p class="mt-1">Result: <span class="font-mono">${ipv6Address}</span></p>`
+         <p class="mt-1">Result: <span class="font-mono">${fullAddress}</span></p>`
       : `<p>Om een afgekort IPv6-adres uit te vouwen:</p>
          <ol class="list-decimal ml-5 mt-2 space-y-1">
            <li>Vervang de dubbele dubbele punt (::) door het juiste aantal nulgroepen</li>
@@ -1245,140 +1134,85 @@ function buildIPv6Problem(difficulty: string, language: Language = 'nl'): Subnet
          </ol>
          <p class="mt-2">Voor adres <span class="font-mono">${abbreviatedAddress}</span>:</p>
          <p class="mt-1">Vervang :: door ${zeroCount} groepen nullen</p>
-         <p class="mt-1">Resultaat: <span class="font-mono">${ipv6Address}</span></p>`;
+         <p class="mt-1">Resultaat: <span class="font-mono">${fullAddress}</span></p>`;
     
     explanation = expandExplanation;
-  }
-  else if (problemType === 'subnet-id') {
-    // Create a subnet calculation problem
-    const networkBits = prefix;
-    const subnetBits = difficulty === 'easy' ? 8 : difficulty === 'medium' ? 12 : 16;
-    const totalPrefix = networkBits + subnetBits;
+  } 
+  else { // contract-address
+    // Create segments for a full IPv6 address with some zero segments for abbreviation
+    const segments: string[] = [];
     
-    // Calculate how many subnets can be created
-    const numberOfSubnets = Math.pow(2, subnetBits);
+    // Position for the block of zeros
+    const zeroPosition = Math.floor(Math.random() * 5); // Keep at least 3 segments for other values
+    const zeroCount = Math.floor(Math.random() * 3) + 2; // 2-4 consecutive zeros
     
-    // Random subnet ID (start from 1 to make it more intuitive)
-    const subnetId = Math.floor(Math.random() * (numberOfSubnets - 1)) + 1;
-    
-    // Break down the IPv6 address into its components
-    const segments = ipv6Address.split(':');
-    
-    // Calculate the segment and bit position where the subnet ID starts
-    const segmentIndex = Math.floor(networkBits / 16);
-    const bitPosition = networkBits % 16;
-    
-    // Create subnet prefix address by manipulating the correct segments
-    let segmentsWithSubnet = [...segments];
-    
-    // Handle the first segment of the subnet ID
-    if (bitPosition === 0) {
-      // The subnet ID starts at the beginning of a segment
-      segmentsWithSubnet[segmentIndex] = subnetId.toString(16).padStart(4, '0');
-    } else {
-      // The subnet ID crosses a segment boundary
-      const currentSegmentValue = parseInt(segments[segmentIndex], 16);
-      const currentSegmentMask = 0xFFFF & (0xFFFF << (16 - bitPosition));
-      const firstPartOfSubnetId = subnetId >> (subnetBits - bitPosition);
-      
-      const newSegmentValue = (currentSegmentValue & currentSegmentMask) | firstPartOfSubnetId;
-      segmentsWithSubnet[segmentIndex] = newSegmentValue.toString(16).padStart(4, '0');
-      
-      // If the subnet ID crosses to the next segment
-      if (bitPosition + subnetBits > 16) {
-        const remainingBits = subnetBits - (16 - bitPosition);
-        const nextSegmentValue = subnetId & ((1 << remainingBits) - 1);
-        const shiftedValue = nextSegmentValue << (16 - remainingBits);
-        
-        segmentsWithSubnet[segmentIndex + 1] = shiftedValue.toString(16).padStart(4, '0');
+    // Generate full address with zero block
+    for (let i = 0; i < 8; i++) {
+      if (i >= zeroPosition && i < zeroPosition + zeroCount) {
+        segments.push('0000');
+      } else {
+        // Random hexadecimal segment
+        segments.push(Math.floor(Math.random() * 65536).toString(16).padStart(4, '0'));
       }
     }
     
-    // For simplicity, set the rest of the segments to 0
-    for (let i = segmentIndex + Math.ceil((bitPosition + subnetBits) / 16); i < 8; i++) {
-      segmentsWithSubnet[i] = '0000';
+    // The full uncompressed address
+    const fullAddress = segments.join(':');
+    
+    // Create the abbreviated version for the answer
+    let abbreviatedSegments = [...segments];
+    abbreviatedSegments.splice(zeroPosition, zeroCount, '');
+    
+    let abbreviatedAddress = abbreviatedSegments.join(':');
+    
+    // Fix formatting for :: replacement
+    abbreviatedAddress = abbreviatedAddress.replace(/::+/g, '::');
+    if (abbreviatedAddress.startsWith(':') && !abbreviatedAddress.startsWith('::')) {
+      abbreviatedAddress = ':' + abbreviatedAddress;
+    }
+    if (abbreviatedAddress.endsWith(':') && !abbreviatedAddress.endsWith('::')) {
+      abbreviatedAddress = abbreviatedAddress + ':';
     }
     
-    // Assemble the final subnet prefix
-    const subnetPrefix = segmentsWithSubnet.join(':') + `/${totalPrefix}`;
+    // Also remove leading zeros in each segment
+    abbreviatedAddress = abbreviatedAddress.split(':').map(segment => {
+      if (segment === '') return segment;
+      return segment.replace(/^0+(?!$)/, ''); // Remove leading zeros but keep at least one digit
+    }).join(':');
     
     // Create question
-    const subnetPrompt = language === 'en'
-      ? `<p>You have been assigned the IPv6 network <span class="font-mono font-medium">${ipv6Address}/${prefix}</span> and need to create ${numberOfSubnets} equal-sized subnets.</p>
-         <p class="mt-3">What would be the network prefix for subnet #${subnetId}?</p>`
-      : `<p>Je hebt het IPv6-netwerk <span class="font-mono font-medium">${ipv6Address}/${prefix}</span> toegewezen gekregen en moet ${numberOfSubnets} subnetten van gelijke grootte maken.</p>
-         <p class="mt-3">Wat zou het netwerkprefix zijn voor subnet #${subnetId}?</p>`;
+    const contractPrompt = language === 'en'
+      ? `Abbreviate the following full IPv6 address <span class="font-mono font-medium">${fullAddress}</span> to its shortest valid form.`
+      : `Verkort het volgende volledige IPv6-adres <span class="font-mono font-medium">${fullAddress}</span> naar zijn kortste geldige vorm.`;
     
-    questionText = `<p class="text-slate-800 mb-3 dark:text-zinc-200">${subnetPrompt}</p>`;
+    questionText = `<p class="text-slate-800 mb-3 dark:text-zinc-200">${contractPrompt}</p>`;
     
     answerFields = [
-      { id: 'subnet-prefix', label: language === 'en' ? 'Subnet Prefix' : 'Subnet Prefix', answer: subnetPrefix }
+      { id: 'abbreviated-ipv6', label: language === 'en' ? 'Abbreviated IPv6 Address' : 'Verkorte IPv6-adres', answer: abbreviatedAddress }
     ];
     
     // Prepare explanation
-    const subnetExplanation = language === 'en'
-      ? `<p>To calculate an IPv6 subnet prefix:</p>
+    const contractExplanation = language === 'en'
+      ? `<p>To abbreviate an IPv6 address:</p>
          <ol class="list-decimal ml-5 mt-2 space-y-1">
-           <li>Start with the base network: ${ipv6Address}/${prefix}</li>
-           <li>Add subnet bits: ${prefix} + ${subnetBits} = /${totalPrefix}</li>
-           <li>Calculate the subnet ID location: Begins at bit position ${networkBits} (segment ${segmentIndex + 1}, bit ${bitPosition})</li>
-           <li>Convert subnet #${subnetId} to binary and place it in the subnet bit field</li>
-           <li>Result: ${subnetPrefix}</li>
+           <li>Replace any consecutive segments of zeros with a double colon (::)</li>
+           <li>Remove leading zeros in each segment</li>
          </ol>
-         <p class="mt-2">This subnet can contain ${Math.pow(2, 128 - totalPrefix)} IPv6 addresses.</p>`
-      : `<p>Om een IPv6-subnet prefix te berekenen:</p>
+         <p class="mt-2">For address <span class="font-mono">${fullAddress}</span>:</p>
+         <p class="mt-1">Replace ${zeroCount} consecutive zero segments at position ${zeroPosition+1} with '::'</p>
+         <p class="mt-1">Remove leading zeros in each segment</p>
+         <p class="mt-1">Result: <span class="font-mono">${abbreviatedAddress}</span></p>`
+      : `<p>Om een IPv6-adres te verkorten:</p>
          <ol class="list-decimal ml-5 mt-2 space-y-1">
-           <li>Begin met het basisnetwerk: ${ipv6Address}/${prefix}</li>
-           <li>Voeg subnet-bits toe: ${prefix} + ${subnetBits} = /${totalPrefix}</li>
-           <li>Bereken de subnet-ID-locatie: Begint op bitpositie ${networkBits} (segment ${segmentIndex + 1}, bit ${bitPosition})</li>
-           <li>Zet subnet #${subnetId} om naar binair en plaats het in het subnet-bitveld</li>
-           <li>Resultaat: ${subnetPrefix}</li>
+           <li>Vervang opeenvolgende segmenten van nullen door een dubbele dubbele punt (::)</li>
+           <li>Verwijder voorloopnullen in elk segment</li>
          </ol>
-         <p class="mt-2">Dit subnet kan ${Math.pow(2, 128 - totalPrefix)} IPv6-adressen bevatten.</p>`;
+         <p class="mt-2">Voor adres <span class="font-mono">${fullAddress}</span>:</p>
+         <p class="mt-1">Vervang ${zeroCount} opeenvolgende nulsegmenten op positie ${zeroPosition+1} door '::'</p>
+         <p class="mt-1">Verwijder voorloopnullen in elk segment</p>
+         <p class="mt-1">Resultaat: <span class="font-mono">${abbreviatedAddress}</span></p>`;
     
-    explanation = subnetExplanation;
-  }
-  else if (problemType === 'prefix-calculation') {
-    // Create a prefix calculation problem
-    const requiredHosts = Math.pow(2, difficulty === 'easy' ? 8 : difficulty === 'medium' ? 16 : 32);
-    
-    // Calculate the needed host bits
-    const hostBits = Math.ceil(Math.log2(requiredHosts));
-    const requiredPrefix = 128 - hostBits;
-    
-    // Create question
-    const prefixPrompt = language === 'en'
-      ? `<p>You need to design an IPv6 subnet that can support ${requiredHosts} hosts.</p>
-         <p class="mt-3">What is the maximum IPv6 prefix length you should use?</p>`
-      : `<p>Je moet een IPv6-subnet ontwerpen dat ${requiredHosts} hosts kan ondersteunen.</p>
-         <p class="mt-3">Wat is de maximale IPv6-prefixlengte die je zou moeten gebruiken?</p>`;
-    
-    questionText = `<p class="text-slate-800 mb-3 dark:text-zinc-200">${prefixPrompt}</p>`;
-    
-    answerFields = [
-      { id: 'prefix-length', label: language === 'en' ? 'Prefix Length' : 'Prefix Lengte', answer: `/${requiredPrefix}` }
-    ];
-    
-    // Prepare explanation
-    const prefixExplanation = language === 'en'
-      ? `<p>To calculate the required IPv6 prefix length:</p>
-         <ol class="list-decimal ml-5 mt-2 space-y-1">
-           <li>Determine how many hosts are needed: ${requiredHosts} hosts</li>
-           <li>Calculate how many bits are needed to address these hosts: log₂(${requiredHosts}) = ${Math.log2(requiredHosts)} ≈ ${hostBits} bits</li>
-           <li>Subtract from total IPv6 address space: 128 - ${hostBits} = ${requiredPrefix}</li>
-         </ol>
-         <p class="mt-2">Therefore, a /${requiredPrefix} prefix would provide enough addresses for ${requiredHosts} hosts.</p>
-         <p class="mt-1">This gives you 2<sup>${hostBits}</sup> = ${Math.pow(2, hostBits)} addresses in total.</p>`
-      : `<p>Om de vereiste IPv6-prefixlengte te berekenen:</p>
-         <ol class="list-decimal ml-5 mt-2 space-y-1">
-           <li>Bepaal hoeveel hosts er nodig zijn: ${requiredHosts} hosts</li>
-           <li>Bereken hoeveel bits er nodig zijn om deze hosts te adresseren: log₂(${requiredHosts}) = ${Math.log2(requiredHosts)} ≈ ${hostBits} bits</li>
-           <li>Trek af van de totale IPv6-adresruimte: 128 - ${hostBits} = ${requiredPrefix}</li>
-         </ol>
-         <p class="mt-2">Daarom zou een /${requiredPrefix} prefix voldoende adressen bieden voor ${requiredHosts} hosts.</p>
-         <p class="mt-1">Dit geeft je 2<sup>${hostBits}</sup> = ${Math.pow(2, hostBits)} adressen in totaal.</p>`;
-    
-    explanation = prefixExplanation;
+    explanation = contractExplanation;
   }
   
   return {
@@ -1416,156 +1250,6 @@ export function generateSubnettingQuestion(subnetType: string, difficulty: strin
     default:
       question = buildBasicSubnettingProblem(difficulty, language);
       break;
-  }
-  
-  // Replace common text patterns based on language
-  if (language === 'en') {
-    // More comprehensive word and phrase replacements for questionText
-    question.questionText = question.questionText
-      // Translate section headers and structural elements
-      .replace(/class="text-slate-800 mb-3 dark:text-zinc-200"/g, 'class="text-slate-800 mb-3 dark:text-zinc-200"')
-      .replace(/class="text-slate-800 font-medium dark:text-zinc-200"/g, 'class="text-slate-800 font-medium dark:text-zinc-200"')
-      .replace(/class="list-disc pl-5 space-y-1 text-slate-700 mb-3 dark:text-zinc-300"/g, 'class="list-disc pl-5 space-y-1 text-slate-700 mb-3 dark:text-zinc-300"')
-      
-      // Common phrases in questions
-      .replace(/Accesscontrolelijsten \(ACLs\)/g, "Access control lists (ACLs)")
-      .replace(/routeringsprotocollen/g, "routing protocols")
-      .replace(/maken vaak gebruik van/g, "often use")
-      .replace(/wildcard maskers/g, "wildcard masks")
-      .replace(/welke het omgekeerde zijn van/g, "which are the inverse of")
-      .replace(/subnet maskers/g, "subnet masks")
-      .replace(/Gegeven het subnet masker/g, "Given the subnet mask")
-      .replace(/Gegeven/g, "Given")
-      .replace(/Bereken/g, "Calculate")
-      .replace(/de volgende informatie/g, "the following information")
-      .replace(/Voor een router ACL/g, "For a router ACL")
-      .replace(/die exact moet overeenkomen met/g, "that should match exactly")
-      .replace(/het netwerk/g, "the network")
-      .replace(/Welk IP en wildcard masker/g, "What IP and wildcard mask")
-      .replace(/moet worden gebruikt/g, "should be used")
-      .replace(/in de ACL/g, "in the ACL")
-      .replace(/Je hebt/g, "You have")
-      .replace(/toegewezen gekregen/g, "been allocated")
-      .replace(/en moet/g, "and need to")
-      .replace(/maken/g, "create")
-      .replace(/de volgende subnets/g, "the following subnets")
-      .replace(/Subnet \d+: (\d+) hosts/g, "Subnet $1: $2 hosts")
-      .replace(/Wat is het subnet masker/g, "What is the subnet mask")
-      .replace(/voor Subnet/g, "for Subnet")
-      .replace(/Je moet een subnet ontwerpen/g, "You need to design a subnet")
-      .replace(/dat ondersteuning biedt voor/g, "that can support")
-      .replace(/hosts/g, "hosts")
-      .replace(/Wat is de minimale subnet prefix lengte/g, "What is the minimum subnet prefix length")
-      .replace(/\(CIDR notatie\) benodigd/g, "(CIDR notation) required")
-      .replace(/Je moet een samenvattingsroute maken/g, "You need to create a summary route")
-      .replace(/voor de volgende netwerken/g, "for the following networks")
-      .replace(/Wat is de meest efficiënte samenvattingsroute/g, "What is the most efficient summary route")
-      .replace(/\(netwerk en masker\)/g, "(network and mask)")
-      .replace(/subnetten/g, "subnets")
-      .replace(/van gelijke grootte/g, "of equal size")
-      .replace(/Welk subnet masker/g, "What subnet mask")
-      .replace(/gebruik je/g, "should you use")
-      .replace(/voor elk subnet/g, "for each subnet")
-      
-      // Common network terms
-      .replace(/netwerk/g, "network")
-      .replace(/host bereik/g, "host range")
-      .replace(/adress/g, "address")
-      .replace(/masker/g, "mask")
-      .replace(/welke/g, "which")
-      .replace(/nodig/g, "needed")
-      .replace(/Wat is/g, "What is")
-      .replace(/gelijke/g, "equal")
-      .replace(/gebruiken/g, "use")
-      .replace(/voor elk/g, "for each")
-      .replace(/voor/g, "for")
-      .replace(/volgende/g, "following")
-      .replace(/moeten maken/g, "need to create")
-      .replace(/om te maken/g, "to create")
-      .replace(/moet je/g, "you need to")
-      .replace(/subnet prefix lengte/g, "subnet prefix length")
-      .replace(/het meest efficiënte/g, "the most efficient")
-      .replace(/maak een samenvatting/g, "create a summary");
-      
-    // Comprehensive replacements for the explanation
-    question.explanation = question.explanation
-      // HTML formatting elements
-      .replace(/<p>/g, '<p>')
-      .replace(/<\/p>/g, '</p>')
-      .replace(/<br\/>/g, '<br/>')
-      .replace(/<ol class="list-decimal ml-5 mt-2 space-y-1">/g, '<ol class="list-decimal ml-5 mt-2 space-y-1">')
-      .replace(/<ul class="list-disc ml-5 mt-1 space-y-1">/g, '<ul class="list-disc ml-5 mt-1 space-y-1">')
-      
-      // Common explanation phrases
-      .replace(/Een wildcard masker is het omgekeerde van een subnet masker/g, "A wildcard mask is the inverse of a subnet mask")
-      .replace(/Om het te berekenen/g, "To calculate it")
-      .replace(/trek je elk octet van het subnet masker af van 255/g, "subtract each octet of the subnet mask from 255")
-      .replace(/Subnet masker/g, "Subnet mask")
-      .replace(/Wildcard masker/g, "Wildcard mask")
-      .replace(/In een wildcard masker/g, "In a wildcard mask")
-      .replace(/0 bits betekenen "exacte overeenkomst"/g, "0 bits mean \"match exactly\"")
-      .replace(/1 bits betekenen "negeren"/g, "1 bits mean \"ignore\"")
-      .replace(/\(kan elke waarde zijn\)/g, "(can be any value)")
-      .replace(/Voor ACLs/g, "For ACLs")
-      .replace(/gebruik je meestal/g, "you typically use")
-      .replace(/het netwerkadres met het wildcard masker/g, "the network address with the wildcard mask")
-      .replace(/Dit zou overeenkomen met alle adressen in het/g, "This would match all addresses in the")
-      .replace(/netwerk/g, "network")
-      
-      // Common subnet calculation terms
-      .replace(/Het netwerkadres is/g, "The network address is")
-      .replace(/Het broadcastadres is/g, "The broadcast address is")
-      .replace(/De eerste bruikbare host is/g, "The first usable host is")
-      .replace(/De laatste bruikbare host is/g, "The last usable host is")
-      .replace(/Het aantal bruikbare hosts is/g, "The number of usable hosts is")
-      .replace(/Om het netwerkadres te vinden/g, "To find the network address")
-      .replace(/voer je een bitwise AND-bewerking uit/g, "perform a bitwise AND operation")
-      .replace(/tussen het IP-adres en het subnet masker/g, "between the IP address and the subnet mask")
-      .replace(/Het broadcastadres is het netwerkadres met alle hostbits op 1 gezet/g, "The broadcast address is the network address with all host bits set to 1")
-      .replace(/De eerste host is het netwerkadres plus 1/g, "The first host is the network address plus 1")
-      .replace(/De laatste host is het broadcastadres min 1/g, "The last host is the broadcast address minus 1")
-      .replace(/Het aantal bruikbare hosts is 2 tot de macht van het aantal hostbits, min 2/g, "The number of usable hosts is 2 to the power of the number of host bits, minus 2")
-      
-      // More explanation text translations
-      .replace(/Voor/g, "For")
-      .replace(/berekeneningen/g, "calculations")
-      .replace(/Om de/g, "To find the")
-      .replace(/te vinden/g, "")
-      .replace(/nodig hebt/g, "you need")
-      .replace(/Bereken/g, "Calculate") 
-      .replace(/bereik/g, "range")
-      .replace(/adres/g, "address")
-      .replace(/Dit geeft/g, "This gives")
-      .replace(/bruikbare hosts/g, "usable hosts")
-      .replace(/Het broadcast/g, "The broadcast")
-      .replace(/Het netwerk/g, "The network")
-      .replace(/gebruik de formule/g, "use the formula") 
-      .replace(/We hebben/g, "We need")
-      .replace(/De nieuwe/g, "The new")
-      .replace(/Het subnet/g, "The subnet")
-      .replace(/Dit maakt/g, "This creates")
-      .replace(/elk met/g, "each with")
-      .replace(/elke subnet/g, "each subnet")
-      .replace(/Deze samenvattingsroute/g, "This summary route");
-      
-    // Update label texts
-    for (let i = 0; i < question.answerFields.length; i++) {
-      const field = question.answerFields[i];
-      
-      // Complete translation of common field labels
-      field.label = field.label
-        .replace(/Netwerkadres/g, "Network Address")
-        .replace(/Broadcastadres/g, "Broadcast Address")
-        .replace(/Eerste Host/g, "First Host")
-        .replace(/Laatste Host/g, "Last Host")
-        .replace(/Subnet Masker/g, "Subnet Mask")
-        .replace(/Aantal Hosts/g, "Number of Hosts")
-        .replace(/Wildcard Masker/g, "Wildcard Mask")
-        .replace(/Samenvattingsnetwerk/g, "Summary Network")
-        .replace(/Samenvattingsmasker/g, "Summary Mask")
-        .replace(/Vereiste Prefix/g, "Required Prefix")
-        .replace(/Prefix Lengte/g, "Prefix Length");
-    }
   }
   
   return question;
