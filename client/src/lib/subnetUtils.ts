@@ -412,23 +412,45 @@ function buildBasicSubnettingProblem(difficulty: string, language: Language = 'n
     
   let questionText = `<p class="text-slate-800 mb-3 dark:text-zinc-200">${introText}`;
   
-  if (Math.random() > 0.5 || questionType === 'mask') {
-    const maskText = language === 'en'
-      ? `subnet mask <span class="font-mono font-medium">${mask}</span>:</p>`
-      : `subnet masker <span class="font-mono font-medium">${mask}</span>:</p>`;
-    questionText += maskText;
-  } else {
+  // Determine whether to show mask or prefix in the question
+  const showPrefixInQuestion = questionType !== 'prefix';
+  const showMaskInQuestion = questionType !== 'mask';
+  
+  // Choose between showing prefix or mask, but ensure we don't show the same info we're asking about
+  const usePrefix = (showPrefixInQuestion && (Math.random() > 0.5 || !showMaskInQuestion));
+  
+  if (usePrefix) {
     const prefixText = language === 'en'
       ? `CIDR prefix <span class="font-mono font-medium">/${prefix}</span>:</p>`
       : `CIDR prefix <span class="font-mono font-medium">/${prefix}</span>:</p>`;
     questionText += prefixText;
+  } else {
+    const maskText = language === 'en'
+      ? `subnet mask <span class="font-mono font-medium">${mask}</span>:</p>`
+      : `subnet masker <span class="font-mono font-medium">${mask}</span>:</p>`;
+    questionText += maskText;
   }
   
   // We're removing the note about both formats being accepted for subnet mask questions
   // since we want to make the validation more strict for these types of questions
   
-  // Note: We'll keep the isMaskConversionQuestion variable for later use 
-  const isMaskConversionQuestion = questionType === 'mask' && questionText.includes(mask) || questionType === 'prefix' && questionText.includes(prefix.toString());
+  // Check if we're asking about something that's already provided in the question
+  const isMaskConversionQuestion = 
+    (questionType === 'mask' && questionText.includes(mask)) || 
+    (questionType === 'prefix' && questionText.includes(prefix.toString()));
+    
+  // If we're asking for something already given in the question,
+  // change the question type to avoid trivial questions
+  if (isMaskConversionQuestion) {
+    // Choose a different question type based on difficulty
+    if (difficulty === 'easy') {
+      questionType = ['network', 'broadcast'][Math.floor(Math.random() * 2)];
+    } else if (difficulty === 'medium') {
+      questionType = ['network', 'broadcast', 'first-last'][Math.floor(Math.random() * 3)];
+    } else { // hard
+      questionType = ['network', 'broadcast', 'first-last', 'all'][Math.floor(Math.random() * 4)];
+    }
+  }
   
   let answerFields: { id: string; label: string; answer: string }[] = [];
   
