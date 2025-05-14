@@ -1272,32 +1272,22 @@ function buildNetworkCalculationProblem(difficulty: string, language: Language =
     
     questionText = `<p class="text-slate-800 mb-3 dark:text-zinc-200">${fixedHostPrompt}</p>${bulletPoints}`;
     
-    // Create a textarea for the comprehensive answer
-    const textarea = language === 'en' 
-      ? 'Comprehensive Answer'
-      : 'Uitgebreid Antwoord';
+    // Create fields for the answers
+    const subnetMaskLabel = language === 'en' ? 'Subnet Mask (decimal)' : 'Subnetmask (decimaal)';
+    const hostBitsLabel = language === 'en' ? 'Host Bits' : 'Host-bits';
+    const cidrLabel = language === 'en' ? 'CIDR Prefix' : 'CIDR Prefix';
+    const subnet1Label = language === 'en' ? 'Subnet 1' : 'Subnet 1';
+    const subnet2Label = language === 'en' ? 'Subnet 2' : 'Subnet 2';
+    const subnetNLabel = language === 'en' ? `Subnet ${randomSubnetNumber}` : `Subnet ${randomSubnetNumber}`;
     
-    // Create model answer for explanation
-    const modelAnswer = language === 'en'
-      ? `Subnet mask in decimal: ${subnetMask}
-Host bits: ${requiredHostBits}
-CIDR for subnets: /${newPrefix}
-Subnet mask: ${subnetMask}
-Subnet 1: ${subnet1}/${newPrefix}
-Subnet 2: ${subnet2}/${newPrefix}
-Subnet ${randomSubnetNumber}: ${subnetN}/${newPrefix}
-Slash notation: ${subnet1}/${startPrefix} -> ${subnet1}/${newPrefix}`
-      : `Subnetmask in decimalen: ${subnetMask}
-Host-bits: ${requiredHostBits}
-CIDR voor subnetten: /${newPrefix}
-Subnetmask: ${subnetMask}
-Subnet 1: ${subnet1}/${newPrefix}
-Subnet 2: ${subnet2}/${newPrefix}
-Subnet ${randomSubnetNumber}: ${subnetN}/${newPrefix}
-Slashnotatie: ${subnet1}/${startPrefix} -> ${subnet1}/${newPrefix}`;
-    
+    // Create separate answer fields for each question
     answerFields = [
-      { id: 'comprehensive-answer', label: textarea, answer: modelAnswer }
+      { id: 'subnet-mask', label: subnetMaskLabel, answer: subnetMask },
+      { id: 'host-bits', label: hostBitsLabel, answer: requiredHostBits.toString() },
+      { id: 'subnet-prefix', label: cidrLabel, answer: `/${newPrefix}` },
+      { id: 'subnet-1', label: subnet1Label, answer: `${subnet1}/${newPrefix}` },
+      { id: 'subnet-2', label: subnet2Label, answer: `${subnet2}/${newPrefix}` },
+      { id: 'subnet-n', label: subnetNLabel, answer: `${subnetN}/${newPrefix}` }
     ];
     
     // Create explanation
