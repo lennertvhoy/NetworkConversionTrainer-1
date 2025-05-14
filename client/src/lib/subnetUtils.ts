@@ -424,18 +424,11 @@ function buildBasicSubnettingProblem(difficulty: string, language: Language = 'n
     questionText += prefixText;
   }
   
-  // Add a note about subnet mask formats being accepted
-  // We'll only add this note if we're asking for a subnet mask or CIDR prefix
-  // Not when we're specifically asking for conversion from one format to another
-  const isMaskConversionQuestion = questionType === 'mask' && questionText.includes(mask) || questionType === 'prefix' && questionText.includes(prefix.toString());
+  // We're removing the note about both formats being accepted for subnet mask questions
+  // since we want to make the validation more strict for these types of questions
   
-  if ((questionType === 'mask' || questionType === 'prefix') && !isMaskConversionQuestion) {
-    const noteText = language === 'en'
-      ? `Note: Both decimal format (e.g., 255.255.255.0) and CIDR notation (e.g., /24) are accepted for subnet masks.`
-      : `Let op: Zowel decimaal formaat (bijv. 255.255.255.0) als CIDR notatie (bijv. /24) worden geaccepteerd voor subnet maskers.`;
-      
-    questionText += `<p class="text-slate-600 text-sm italic mb-3 dark:text-zinc-400">${noteText}</p>`;
-  }
+  // Note: We'll keep the isMaskConversionQuestion variable for later use 
+  const isMaskConversionQuestion = questionType === 'mask' && questionText.includes(mask) || questionType === 'prefix' && questionText.includes(prefix.toString());
   
   let answerFields: { id: string; label: string; answer: string }[] = [];
   
