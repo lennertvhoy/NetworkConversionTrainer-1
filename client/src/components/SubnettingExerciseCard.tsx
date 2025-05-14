@@ -20,9 +20,6 @@ export default function SubnettingExerciseCard({ subnetType, difficulty }: Subne
   const [isAnswered, setIsAnswered] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
   const [explanation, setExplanation] = useState("");
-
-  // Get the language from context at component level
-  const { language } = useLanguage();
   
   // Load a new question on mount or when subnet type/difficulty/language changes
   useEffect(() => {
@@ -226,19 +223,17 @@ export default function SubnettingExerciseCard({ subnetType, difficulty }: Subne
                         ? (language === 'en' ? 'eg. ' : 'bv. ') + "2001:db8::1"
                         : field.id === 'usable-hosts' || field.id === 'host-count' || field.id === 'subnet-count'
                           ? (language === 'en' ? 'eg. ' : 'bv. ') + "16777214"
-                          : field.id.includes('host') || field.id.includes('network') || field.id.includes('broadcast')
-                            ? (language === 'en' ? 'eg. ' : 'bv. ') + "192.0.2.1"
-                            : (field.id === 'subnet-mask' && (questionText.toLowerCase().includes('cidr') || questionText.toLowerCase().includes('prefix')))
-                              ? t('subnetting.placeholder.cidr')
-                              : (field.id === 'subnet-mask' && questionText.toLowerCase().includes('decimal'))
-                                ? t('subnetting.placeholder.decimal')
-                                : field.id === 'subnet-mask'
-                                  ? t('subnetting.placeholder.decimal')
-                                  : field.id === 'subnet-prefix' || field.id === 'cidr-prefix' || field.id.includes('cidr')
-                                    ? t('subnetting.placeholder.cidr')
-                                    : field.id === 'host-bits' || field.id.includes('host-count')
-                                      ? (language === 'en' ? 'eg. ' : 'bv. ') + "4"
-                                      : t('subnetting.placeholder.ip')
+                        : field.id === 'host-bits'
+                          ? (language === 'en' ? 'eg. ' : 'bv. ') + "4"
+                        : field.id === 'subnet-mask'
+                          ? (language === 'en' ? 'eg. ' : 'bv. ') + "255.255.255.0"
+                        : field.id === 'subnet-prefix' || field.id === 'cidr-prefix' || field.id.includes('cidr')
+                          ? (language === 'en' ? 'eg. ' : 'bv. ') + "/24"
+                        : field.id.includes('subnet-1') || field.id.includes('subnet-2') || field.id.includes('subnet-n')
+                          ? (language === 'en' ? 'eg. ' : 'bv. ') + "192.168.1.0/24"
+                        : field.id.includes('host') || field.id.includes('network') || field.id.includes('broadcast')
+                          ? (language === 'en' ? 'eg. ' : 'bv. ') + "192.0.2.1"
+                        : t('subnetting.placeholder.ip')
                   }
                   className="shadow-sm focus:ring-secondary focus:border-secondary block w-full sm:text-sm border-slate-300 dark:border-zinc-900 dark:bg-zinc-900"
                 />

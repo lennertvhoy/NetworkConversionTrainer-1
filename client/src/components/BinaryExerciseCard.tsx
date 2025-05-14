@@ -13,7 +13,7 @@ interface BinaryExerciseProps {
 
 export default function BinaryExerciseCard({ conversionType, difficulty }: BinaryExerciseProps) {
   const { toast } = useToast();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState("");
   const [userAnswer, setUserAnswer] = useState("");
@@ -24,9 +24,6 @@ export default function BinaryExerciseCard({ conversionType, difficulty }: Binar
   // Separate the question (binary/hex/decimal number) from its context text
   const [questionValue, setQuestionValue] = useState("");
   const [questionContext, setQuestionContext] = useState("");
-
-  // Get the language from context at component level
-  const { language } = useLanguage();
   
   // Load a new question on mount or when conversion type/difficulty/language changes
   useEffect(() => {
@@ -191,7 +188,17 @@ export default function BinaryExerciseCard({ conversionType, difficulty }: Binar
                   checkAnswer();
                 }
               }}
-              placeholder={t('binary.yourAnswer')}
+              placeholder={
+                conversionType === 'bin2dec' 
+                  ? (language === 'en' ? 'eg. ' : 'bv. ') + "42"
+                  : conversionType === 'bin2hex'
+                    ? (language === 'en' ? 'eg. ' : 'bv. ') + "2A"
+                    : conversionType === 'hex2bin'
+                      ? (language === 'en' ? 'eg. ' : 'bv. ') + "1010"
+                      : conversionType === 'dec2bin'
+                        ? (language === 'en' ? 'eg. ' : 'bv. ') + "1010"
+                        : t('binary.yourAnswer')
+              }
               className="shadow-sm focus:ring-primary focus:border-primary block w-full sm:text-sm border-slate-300"
             />
             <Button 
