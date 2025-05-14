@@ -894,105 +894,60 @@ function buildNetworkCalculationProblem(difficulty: string, language: Language =
   }
   
   if (questionType === 'subnet-count') {
-    // Ask about splitting a network into X subnets and finding required info
-    let baseNetwork = '';
+    // Ask "How many /X subnets can you get from a /Y network?"
     let basePrefix = 0;
-    let targetSubnets = 0;
-    let requiredPrefixBits = 0;
+    let subnetPrefix = 0;
     
-    // Generate a random IP address for the base network
     if (difficulty === 'easy') {
-      // For easy, use common class networks
-      const classOptions = [
-        { network: '192.168.0.0', prefix: 24 },
-        { network: '172.16.0.0', prefix: 16 },
-        { network: '10.0.0.0', prefix: 8 }
-      ];
-      const selected = classOptions[Math.floor(Math.random() * classOptions.length)];
-      baseNetwork = selected.network;
-      basePrefix = selected.prefix;
-      
-      // For easy, choose from common subnet counts
-      targetSubnets = [4, 8, 16, 32][Math.floor(Math.random() * 4)];
+      // For easy, use a random base prefix and subnet prefix
+      basePrefix = [16, 20, 24][Math.floor(Math.random() * 3)];
+      // For the subnet prefix, make sure it's at least 2 bits more than the base prefix
+      const possiblePrefixes = [];
+      for (let i = basePrefix + 2; i <= Math.min(basePrefix + 8, 30); i++) {
+        possiblePrefixes.push(i);
+      }
+      subnetPrefix = possiblePrefixes[Math.floor(Math.random() * possiblePrefixes.length)];
     } else if (difficulty === 'medium') {
-      // For medium, use different networks
-      const classOptions = [
-        { network: '192.168.10.0', prefix: 24 },
-        { network: '172.20.0.0', prefix: 16 },
-        { network: '10.50.0.0', prefix: 16 }
-      ];
-      const selected = classOptions[Math.floor(Math.random() * classOptions.length)];
-      baseNetwork = selected.network;
-      basePrefix = selected.prefix;
-      
-      // For medium, use less common subnet counts
-      targetSubnets = [6, 12, 24, 48][Math.floor(Math.random() * 4)];
+      basePrefix = [16, 24][Math.floor(Math.random() * 2)];
+      // Calculate a reasonable subnet prefix
+      const maxSubnetPrefix = Math.min(30, basePrefix + 14); // Don't go too extreme
+      subnetPrefix = basePrefix + 2 + Math.floor(Math.random() * (maxSubnetPrefix - basePrefix - 1));
     } else { // hard
-      // For hard, use various networks
-      baseNetwork = generateRandomIP();
       basePrefix = [8, 16, 20, 24][Math.floor(Math.random() * 4)];
-      
-      // For hard, use more challenging subnet counts
-      targetSubnets = [5, 10, 15, 25, 50, 100][Math.floor(Math.random() * 6)];
+      // Calculate a reasonable subnet prefix
+      const maxSubnetPrefix = Math.min(30, basePrefix + 14); // Don't go too extreme
+      subnetPrefix = basePrefix + 2 + Math.floor(Math.random() * (maxSubnetPrefix - basePrefix - 1));
     }
     
-    // Calculate how many prefix bits are needed for the target number of subnets
-    requiredPrefixBits = Math.ceil(Math.log2(targetSubnets));
+    // Calculate the number of subnets
+    const numberOfSubnets = Math.pow(2, subnetPrefix - basePrefix);
     
-    // Calculate the subnet prefix
-    const subnetPrefix = basePrefix + requiredPrefixBits;
+    // Create the question
+    const subnetQuestion = language === 'en'
+      ? `<p class="text-slate-800 mb-3 dark:text-zinc-200">How many /${subnetPrefix} subnets can you create from a single /${basePrefix} network?</p>`
+      : `<p class="text-slate-800 mb-3 dark:text-zinc-200">Hoeveel /${subnetPrefix} subnetten kun je maken uit één /${basePrefix} netwerk?</p>`;
     
-    // Calculate the subnet mask in decimal notation
-    const subnetMask = prefixToSubnetMask(subnetPrefix);
+    questionText = subnetQuestion;
     
-    // Calculate actual number of subnets possible with this prefix
-    const actualSubnets = Math.pow(2, requiredPrefixBits);
-    
-    // Calculate number of host bits
-    const hostBits = 32 - subnetPrefix;
-    
-    // Create a more comprehensive question
-    const subnetQuestionTitle = language === 'en'
-      ? `<p class="text-slate-800 mb-3 dark:text-zinc-200">Divide ${baseNetwork}/${basePrefix} into ${targetSubnets} subnets.</p>`
-      : `<p class="text-slate-800 mb-3 dark:text-zinc-200">${baseNetwork}/${basePrefix} verdelen in ${targetSubnets} subnetten.</p>`;
-    
-    const subnetQuestionPrompt = language === 'en'
-      ? `<p class="text-slate-700 mb-3 dark:text-zinc-300">Answer the following questions:</p>`
-      : `<p class="text-slate-700 mb-3 dark:text-zinc-300">Beantwoord de volgende vragen:</p>`;
-    
-    questionText = subnetQuestionTitle + subnetQuestionPrompt;
-    
-    // Multiple fields for the answer
-    const subnetMaskLabel = language === 'en' ? 'Subnet Mask (decimal)' : 'Subnetmask (decimaal)';
-    const hostBitsLabel = language === 'en' ? 'Host Bits' : 'Host-bits';
-    const cidrLabel = language === 'en' ? 'CIDR Prefix' : 'CIDR Prefix';
-    
+    const subnetCountLabel = language === 'en' ? 'Number of Subnets' : 'Aantal Subnetten';
     answerFields = [
-      { id: 'subnet-mask', label: subnetMaskLabel, answer: subnetMask },
-      { id: 'host-bits', label: hostBitsLabel, answer: hostBits.toString() },
-      { id: 'subnet-prefix', label: cidrLabel, answer: `/${subnetPrefix}` }
+      { id: 'subnet-count', label: subnetCountLabel, answer: numberOfSubnets.toString() }
     ];
     
     // Generate explanation
     const hostExplanation = language === 'en'
-      ? `<p>To subnet a network into ${targetSubnets} subnets:</p>
+      ? `<p>To calculate the number of subnets:</p>
       <ol class="list-decimal ml-5 mt-2 space-y-1">
-        <li>Calculate how many subnet bits are needed: ceil(log₂(${targetSubnets})) = ${requiredPrefixBits} bits</li>
-        <li>Calculate the new subnet prefix: ${basePrefix} + ${requiredPrefixBits} = /${subnetPrefix}</li>
-        <li>Convert the prefix to subnet mask: /${subnetPrefix} = ${subnetMask}</li>
-        <li>Calculate host bits: 32 - ${subnetPrefix} = ${hostBits} bits</li>
-        <li>Actual number of subnets possible: 2<sup>${requiredPrefixBits}</sup> = ${actualSubnets}</li>
+        <li>Find the difference between the subnet prefix and the base network prefix: ${subnetPrefix} - ${basePrefix} = ${subnetPrefix - basePrefix}</li>
+        <li>Calculate 2 raised to that power: 2<sup>${subnetPrefix - basePrefix}</sup> = ${numberOfSubnets}</li>
       </ol>
-      <p class="mt-2">With a /${subnetPrefix} subnet, you can create ${actualSubnets} subnets from the ${baseNetwork}/${basePrefix} network.</p>`
-      : `<p>Om een netwerk te subnetten in ${targetSubnets} subnetten:</p>
+      <p class="mt-2">Therefore, you can create ${numberOfSubnets} subnets with prefix /${subnetPrefix} from a single /${basePrefix} network.</p>`
+      : `<p>Om het aantal subnetten te berekenen:</p>
       <ol class="list-decimal ml-5 mt-2 space-y-1">
-        <li>Bereken hoeveel subnet-bits nodig zijn: ceil(log₂(${targetSubnets})) = ${requiredPrefixBits} bits</li>
-        <li>Bereken de nieuwe subnet-prefix: ${basePrefix} + ${requiredPrefixBits} = /${subnetPrefix}</li>
-        <li>Converteer de prefix naar subnetmask: /${subnetPrefix} = ${subnetMask}</li>
-        <li>Bereken host-bits: 32 - ${subnetPrefix} = ${hostBits} bits</li>
-        <li>Werkelijk aantal mogelijke subnetten: 2<sup>${requiredPrefixBits}</sup> = ${actualSubnets}</li>
+        <li>Vind het verschil tussen de subnet-prefix en de basisnetwerk-prefix: ${subnetPrefix} - ${basePrefix} = ${subnetPrefix - basePrefix}</li>
+        <li>Bereken 2 tot de macht van dit getal: 2<sup>${subnetPrefix - basePrefix}</sup> = ${numberOfSubnets}</li>
       </ol>
-      <p class="mt-2">Met een /${subnetPrefix} subnet kun je ${actualSubnets} subnetten maken van het ${baseNetwork}/${basePrefix} netwerk.</p>`;
+      <p class="mt-2">Daarom kun je ${numberOfSubnets} subnetten met prefix /${subnetPrefix} maken uit één /${basePrefix} netwerk.</p>`;
     
     explanation = hostExplanation;
   } 
@@ -1067,78 +1022,38 @@ function buildNetworkCalculationProblem(difficulty: string, language: Language =
     // Calculate the actual number of hosts this prefix provides
     const actualHosts = Math.pow(2, hostBitsNeeded) - 2;
     
-    // Generate a network to work with
-    const baseNetwork = generateRandomIP();
-    const basePrefix = [16, 20, 24][Math.floor(Math.random() * 3)];
+    // Create the question
+    const vlsmQuestion = language === 'en'
+      ? `<p class="text-slate-800 mb-3 dark:text-zinc-200">What is the smallest subnet prefix (largest subnet) that can accommodate ${requiredHosts} hosts?</p>`
+      : `<p class="text-slate-800 mb-3 dark:text-zinc-200">Wat is de kleinste subnet-prefix (grootste subnet) die ${requiredHosts} hosts kan accommoderen?</p>`;
     
-    // Calculate the subnet mask in decimal notation
-    const subnetMask = prefixToSubnetMask(requiredPrefix);
+    questionText = vlsmQuestion;
     
-    // Calculate number of host bits
-    const hostBits = 32 - requiredPrefix;
-    
-    // Create a more comprehensive question
-    const questionTitle = language === 'en'
-      ? `<p class="text-slate-800 mb-3 dark:text-zinc-200">${baseNetwork}/${basePrefix} verdelen zodat elk subnet ${requiredHosts} hosts heeft.</p>`
-      : `<p class="text-slate-800 mb-3 dark:text-zinc-200">${baseNetwork}/${basePrefix} verdelen zodat elk subnet ${requiredHosts} hosts heeft.</p>`;
-    
-    const questionPrompt = language === 'en'
-      ? `<p class="text-slate-700 mb-3 dark:text-zinc-300">Answer the following questions:</p>
-         <ul class="list-disc pl-5 space-y-1 text-slate-700 mb-3 dark:text-zinc-300">
-         <li>Write the subnet mask in decimal notation</li>
-         <li>How many host bits must you borrow?</li>
-         <li>What is the CIDR for these subnets?</li>
-         </ul>`
-      : `<p class="text-slate-700 mb-3 dark:text-zinc-300">Beantwoord de volgende vragen:</p>
-         <ul class="list-disc pl-5 space-y-1 text-slate-700 mb-3 dark:text-zinc-300">
-         <li>Schrijf het subnetmask uit in decimalen</li>
-         <li>Hoeveel host-bits moet je lenen?</li>
-         <li>Wat wordt je CIDR voor deze subnetten?</li>
-         </ul>`;
-    
-    questionText = questionTitle + questionPrompt;
-    
-    // Multiple fields for the answer
-    const subnetMaskLabel = language === 'en' ? 'Subnet Mask (decimal)' : 'Subnetmask (decimaal)';
-    const hostBitsLabel = language === 'en' ? 'Host Bits' : 'Host-bits';
-    const cidrLabel = language === 'en' ? 'CIDR Prefix' : 'CIDR Prefix';
-    
+    const prefixLabel = language === 'en' ? 'Subnet Prefix' : 'Subnet Prefix';
     answerFields = [
-      { id: 'subnet-mask', label: subnetMaskLabel, answer: subnetMask },
-      { id: 'host-bits', label: hostBitsLabel, answer: hostBits.toString() },
-      { id: 'subnet-prefix', label: cidrLabel, answer: `/${requiredPrefix}` }
+      { id: 'subnet-prefix', label: prefixLabel, answer: `/${requiredPrefix}` }
     ];
     
     // Generate explanation
     const mediumExplanation = language === 'en'
-      ? `<p>To subnet a network for ${requiredHosts} hosts per subnet:</p>
+      ? `<p>To find the smallest subnet that can accommodate ${requiredHosts} hosts:</p>
       <ol class="list-decimal ml-5 mt-2 space-y-1">
         <li>We need at least ${requiredHosts} usable host addresses</li>
         <li>We need to add 2 for the network and broadcast addresses: ${requiredHosts} + 2 = ${requiredHosts + 2}</li>
         <li>We need to find the smallest power of 2 that gives us at least ${requiredHosts + 2} addresses: 2<sup>${hostBitsNeeded}</sup> = ${Math.pow(2, hostBitsNeeded)}</li>
         <li>This requires ${hostBitsNeeded} host bits</li>
         <li>Therefore, the prefix is 32 - ${hostBitsNeeded} = /${requiredPrefix}</li>
-        <li>The subnet mask in decimal notation is ${subnetMask}</li>
       </ol>
-      <p class="mt-2">With a /${requiredPrefix} subnet (${subnetMask}), each subnet will have:</p>
-      <ul class="list-disc ml-5 mt-2 space-y-1">
-        <li>Host bits: ${hostBits}</li>
-        <li>Usable host addresses: ${actualHosts} per subnet</li>
-      </ul>`
-      : `<p>Om een netwerk te subnetten voor ${requiredHosts} hosts per subnet:</p>
+      <p class="mt-2">A /${requiredPrefix} subnet has ${actualHosts} usable host addresses, which is enough for the required ${requiredHosts} hosts.</p>`
+      : `<p>Om het kleinste subnet te vinden dat ${requiredHosts} hosts kan accommoderen:</p>
       <ol class="list-decimal ml-5 mt-2 space-y-1">
         <li>We hebben minstens ${requiredHosts} bruikbare host-adressen nodig</li>
         <li>We moeten 2 toevoegen voor het netwerk- en broadcastadres: ${requiredHosts} + 2 = ${requiredHosts + 2}</li>
         <li>We moeten de kleinste macht van 2 vinden die ons minstens ${requiredHosts + 2} adressen geeft: 2<sup>${hostBitsNeeded}</sup> = ${Math.pow(2, hostBitsNeeded)}</li>
         <li>Dit vereist ${hostBitsNeeded} host-bits</li>
         <li>Daarom is de prefix 32 - ${hostBitsNeeded} = /${requiredPrefix}</li>
-        <li>Het subnetmask in decimale notatie is ${subnetMask}</li>
       </ol>
-      <p class="mt-2">Met een /${requiredPrefix} subnet (${subnetMask}), heeft elk subnet:</p>
-      <ul class="list-disc ml-5 mt-2 space-y-1">
-        <li>Host-bits: ${hostBits}</li>
-        <li>Bruikbare host-adressen: ${actualHosts} per subnet</li>
-      </ul>`;
+      <p class="mt-2">Een /${requiredPrefix} subnet heeft ${actualHosts} bruikbare host-adressen, wat voldoende is voor de vereiste ${requiredHosts} hosts.</p>`;
     
     explanation = mediumExplanation;
   }
@@ -1272,22 +1187,32 @@ function buildNetworkCalculationProblem(difficulty: string, language: Language =
     
     questionText = `<p class="text-slate-800 mb-3 dark:text-zinc-200">${fixedHostPrompt}</p>${bulletPoints}`;
     
-    // Create fields for the answers
-    const subnetMaskLabel = language === 'en' ? 'Subnet Mask (decimal)' : 'Subnetmask (decimaal)';
-    const hostBitsLabel = language === 'en' ? 'Host Bits' : 'Host-bits';
-    const cidrLabel = language === 'en' ? 'CIDR Prefix' : 'CIDR Prefix';
-    const subnet1Label = language === 'en' ? 'Subnet 1' : 'Subnet 1';
-    const subnet2Label = language === 'en' ? 'Subnet 2' : 'Subnet 2';
-    const subnetNLabel = language === 'en' ? `Subnet ${randomSubnetNumber}` : `Subnet ${randomSubnetNumber}`;
+    // Create a textarea for the comprehensive answer
+    const textarea = language === 'en' 
+      ? 'Comprehensive Answer'
+      : 'Uitgebreid Antwoord';
     
-    // Create separate answer fields for each question
+    // Create model answer for explanation
+    const modelAnswer = language === 'en'
+      ? `Subnet mask in decimal: ${subnetMask}
+Host bits: ${requiredHostBits}
+CIDR for subnets: /${newPrefix}
+Subnet mask: ${subnetMask}
+Subnet 1: ${subnet1}/${newPrefix}
+Subnet 2: ${subnet2}/${newPrefix}
+Subnet ${randomSubnetNumber}: ${subnetN}/${newPrefix}
+Slash notation: ${subnet1}/${startPrefix} -> ${subnet1}/${newPrefix}`
+      : `Subnetmask in decimalen: ${subnetMask}
+Host-bits: ${requiredHostBits}
+CIDR voor subnetten: /${newPrefix}
+Subnetmask: ${subnetMask}
+Subnet 1: ${subnet1}/${newPrefix}
+Subnet 2: ${subnet2}/${newPrefix}
+Subnet ${randomSubnetNumber}: ${subnetN}/${newPrefix}
+Slashnotatie: ${subnet1}/${startPrefix} -> ${subnet1}/${newPrefix}`;
+    
     answerFields = [
-      { id: 'subnet-mask', label: subnetMaskLabel, answer: subnetMask },
-      { id: 'host-bits', label: hostBitsLabel, answer: requiredHostBits.toString() },
-      { id: 'subnet-prefix', label: cidrLabel, answer: `/${newPrefix}` },
-      { id: 'subnet-1', label: subnet1Label, answer: `${subnet1}/${newPrefix}` },
-      { id: 'subnet-2', label: subnet2Label, answer: `${subnet2}/${newPrefix}` },
-      { id: 'subnet-n', label: subnetNLabel, answer: `${subnetN}/${newPrefix}` }
+      { id: 'comprehensive-answer', label: textarea, answer: modelAnswer }
     ];
     
     // Create explanation
