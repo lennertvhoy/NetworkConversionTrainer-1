@@ -899,9 +899,14 @@ function buildNetworkCalculationProblem(difficulty: string, language: Language =
     let subnetPrefix = 0;
     
     if (difficulty === 'easy') {
-      basePrefix = 24;
-      // For easy, have predictable subnet sizes
-      subnetPrefix = [26, 27, 28, 29, 30][Math.floor(Math.random() * 5)];
+      // For easy, use a random base prefix and subnet prefix
+      basePrefix = [16, 20, 24][Math.floor(Math.random() * 3)];
+      // For the subnet prefix, make sure it's at least 2 bits more than the base prefix
+      const possiblePrefixes = [];
+      for (let i = basePrefix + 2; i <= Math.min(basePrefix + 8, 30); i++) {
+        possiblePrefixes.push(i);
+      }
+      subnetPrefix = possiblePrefixes[Math.floor(Math.random() * possiblePrefixes.length)];
     } else if (difficulty === 'medium') {
       basePrefix = [16, 24][Math.floor(Math.random() * 2)];
       // Calculate a reasonable subnet prefix
