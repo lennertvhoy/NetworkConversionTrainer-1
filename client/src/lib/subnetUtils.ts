@@ -6,70 +6,74 @@ interface SubnettingQuestion {
   explanation: string;
 }
 
-// A helper function to calculate subnet addresses with proper carry between octets
+// A direct algorithmic approach to calculate subnet addresses
 function calculateSubnetAddress(baseIP: number[], subnetNumber: number, subnetIncrement: number, changingOctet: number): number[] {
-  // Debug logging
-  // console.log(`Calculating subnet ${subnetNumber} with increment ${subnetIncrement} starting from ${baseIP.join('.')}, changing octet ${changingOctet}`);
+  // Make a deep copy of the base IP
+  const resultIP = [...baseIP];
   
-  // Convert to a copy of the base network
-  let octets = [...baseIP];
-  
-  // Calculate how many bits are in use at the changing octet
-  // This tells us how many increments until we overflow to the next octet
-  let bitsUsedInChangingOctet = 0;
-  if (changingOctet === 3) bitsUsedInChangingOctet = 8; // 8 bits in 4th octet
-  else if (changingOctet === 2) bitsUsedInChangingOctet = 16; // 16 bits total in 3rd octet
-  else if (changingOctet === 1) bitsUsedInChangingOctet = 24; // 24 bits total in 2nd octet
-  else if (changingOctet === 0) bitsUsedInChangingOctet = 32; // 32 bits total in 1st octet
-  
-  // Zero out all octets to the right of the changing octet
+  // Reset all octets to the right of the changing octet
   for (let i = changingOctet + 1; i < 4; i++) {
-    octets[i] = 0;
+    resultIP[i] = 0;
   }
   
-  // Calculate total number of networks we need to jump
-  let totalNetworks = subnetNumber;
+  // For CIDR calculations, subnet calculations occur within specific octet boundaries
+  // For example, for a /26 network, each increment affects the last octet by 64
   
-  // First, calculate how this affects the changing octet and beyond
-  let currentOctet = 3; // Start with rightmost octet
-  while (totalNetworks > 0 && currentOctet >= 0) {
-    // If we're at the changing octet or to its left
-    if (currentOctet <= changingOctet) {
-      // Calculate how many increments we can make in this octet before overflow
-      let maxIncrementInOctet = 256;
-      if (currentOctet === changingOctet) {
-        // For the changing octet, we need to calculate based on the subnetIncrement value
-        maxIncrementInOctet = Math.floor(256 / subnetIncrement);
-      }
-      
-      // Calculate how many complete incrementswe need to make in this octet
-      let incrementsNeeded = Math.min(totalNetworks, maxIncrementInOctet);
-      
-      // Apply increments to the current octet
-      if (currentOctet === changingOctet) {
-        octets[currentOctet] += incrementsNeeded * subnetIncrement;
-      } else {
-        // For octets to the left, each increment is just 1
-        octets[currentOctet] += incrementsNeeded;
-      }
-      
-      // Adjust totalNetworks for next iteration
-      totalNetworks -= incrementsNeeded;
-      
-      // Handle overflow if needed
-      if (octets[currentOctet] > 255) {
-        octets[currentOctet] %= 256; // Keep remainder
-        if (currentOctet > 0) {
-          octets[currentOctet - 1]++; // Carry the 1
-        }
-      }
-    }
+  // Calculate how the increment affects each octet directly
+  if (changingOctet === 3) {
+    // Changes happen only in the 4th octet
+    resultIP[3] += subnetNumber * subnetIncrement;
     
-    // Move left to the next octet
-    currentOctet--;
+    // Handle overflow to 3rd octet
+    if (resultIP[3] > 255) {
+      const overflow = Math.floor(resultIP[3] / 256);
+      resultIP[3] %= 256;
+      resultIP[2] += overflow;
+    }
+  } 
+  else if (changingOctet === 2) {
+    // Changes primarily in 3rd octet, but large subnet numbers can affect 2nd octet
+    resultIP[2] += subnetNumber * subnetIncrement; 
+    
+    // Handle overflow to 2nd octet
+    if (resultIP[2] > 255) {
+      const overflow = Math.floor(resultIP[2] / 256);
+      resultIP[2] %= 256;
+      resultIP[1] += overflow;
+    }
+  }
+  else if (changingOctet === 1) {
+    // Changes primarily in 2nd octet
+    resultIP[1] += subnetNumber * subnetIncrement;
+    
+    // Handle overflow to 1st octet
+    if (resultIP[1] > 255) {
+      const overflow = Math.floor(resultIP[1] / 256);
+      resultIP[1] %= 256;
+      resultIP[0] += overflow;
+    }
+  }
+  else if (changingOctet === 0) {
+    // Changes primarily in 1st octet
+    resultIP[0] += subnetNumber * subnetIncrement;
+    // No need to handle overflow beyond 1st octet in IPv4
   }
   
-  return octets;
+  // Handle additional overflows from 3rd to 2nd octet
+  if (resultIP[2] > 255) {
+    const overflow = Math.floor(resultIP[2] / 256);
+    resultIP[2] %= 256;
+    resultIP[1] += overflow;
+  }
+  
+  // Handle additional overflows from 2nd to 1st octet
+  if (resultIP[1] > 255) {
+    const overflow = Math.floor(resultIP[1] / 256);
+    resultIP[1] %= 256;
+    resultIP[0] += overflow;
+  }
+  
+  return resultIP;
 }
 
 // Helper to generate a random IP address
