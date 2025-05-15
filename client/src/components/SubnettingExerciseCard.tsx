@@ -66,12 +66,6 @@ export default function SubnettingExerciseCard({ subnetType, difficulty }: Subne
       return;
     }
 
-    // Create cleaned version of answer fields for the display and comparison
-    const cleanedAnswerFields = answerFields.map(field => ({
-      ...field,
-      answer: field.answer.replace(/\s+/g, '')
-    }));
-
     // Check if all answers are correct
     const allCorrect = answerFields.every(field => {
       const userAnswer = userAnswers[field.id].trim().toLowerCase();
@@ -315,7 +309,7 @@ export default function SubnettingExerciseCard({ subnetType, difficulty }: Subne
                 <div className="mt-2 text-sm text-red-700 dark:text-red-300">
                   <p>{t('subnetting.correctAnswersAre')}</p>
                   <ul className="list-disc pl-5 mt-2">
-                    {cleanedAnswerFields.map(field => (
+                    {answerFields.map(field => (
                       <li key={field.id}>
                         <strong>
                           {field.label === "Network Address" ? t('subnetting.fields.networkAddress') :
@@ -330,7 +324,7 @@ export default function SubnettingExerciseCard({ subnetType, difficulty }: Subne
                            field.label === "Required Prefix" ? t('subnetting.fields.requiredPrefix') :
                            field.label === "Prefix Length" ? t('subnetting.fields.prefixLength') :
                            field.label}
-                        :</strong> <span className="font-mono font-bold">{field.answer}</span>
+                        :</strong> <span className="font-mono font-bold">{field.answer.replace(/\s+/g, '')}</span>
                       </li>
                     ))}
                   </ul>
