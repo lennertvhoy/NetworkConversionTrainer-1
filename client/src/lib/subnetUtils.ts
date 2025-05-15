@@ -1814,42 +1814,67 @@ function buildIPv6Problem(difficulty: string, language: Language = 'nl'): Subnet
   const problemType = problemTypes[Math.floor(Math.random() * problemTypes.length)];
   
   if (problemType === 'expand-address') {
-    // Create a full IPv6 address first
-    const fullSegments: string[] = [];
-    for (let i = 0; i < 8; i++) {
-      // Random hexadecimal segment
-      const segment = Math.floor(Math.random() * 65536).toString(16).padStart(4, '0');
-      fullSegments.push(segment);
-    }
-    
-    // Full uncompressed address with all segments
-    const fullAddress = fullSegments.join(':');
-    
-    // Create a compressed version by adding zero segments and abbreviating them
-    const zeroPosition = Math.floor(Math.random() * 5); // Position for a block of zeros
-    const zeroCount = Math.floor(Math.random() * 3) + 2; // 2-4 consecutive zero segments
-    
-    // Set segments to zero
-    for (let i = 0; i < zeroCount; i++) {
-      if (zeroPosition + i < fullSegments.length) {
-        fullSegments[zeroPosition + i] = '0000';
+    // Helper function to expand an abbreviated IPv6 address
+    const expandIPv6 = (abbreviatedIP: string): string => {
+      // If there's no ::, just pad each segment
+      if (!abbreviatedIP.includes('::')) {
+        return abbreviatedIP.split(':')
+          .map(segment => segment.padStart(4, '0'))
+          .join(':');
       }
-    }
+      
+      // Split around ::
+      const parts = abbreviatedIP.split('::');
+      
+      // Handle edge cases like :: or ::1
+      if (parts.length !== 2) {
+        return abbreviatedIP; // Invalid format, return as-is
+      }
+      
+      const leftPart = parts[0] ? parts[0].split(':') : [];
+      const rightPart = parts[1] ? parts[1].split(':') : [];
+      
+      // Determine missing segments
+      const missingSegments = 8 - leftPart.length - rightPart.length;
+      
+      // Build expanded address
+      const expandedSegments = [
+        ...leftPart.map(segment => segment.padStart(4, '0')),
+        ...Array(missingSegments).fill('0000'),
+        ...rightPart.map(segment => segment.padStart(4, '0'))
+      ];
+      
+      return expandedSegments.join(':');
+    };
     
-    // Create abbreviated version by replacing zero segments with ::
-    const abbreviatedSegments = [...fullSegments];
-    abbreviatedSegments.splice(zeroPosition, zeroCount, '');
+    // Create an abbreviated address with some pattern
+    // We can use a set of predefined patterns to ensure valid addresses
+    const abbreviated = [
+      // Standard format with :: in the middle
+      `${Math.floor(Math.random() * 65536).toString(16)}:${Math.floor(Math.random() * 65536).toString(16)}::${Math.floor(Math.random() * 65536).toString(16)}:${Math.floor(Math.random() * 65536).toString(16)}`,
+      
+      // :: at the beginning
+      `::${Math.floor(Math.random() * 65536).toString(16)}:${Math.floor(Math.random() * 65536).toString(16)}:${Math.floor(Math.random() * 65536).toString(16)}:${Math.floor(Math.random() * 65536).toString(16)}`,
+      
+      // :: at the end
+      `${Math.floor(Math.random() * 65536).toString(16)}:${Math.floor(Math.random() * 65536).toString(16)}:${Math.floor(Math.random() * 65536).toString(16)}::`,
+      
+      // Multiple segments with zero shortening
+      `${Math.floor(Math.random() * 65536).toString(16)}::${Math.floor(Math.random() * 65536).toString(16)}:${Math.floor(Math.random() * 65536).toString(16)}:${Math.floor(Math.random() * 65536).toString(16)}`
+    ][Math.floor(Math.random() * 4)];
     
-    let abbreviatedAddress = abbreviatedSegments.join(':');
+    // Expand it to get the full address
+    const fullAddress = expandIPv6(abbreviated);
     
-    // Fix double colons in the abbreviated address
-    abbreviatedAddress = abbreviatedAddress.replace(/::+/g, '::');
-    if (abbreviatedAddress.startsWith(':') && !abbreviatedAddress.startsWith('::')) {
-      abbreviatedAddress = ':' + abbreviatedAddress;
-    }
-    if (abbreviatedAddress.endsWith(':') && !abbreviatedAddress.endsWith('::')) {
-      abbreviatedAddress = abbreviatedAddress + ':';
-    }
+    // Beautify the abbreviated address (remove leading zeros in segments)
+    const abbreviatedAddress = abbreviated.split(':').map(segment => {
+      if (segment === '') return segment;
+      const parsed = parseInt(segment, 16);
+      return isNaN(parsed) ? '0' : parsed.toString(16);
+    }).join(':');
+    
+    // Count zero groups for explanation
+    const zeroCount = 8 - abbreviatedAddress.split(':').filter(s => s !== '').length;
     
     // Create question
     const expandPrompt = language === 'en'
