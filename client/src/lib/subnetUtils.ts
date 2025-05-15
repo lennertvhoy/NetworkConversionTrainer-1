@@ -1047,21 +1047,39 @@ function buildNetworkCalculationProblem(difficulty: string, language: Language =
     // Calculate which octet will change based on the subnet prefix
     const changingOctetIndex = Math.min(3, Math.floor(subnetPrefix / 8));
     
-    // Calculate subnet addresses
+    // Calculate subnet addresses with proper handling of octet overflow
     const subnetAddresses = [];
     for (let i = 0; i < Math.min(4, actualSubnets); i++) {
-      // Clone the base octets
+      // Clone the base octets for each subnet
       const subnetOctets = [...baseOctets];
       
-      // Calculate the value for the changing octet
-      if (changingOctetIndex < 4) {
-        subnetOctets[changingOctetIndex] = 
-          baseOctets[changingOctetIndex] + (i * subnetIncrementValue);
-      }
-      
-      // Make sure all octets after the changing one are zero
+      // First reset all octets after the changing one to 0
       for (let j = changingOctetIndex + 1; j < 4; j++) {
         subnetOctets[j] = 0;
+      }
+      
+      // Calculate increment for the changing octet
+      let incrementValue = i * subnetIncrementValue;
+      
+      // Apply the increment with carry handling
+      for (let j = 3; j >= 0; j--) {
+        if (j === changingOctetIndex) {
+          // Add increment to the changing octet
+          subnetOctets[j] += incrementValue;
+          
+          // Handle carry to previous octets if needed
+          if (subnetOctets[j] > 255) {
+            const carry = Math.floor(subnetOctets[j] / 256);
+            subnetOctets[j] %= 256;
+            
+            // If we have carry and we're not at the first octet, add carry to previous octet
+            if (j > 0) {
+              incrementValue = carry;
+              continue; // Continue to previous octet to add carry
+            }
+          }
+        }
+        incrementValue = 0; // Reset increment after applying it
       }
       
       // Format as a CIDR notation
@@ -1337,29 +1355,34 @@ function buildNetworkCalculationProblem(difficulty: string, language: Language =
     let subnet2Address = subnet1.split('.').map(octet => parseInt(octet));
     const increment = Math.pow(2, 32 - newPrefix);
     
-    // Handle wrap-around for subnet boundaries
-    const incrementOctet = Math.floor(increment / 16777216) > 0 ? 0 :
-                         Math.floor(increment / 65536) > 0 ? 1 :
-                         Math.floor(increment / 256) > 0 ? 2 : 3;
-                         
-    const incrementValue = incrementOctet === 0 ? Math.floor(increment / 16777216) :
-                         incrementOctet === 1 ? Math.floor(increment / 65536) :
-                         incrementOctet === 2 ? Math.floor(increment / 256) : increment;
+    // Calculate which octet will change based on the subnet prefix
+    const changingOctetIndex = Math.min(3, Math.floor(newPrefix / 8));
     
-    subnet2Address[incrementOctet] += incrementValue;
+    // Calculate subnet increment for the specific octet
+    const subnetIncrementValue = Math.pow(2, Math.max(0, 8 - (newPrefix % 8)));
     
-    // Handle carry
-    if (subnet2Address[3] > 255) {
-      subnet2Address[3] -= 256;
-      subnet2Address[2] += 1;
-    }
-    if (subnet2Address[2] > 255) {
-      subnet2Address[2] -= 256;
-      subnet2Address[1] += 1;
-    }
-    if (subnet2Address[1] > 255) {
-      subnet2Address[1] -= 256;
-      subnet2Address[0] += 1;
+    // Apply the increment with proper carry handling
+    let incrementValue = subnetIncrementValue;
+    
+    // Start from the last octet and work backwards for proper carry
+    for (let j = 3; j >= 0; j--) {
+      if (j === changingOctetIndex) {
+        // Add increment to the changing octet
+        subnet2Address[j] += incrementValue;
+        
+        // Handle carry to previous octets if needed
+        if (subnet2Address[j] > 255) {
+          const carry = Math.floor(subnet2Address[j] / 256);
+          subnet2Address[j] %= 256;
+          
+          // If we have carry and we're not at the first octet, add carry to previous octet
+          if (j > 0) {
+            incrementValue = carry;
+            continue; // Continue to previous octet to add carry
+          }
+        }
+      }
+      incrementValue = 0; // Reset increment after applying it
     }
     
     const subnet2 = subnet2Address.join('.');
@@ -1368,30 +1391,29 @@ function buildNetworkCalculationProblem(difficulty: string, language: Language =
     const randomSubnetNumber = Math.floor(Math.random() * 20) + 3; // Between 3 and 22
     
     let subnetNAddress = subnet1.split('.').map(octet => parseInt(octet));
-    const nIncrement = increment * (randomSubnetNumber - 1);
     
-    const nIncrementOctet = Math.floor(nIncrement / 16777216) > 0 ? 0 :
-                            Math.floor(nIncrement / 65536) > 0 ? 1 :
-                            Math.floor(nIncrement / 256) > 0 ? 2 : 3;
+    // Apply the increment with proper carry handling for nth subnet
+    let nIncrementValue = subnetIncrementValue * (randomSubnetNumber - 1);
     
-    const nIncrementValue = nIncrementOctet === 0 ? Math.floor(nIncrement / 16777216) :
-                            nIncrementOctet === 1 ? Math.floor(nIncrement / 65536) :
-                            nIncrementOctet === 2 ? Math.floor(nIncrement / 256) : nIncrement;
-    
-    subnetNAddress[nIncrementOctet] += nIncrementValue;
-    
-    // Handle carry
-    if (subnetNAddress[3] > 255) {
-      subnetNAddress[3] -= 256;
-      subnetNAddress[2] += 1;
-    }
-    if (subnetNAddress[2] > 255) {
-      subnetNAddress[2] -= 256;
-      subnetNAddress[1] += 1;
-    }
-    if (subnetNAddress[1] > 255) {
-      subnetNAddress[1] -= 256;
-      subnetNAddress[0] += 1;
+    // Start from the last octet and work backwards for proper carry
+    for (let j = 3; j >= 0; j--) {
+      if (j === changingOctetIndex) {
+        // Add increment to the changing octet
+        subnetNAddress[j] += nIncrementValue;
+        
+        // Handle carry to previous octets if needed
+        if (subnetNAddress[j] > 255) {
+          const carry = Math.floor(subnetNAddress[j] / 256);
+          subnetNAddress[j] %= 256;
+          
+          // If we have carry and we're not at the first octet, add carry to previous octet
+          if (j > 0) {
+            nIncrementValue = carry;
+            continue; // Continue to previous octet to add carry
+          }
+        }
+      }
+      nIncrementValue = 0; // Reset increment after applying it
     }
     
     const subnetN = subnetNAddress.join('.');
