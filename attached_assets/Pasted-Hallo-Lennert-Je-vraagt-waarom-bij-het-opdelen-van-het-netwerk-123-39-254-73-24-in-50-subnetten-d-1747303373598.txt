@@ -1,0 +1,33 @@
+Hallo Lennert,
+
+Je vraagt waarom bij het opdelen van het netwerk 123.39.254.73/24 in 50 subnetten, de eerste subnetten starten vanaf 123.39.254.73/30 in plaats van vanaf 123.39.254.0/30. Laten we dit stap voor stap bekijken.
+
+### 1. Begrip van het oorspronkelijke netwerk
+
+Het netwerk 123.39.254.73/24 heeft een subnetmasker van 255.255.255.0, wat betekent dat het netwerk loopt van 123.39.254.0 tot 123.39.254.255. Binnen dit bereik zijn 256 IP-adressen beschikbaar.([NETWORK FUN-TIMES][1])
+
+### 2. Subnetting in kleinere blokken
+
+Om het netwerk op te splitsen in 50 subnetten, moeten we subnetten creëren die klein genoeg zijn om aan deze eis te voldoen. Een /30 subnetmasker (255.255.255.252) biedt 4 IP-adressen per subnet, waarvan 2 bruikbaar zijn voor hosts (de andere twee zijn gereserveerd voor netwerk- en broadcastadressen). Met 256 beschikbare IP-adressen in het oorspronkelijke /24-netwerk kunnen we 64 subnetten van /30 maken (256 / 4 = 64).([Omni Calculator][2])
+
+### 3. Startpunt van de subnetten
+
+Hoewel het logisch lijkt om te beginnen bij 123.39.254.0/30, begint de subnetting in dit geval bij 123.39.254.73/30. Dit komt omdat het oorspronkelijke netwerk is gedefinieerd als 123.39.254.73/24, waarbij 123.39.254.73 het startpunt is. Bij het opdelen van een netwerk in subnetten, beginnen we meestal bij het eerste beschikbare IP-adres binnen het gedefinieerde netwerkbereik.
+
+### 4. Waarom niet starten bij 123.39.254.0/30?
+
+Het adres 123.39.254.0 valt buiten het bereik van het gedefinieerde netwerk 123.39.254.73/24. Daarom is het niet logisch om subnetten te beginnen bij een adres dat niet binnen het oorspronkelijke netwerk valt. Bovendien zijn 123.39.254.0 en 123.39.254.255 respectievelijk het netwerk- en broadcastadres van het /24-netwerk en worden ze meestal niet toegewezen aan hosts.([Reddit][3])
+
+### 5. Praktische overwegingen
+
+In sommige gevallen kan het nodig zijn om subnetten te creëren binnen een specifiek bereik van IP-adressen, bijvoorbeeld wanneer een organisatie slechts een deel van een groter netwerk toegewezen heeft gekregen. In dit scenario zou het logisch zijn om subnetten te beginnen bij het eerste beschikbare IP-adres binnen dat toegewezen bereik, zoals 123.39.254.73.
+
+### Conclusie
+
+Het starten van subnetten bij 123.39.254.73/30 in plaats van bij 123.39.254.0/30 komt voort uit het feit dat het oorspronkelijke netwerk is gedefinieerd als 123.39.254.73/24. Bij het opdelen van een netwerk in subnetten, beginnen we doorgaans bij het eerste beschikbare IP-adres binnen het gedefinieerde netwerkbereik.
+
+Als je verdere vragen hebt over subnetting of andere netwerktopics, aarzel dan niet om ze te stellen!
+
+[1]: https://www.networkfuntimes.com/a-complete-beginners-guide-to-subnetting/?utm_source=chatgpt.com "A COMPLETE BEGINNER'S GUIDE TO SUBNETTING"
+[2]: https://www.omnicalculator.com/other/ip-subnet?utm_source=chatgpt.com "IP Subnet Calculator"
+[3]: https://www.reddit.com/r/networking/comments/1t7n6x/why_are_you_able_to_sometimes_assign_an_ip/?utm_source=chatgpt.com "Why are you able to sometimes assign an IP address 0 or 255 and ..."

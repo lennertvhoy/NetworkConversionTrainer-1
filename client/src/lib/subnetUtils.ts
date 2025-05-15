@@ -1150,12 +1150,29 @@ function buildNetworkCalculationProblem(difficulty: string, language: Language =
     // Calculate subnet addresses with proper handling of octet overflow
     const subnetAddresses = [];
     
-    // We now use the global calculateSubnetAddress function
+    // For subnet calculations, we need to start from the base network address (all zeros in host part)
+    // Create a clean network address (zeros in host part)
+    let networkBaseOctets = [...baseOctets];
+    
+    // Zero out all bits in the host part (everything after the basePrefix)
+    if (basePrefix <= 8) {
+      // For Class A, zero out octets 2-4
+      networkBaseOctets[1] = 0;
+      networkBaseOctets[2] = 0;
+      networkBaseOctets[3] = 0;
+    } else if (basePrefix <= 16) {
+      // For Class B, zero out octets 3-4
+      networkBaseOctets[2] = 0;
+      networkBaseOctets[3] = 0;
+    } else if (basePrefix <= 24) {
+      // For Class C, zero out octet 4
+      networkBaseOctets[3] = 0;
+    }
     
     // Calculate the first few subnet addresses
     for (let i = 0; i < Math.min(4, actualSubnets); i++) {
       const subnetOctets = calculateSubnetAddress(
-        baseOctets, 
+        networkBaseOctets, 
         i, 
         subnetIncrementValue,
         changingOctetIndex
@@ -1427,8 +1444,25 @@ function buildNetworkCalculationProblem(difficulty: string, language: Language =
     // Calculate number of possible subnets
     const possibleSubnets = Math.pow(2, newPrefix - startPrefix);
     
-    // Calculate the first few subnets
-    const subnet1 = `${firstOctet}.${secondOctet}.${thirdOctet}.${fourthOctet}`;
+    // Create the network base IP
+    const baseNetworkIP = `${firstOctet}.${secondOctet}.${thirdOctet}.${fourthOctet}`;
+    // Calculate proper network address (ensuring host bits are 0)
+    let cleanBaseOctets = [firstOctet, secondOctet, thirdOctet, fourthOctet];
+    
+    // Zero out host bits based on prefix length
+    if (startPrefix <= 8) {
+      cleanBaseOctets[1] = 0;
+      cleanBaseOctets[2] = 0;
+      cleanBaseOctets[3] = 0;
+    } else if (startPrefix <= 16) {
+      cleanBaseOctets[2] = 0;
+      cleanBaseOctets[3] = 0;
+    } else if (startPrefix <= 24) {
+      cleanBaseOctets[3] = 0;
+    }
+    
+    // The first subnet is just the base network address with the new prefix
+    const subnet1 = `${cleanBaseOctets.join('.')}`;
     
     // Calculate subnet 2 by adding the correct increment
     let subnet2Address = subnet1.split('.').map(octet => parseInt(octet));
