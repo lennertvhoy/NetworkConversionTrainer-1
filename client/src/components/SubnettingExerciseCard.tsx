@@ -128,17 +128,43 @@ export default function SubnettingExerciseCard({ subnetType, difficulty }: Subne
       }
       
       // For IP address-like answers (non-subnet mask questions)
-      if (field.id.includes('address') || field.id.includes('host')) {
-        // Clean up user input by removing any spaces
-        const cleanUserAnswer = userAnswer.replace(/\s+/g, '');
-        
-        // More flexible matching for IP addresses
-        const userParts = cleanUserAnswer.split(".").map(part => parseInt(part));
-        const correctParts = correctAnswer.split(".").map(part => parseInt(part));
-        
-        if (userParts.length === 4 && correctParts.length === 4) {
-          return userParts.every((part, i) => part === correctParts[i]);
+      if (field.id.includes('address') || field.id.includes('host') || field.id.includes('subnet')) {
+        // First check if any alternate answers are a direct match (including CIDR notation)
+        if (allAcceptableAnswers.some(acceptableAnswer => {
+          // Clean up answer and user input by removing spaces
+          const cleanAcceptableAnswer = acceptableAnswer.replace(/\s+/g, '');
+          const cleanUserAnswer = userAnswer.replace(/\s+/g, '');
+          return cleanUserAnswer === cleanAcceptableAnswer;
+        })) {
+          return true;
         }
+        
+        // If not a direct match, try more flexible IP matching
+        // First extract the IP portion if the user entered CIDR notation
+        let cleanUserAnswer = userAnswer.replace(/\s+/g, '');
+        // Remove any CIDR prefix if present
+        if (cleanUserAnswer.includes('/')) {
+          cleanUserAnswer = cleanUserAnswer.split('/')[0];
+        }
+        
+        // Process all acceptable answers
+        return allAcceptableAnswers.some(acceptableAnswer => {
+          // Extract just the IP part if it's a CIDR notation
+          let acceptableIP = acceptableAnswer;
+          if (acceptableIP.includes('/')) {
+            acceptableIP = acceptableIP.split('/')[0];
+          }
+          
+          // Compare the IP portions
+          const userParts = cleanUserAnswer.split(".").map(part => parseInt(part));
+          const correctParts = acceptableIP.split(".").map(part => parseInt(part));
+          
+          if (userParts.length === 4 && correctParts.length === 4) {
+            return userParts.every((part, i) => part === correctParts[i]);
+          }
+          
+          return false;
+        });
       }
       
       // Special case for IPv6 addresses
@@ -220,7 +246,11 @@ export default function SubnettingExerciseCard({ subnetType, difficulty }: Subne
         return cleanUserAnswer === cleanCorrectAnswer;
       }
       
-      // For any other field, require exact match
+      // For any other field, check against all acceptable answers
+      if (allAcceptableAnswers.some(acceptableAns => userAnswer === acceptableAns)) {
+        return true;
+      }
+      // If no match in alternate answers, do the standard exact match
       return userAnswer === correctAnswer;
     });
 

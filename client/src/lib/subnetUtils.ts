@@ -2,7 +2,12 @@ import { Language } from './languageContext';
 
 interface SubnettingQuestion {
   questionText: string;
-  answerFields: { id: string; label: string; answer: string }[];
+  answerFields: { 
+    id: string; 
+    label: string; 
+    answer: string;
+    alternateAnswers?: string[];
+  }[];
   explanation: string;
 }
 
@@ -1204,14 +1209,41 @@ function buildNetworkCalculationProblem(difficulty: string, language: Language =
     const subnet3Label = language === 'en' ? 'Third Subnet (CIDR)' : 'Derde Subnet (CIDR)';
     const subnet4Label = language === 'en' ? 'Fourth Subnet (CIDR)' : 'Vierde Subnet (CIDR)';
     
+    // For each subnet, also create alternate answers for just the network portion
+    // This allows users to input either form and have it be correct
+    const subnet1WithoutCIDR = subnetAddresses[0] ? subnetAddresses[0].split('/')[0] : '';
+    const subnet2WithoutCIDR = subnetAddresses[1] ? subnetAddresses[1].split('/')[0] : '';
+    const subnet3WithoutCIDR = subnetAddresses[2] ? subnetAddresses[2].split('/')[0] : '';
+    const subnet4WithoutCIDR = subnetAddresses[3] ? subnetAddresses[3].split('/')[0] : '';
+    
     answerFields = [
       { id: 'subnet-mask', label: subnetMaskLabel, answer: subnetMask },
       { id: 'host-bits', label: hostBitsLabel, answer: hostBits.toString() },
       { id: 'subnet-prefix', label: cidrLabel, answer: `/${subnetPrefix}` },
-      { id: 'subnet-1', label: subnet1Label, answer: subnetAddresses[0] || '' },
-      { id: 'subnet-2', label: subnet2Label, answer: subnetAddresses[1] || '' },
-      { id: 'subnet-3', label: subnet3Label, answer: subnetAddresses[2] || '' },
-      { id: 'subnet-4', label: subnet4Label, answer: subnetAddresses[3] || '' }
+      { 
+        id: 'subnet-1', 
+        label: subnet1Label, 
+        answer: subnetAddresses[0] || '',
+        alternateAnswers: [subnet1WithoutCIDR]
+      },
+      { 
+        id: 'subnet-2', 
+        label: subnet2Label, 
+        answer: subnetAddresses[1] || '',
+        alternateAnswers: [subnet2WithoutCIDR] 
+      },
+      { 
+        id: 'subnet-3', 
+        label: subnet3Label, 
+        answer: subnetAddresses[2] || '',
+        alternateAnswers: [subnet3WithoutCIDR]
+      },
+      { 
+        id: 'subnet-4', 
+        label: subnet4Label, 
+        answer: subnetAddresses[3] || '',
+        alternateAnswers: [subnet4WithoutCIDR]
+      }
     ];
     
     // Generate list of subnets for explanation
@@ -1570,13 +1602,29 @@ function buildNetworkCalculationProblem(difficulty: string, language: Language =
     const subnetNLabel = language === 'en' ? `Subnet ${randomSubnetNumber}` : `Subnet ${randomSubnetNumber}`;
     
     // Create separate answer fields for each question, in the same order as the bullet points
+    // For subnet fields, add alternate answers without CIDR notation
     answerFields = [
       { id: 'host-bits', label: hostBitsLabel, answer: requiredHostBits.toString() },
       { id: 'subnet-prefix', label: cidrLabel, answer: `/${newPrefix}` },
       { id: 'subnet-mask', label: subnetMaskLabel, answer: subnetMask },
-      { id: 'subnet-1', label: subnet1Label, answer: `${subnet1}/${newPrefix}` },
-      { id: 'subnet-2', label: subnet2Label, answer: `${subnet2}/${newPrefix}` },
-      { id: 'subnet-n', label: subnetNLabel, answer: `${subnetN}/${newPrefix}` }
+      { 
+        id: 'subnet-1', 
+        label: subnet1Label, 
+        answer: `${subnet1}/${newPrefix}`,
+        alternateAnswers: [subnet1] // Allow without CIDR
+      },
+      { 
+        id: 'subnet-2', 
+        label: subnet2Label, 
+        answer: `${subnet2}/${newPrefix}`,
+        alternateAnswers: [subnet2] // Allow without CIDR
+      },
+      { 
+        id: 'subnet-n', 
+        label: subnetNLabel, 
+        answer: `${subnetN}/${newPrefix}`,
+        alternateAnswers: [subnetN] // Allow without CIDR
+      }
     ];
     
     // Create explanation
