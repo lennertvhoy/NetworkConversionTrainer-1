@@ -80,27 +80,31 @@ export default function SubnettingExerciseCard({ subnetType, difficulty }: Subne
         const questionAsksForCIDR = questionText.toLowerCase().includes('cidr') || 
                                    questionText.toLowerCase().includes('prefix');
         const questionAsksForDecimal = questionText.toLowerCase().includes('dotted decimal') || 
-                                      questionText.toLowerCase().includes('decimal notation');
+                                      questionText.toLowerCase().includes('decimal notation') ||
+                                      (field.label && field.label.toLowerCase().includes('decimal'));
         
-        if (questionAsksForCIDR && !userAnswer.startsWith('/')) {
+        // Clean up user input by removing any spaces
+        const cleanUserAnswer = userAnswer.replace(/\s+/g, '');
+        
+        if (questionAsksForCIDR && !cleanUserAnswer.startsWith('/')) {
           // The user didn't provide a CIDR notation answer when asked for one
           return false;
         }
         
-        if (questionAsksForDecimal && userAnswer.startsWith('/')) {
+        if (questionAsksForDecimal && cleanUserAnswer.startsWith('/')) {
           // The user didn't provide a decimal notation answer when asked for one
           return false;
         }
         
         // For exact format match cases, do strict comparison
-        if (userAnswer.startsWith('/') && correctAnswer.startsWith('/')) {
+        if (cleanUserAnswer.startsWith('/') && correctAnswer.startsWith('/')) {
           // Both are CIDR, compare the numbers
-          return parseInt(userAnswer.substring(1)) === parseInt(correctAnswer.substring(1));
+          return parseInt(cleanUserAnswer.substring(1)) === parseInt(correctAnswer.substring(1));
         }
         
         // For decimal format, do a more flexible comparison
-        if (!userAnswer.startsWith('/') && !correctAnswer.startsWith('/')) {
-          const userParts = userAnswer.split(".").map(part => parseInt(part));
+        if (!cleanUserAnswer.startsWith('/') && !correctAnswer.startsWith('/')) {
+          const userParts = cleanUserAnswer.split(".").map(part => parseInt(part));
           const correctParts = correctAnswer.split(".").map(part => parseInt(part));
           
           if (userParts.length === 4 && correctParts.length === 4) {
@@ -108,14 +112,17 @@ export default function SubnettingExerciseCard({ subnetType, difficulty }: Subne
           }
         }
         
-        // For other cases, exact match is required
-        return userAnswer === correctAnswer;
+        // For other cases, do normalized comparison (remove spaces, standardize formatting)
+        return cleanUserAnswer === correctAnswer.replace(/\s+/g, '');
       }
       
       // For IP address-like answers (non-subnet mask questions)
       if (field.id.includes('address') || field.id.includes('host')) {
+        // Clean up user input by removing any spaces
+        const cleanUserAnswer = userAnswer.replace(/\s+/g, '');
+        
         // More flexible matching for IP addresses
-        const userParts = userAnswer.split(".").map(part => parseInt(part));
+        const userParts = cleanUserAnswer.split(".").map(part => parseInt(part));
         const correctParts = correctAnswer.split(".").map(part => parseInt(part));
         
         if (userParts.length === 4 && correctParts.length === 4) {
