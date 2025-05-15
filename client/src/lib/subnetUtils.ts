@@ -6,6 +6,58 @@ interface SubnettingQuestion {
   explanation: string;
 }
 
+// A helper function to calculate subnet addresses with proper carry between octets
+function calculateSubnetAddress(baseIP: number[], subnetNumber: number, subnetIncrement: number, changingOctet: number): number[] {
+  // Clone the base IP
+  const resultOctets = [...baseIP];
+  
+  // Reset all octets after the changing one to 0
+  for (let j = changingOctet + 1; j < 4; j++) {
+    resultOctets[j] = 0;
+  }
+  
+  // Calculate the total increment
+  const totalIncrement = subnetNumber * subnetIncrement;
+  
+  // Start with the initial increment
+  let remainingIncrement = totalIncrement;
+  
+  // Start from rightmost octet and work backwards
+  for (let j = 3; j >= 0; j--) {
+    if (j <= changingOctet) {
+      // Calculate adjusted value for this octet
+      let adjustedValue = resultOctets[j];
+      
+      // If this is the changing octet, apply the initial increment
+      if (j === changingOctet) {
+        adjustedValue += remainingIncrement;
+      }
+      
+      // Handle overflow
+      if (adjustedValue > 255) {
+        // Calculate carry
+        const carry = Math.floor(adjustedValue / 256);
+        // Keep only the remainder in this octet
+        resultOctets[j] = adjustedValue % 256;
+        
+        // Pass the carry to the next octet to the left
+        if (j > 0) {
+          // Move to next octet with the carry value
+          remainingIncrement = carry;
+          continue;
+        }
+      } else {
+        // No overflow, just set the value
+        resultOctets[j] = adjustedValue;
+        remainingIncrement = 0;
+      }
+    }
+    remainingIncrement = 0; // Clear remaining increment after processing
+  }
+  
+  return resultOctets;
+}
+
 // Helper to generate a random IP address
 function generateRandomIP(): string {
   const octet1 = Math.floor(Math.random() * 223) + 1; // Avoid 0 and 224-255 (reserved)
@@ -1049,38 +1101,17 @@ function buildNetworkCalculationProblem(difficulty: string, language: Language =
     
     // Calculate subnet addresses with proper handling of octet overflow
     const subnetAddresses = [];
+    
+    // We now use the global calculateSubnetAddress function
+    
+    // Calculate the first few subnet addresses
     for (let i = 0; i < Math.min(4, actualSubnets); i++) {
-      // Clone the base octets for each subnet
-      const subnetOctets = [...baseOctets];
-      
-      // First reset all octets after the changing one to 0
-      for (let j = changingOctetIndex + 1; j < 4; j++) {
-        subnetOctets[j] = 0;
-      }
-      
-      // Calculate increment for the changing octet
-      let incrementValue = i * subnetIncrementValue;
-      
-      // Apply the increment with carry handling
-      for (let j = 3; j >= 0; j--) {
-        if (j === changingOctetIndex) {
-          // Add increment to the changing octet
-          subnetOctets[j] += incrementValue;
-          
-          // Handle carry to previous octets if needed
-          if (subnetOctets[j] > 255) {
-            const carry = Math.floor(subnetOctets[j] / 256);
-            subnetOctets[j] %= 256;
-            
-            // If we have carry and we're not at the first octet, add carry to previous octet
-            if (j > 0) {
-              incrementValue = carry;
-              continue; // Continue to previous octet to add carry
-            }
-          }
-        }
-        incrementValue = 0; // Reset increment after applying it
-      }
+      const subnetOctets = calculateSubnetAddress(
+        baseOctets, 
+        i, 
+        subnetIncrementValue,
+        changingOctetIndex
+      );
       
       // Format as a CIDR notation
       subnetAddresses.push(`${subnetOctets.join('.')}/${subnetPrefix}`);
@@ -1390,33 +1421,15 @@ function buildNetworkCalculationProblem(difficulty: string, language: Language =
     // Calculate an arbitrary nth subnet (e.g., subnet 14)
     const randomSubnetNumber = Math.floor(Math.random() * 20) + 3; // Between 3 and 22
     
-    let subnetNAddress = subnet1.split('.').map(octet => parseInt(octet));
+    // Use the same calculation function for the Nth subnet
+    const subnetNOctets = calculateSubnetAddress(
+      subnet1.split('.').map(octet => parseInt(octet)),
+      randomSubnetNumber - 1,
+      subnetIncrementValue,
+      changingOctetIndex
+    );
     
-    // Apply the increment with proper carry handling for nth subnet
-    let nIncrementValue = subnetIncrementValue * (randomSubnetNumber - 1);
-    
-    // Start from the last octet and work backwards for proper carry
-    for (let j = 3; j >= 0; j--) {
-      if (j === changingOctetIndex) {
-        // Add increment to the changing octet
-        subnetNAddress[j] += nIncrementValue;
-        
-        // Handle carry to previous octets if needed
-        if (subnetNAddress[j] > 255) {
-          const carry = Math.floor(subnetNAddress[j] / 256);
-          subnetNAddress[j] %= 256;
-          
-          // If we have carry and we're not at the first octet, add carry to previous octet
-          if (j > 0) {
-            nIncrementValue = carry;
-            continue; // Continue to previous octet to add carry
-          }
-        }
-      }
-      nIncrementValue = 0; // Reset increment after applying it
-    }
-    
-    const subnetN = subnetNAddress.join('.');
+    const subnetN = subnetNOctets.join('.');
     
     // Create the question text
     const hostPhrase = language === 'en' ? `has ${hostsPerSubnet} hosts` : `${hostsPerSubnet} hosts heeft`;
