@@ -8,54 +8,68 @@ interface SubnettingQuestion {
 
 // A helper function to calculate subnet addresses with proper carry between octets
 function calculateSubnetAddress(baseIP: number[], subnetNumber: number, subnetIncrement: number, changingOctet: number): number[] {
-  // Clone the base IP
-  const resultOctets = [...baseIP];
+  // Debug logging
+  // console.log(`Calculating subnet ${subnetNumber} with increment ${subnetIncrement} starting from ${baseIP.join('.')}, changing octet ${changingOctet}`);
   
-  // Reset all octets after the changing one to 0
-  for (let j = changingOctet + 1; j < 4; j++) {
-    resultOctets[j] = 0;
+  // Convert to a copy of the base network
+  let octets = [...baseIP];
+  
+  // Calculate how many bits are in use at the changing octet
+  // This tells us how many increments until we overflow to the next octet
+  let bitsUsedInChangingOctet = 0;
+  if (changingOctet === 3) bitsUsedInChangingOctet = 8; // 8 bits in 4th octet
+  else if (changingOctet === 2) bitsUsedInChangingOctet = 16; // 16 bits total in 3rd octet
+  else if (changingOctet === 1) bitsUsedInChangingOctet = 24; // 24 bits total in 2nd octet
+  else if (changingOctet === 0) bitsUsedInChangingOctet = 32; // 32 bits total in 1st octet
+  
+  // Zero out all octets to the right of the changing octet
+  for (let i = changingOctet + 1; i < 4; i++) {
+    octets[i] = 0;
   }
   
-  // Calculate the total increment
-  const totalIncrement = subnetNumber * subnetIncrement;
+  // Calculate total number of networks we need to jump
+  let totalNetworks = subnetNumber;
   
-  // Start with the initial increment
-  let remainingIncrement = totalIncrement;
-  
-  // Start from rightmost octet and work backwards
-  for (let j = 3; j >= 0; j--) {
-    if (j <= changingOctet) {
-      // Calculate adjusted value for this octet
-      let adjustedValue = resultOctets[j];
-      
-      // If this is the changing octet, apply the initial increment
-      if (j === changingOctet) {
-        adjustedValue += remainingIncrement;
+  // First, calculate how this affects the changing octet and beyond
+  let currentOctet = 3; // Start with rightmost octet
+  while (totalNetworks > 0 && currentOctet >= 0) {
+    // If we're at the changing octet or to its left
+    if (currentOctet <= changingOctet) {
+      // Calculate how many increments we can make in this octet before overflow
+      let maxIncrementInOctet = 256;
+      if (currentOctet === changingOctet) {
+        // For the changing octet, we need to calculate based on the subnetIncrement value
+        maxIncrementInOctet = Math.floor(256 / subnetIncrement);
       }
       
-      // Handle overflow
-      if (adjustedValue > 255) {
-        // Calculate carry
-        const carry = Math.floor(adjustedValue / 256);
-        // Keep only the remainder in this octet
-        resultOctets[j] = adjustedValue % 256;
-        
-        // Pass the carry to the next octet to the left
-        if (j > 0) {
-          // Move to next octet with the carry value
-          remainingIncrement = carry;
-          continue;
-        }
+      // Calculate how many complete incrementswe need to make in this octet
+      let incrementsNeeded = Math.min(totalNetworks, maxIncrementInOctet);
+      
+      // Apply increments to the current octet
+      if (currentOctet === changingOctet) {
+        octets[currentOctet] += incrementsNeeded * subnetIncrement;
       } else {
-        // No overflow, just set the value
-        resultOctets[j] = adjustedValue;
-        remainingIncrement = 0;
+        // For octets to the left, each increment is just 1
+        octets[currentOctet] += incrementsNeeded;
+      }
+      
+      // Adjust totalNetworks for next iteration
+      totalNetworks -= incrementsNeeded;
+      
+      // Handle overflow if needed
+      if (octets[currentOctet] > 255) {
+        octets[currentOctet] %= 256; // Keep remainder
+        if (currentOctet > 0) {
+          octets[currentOctet - 1]++; // Carry the 1
+        }
       }
     }
-    remainingIncrement = 0; // Clear remaining increment after processing
+    
+    // Move left to the next octet
+    currentOctet--;
   }
   
-  return resultOctets;
+  return octets;
 }
 
 // Helper to generate a random IP address
