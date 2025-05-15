@@ -6,6 +6,42 @@ import { useToast } from "@/hooks/use-toast";
 import { generateSubnettingQuestion } from "@/lib/subnetUtils";
 import { useLanguage } from "@/lib/languageContext";
 
+// Helper function to expand abbreviated IPv6 addresses
+function expandIPv6(abbreviatedIP: string): string {
+  // Handle edge cases
+  if (!abbreviatedIP) return '';
+
+  // If there's no ::, just pad each segment
+  if (!abbreviatedIP.includes('::')) {
+    return abbreviatedIP.split(':')
+      .map(segment => segment.padStart(4, '0'))
+      .join(':');
+  }
+
+  // Split around ::
+  const parts = abbreviatedIP.split('::');
+  
+  // Handle edge cases like :: or ::1
+  if (parts.length !== 2) {
+    return abbreviatedIP; // Invalid format, return as-is
+  }
+  
+  const leftPart = parts[0] ? parts[0].split(':') : [];
+  const rightPart = parts[1] ? parts[1].split(':') : [];
+  
+  // Determine missing segments
+  const missingSegments = 8 - leftPart.length - rightPart.length;
+  
+  // Build expanded address
+  const expandedSegments = [
+    ...leftPart.map(segment => segment.padStart(4, '0')),
+    ...Array(missingSegments).fill('0000'),
+    ...rightPart.map(segment => segment.padStart(4, '0'))
+  ];
+  
+  return expandedSegments.join(':');
+}
+
 interface SubnettingExerciseProps {
   subnetType: string;
   difficulty: string;
@@ -128,6 +164,51 @@ export default function SubnettingExerciseCard({ subnetType, difficulty }: Subne
         if (userParts.length === 4 && correctParts.length === 4) {
           return userParts.every((part, i) => part === correctParts[i]);
         }
+      }
+      
+      // Special case for IPv6 addresses
+      if (field.id === 'expanded-ipv6' || field.id === 'abbreviated-ipv6') {
+        // Remove any spaces and standardize case
+        const cleanUserAnswer = userAnswer.replace(/\s+/g, '');
+        const cleanCorrectAnswer = correctAnswer.replace(/\s+/g, '');
+        
+        // For expanded IPv6, we need to normalize the case and format
+        if (field.id === 'expanded-ipv6') {
+          // Ensure every segment has 4 hexadecimal digits
+          const userSegments = cleanUserAnswer.split(':');
+          const correctSegments = cleanCorrectAnswer.split(':');
+          
+          // Check if we have 8 segments
+          if (userSegments.length !== 8 || correctSegments.length !== 8) {
+            return false;
+          }
+          
+          // Compare each segment after conversion to normalized form
+          return userSegments.every((segment, i) => {
+            const normalizedUserSegment = parseInt(segment, 16).toString(16).padStart(4, '0');
+            const normalizedCorrectSegment = parseInt(correctSegments[i], 16).toString(16).padStart(4, '0');
+            return normalizedUserSegment === normalizedCorrectSegment;
+          });
+        }
+        
+        // For abbreviated IPv6, normalize and compare the expanded forms
+        // This is more complex but ensures different valid abbreviated forms match
+        if (field.id === 'abbreviated-ipv6') {
+          // Expand both user answer and correct answer to full forms and compare those
+          try {
+            // This is a simplified expansion - in a real implementation,
+            // you should use a proper IPv6 parsing library
+            const expandUserAnswer = expandIPv6(cleanUserAnswer);
+            const expandCorrectAnswer = expandIPv6(cleanCorrectAnswer);
+            return expandUserAnswer === expandCorrectAnswer;
+          } catch (e) {
+            // If there's any error in parsing, fall back to exact match
+            return cleanUserAnswer === cleanCorrectAnswer;
+          }
+        }
+        
+        // If not a specific IPv6 field, do a direct comparison
+        return cleanUserAnswer === cleanCorrectAnswer;
       }
       
       // For any other field, require exact match
