@@ -6,42 +6,6 @@ import { useToast } from "@/hooks/use-toast";
 import { generateSubnettingQuestion } from "@/lib/subnetUtils";
 import { useLanguage } from "@/lib/languageContext";
 
-// Helper function to expand abbreviated IPv6 addresses
-function expandIPv6(abbreviatedIP: string): string {
-  // Handle edge cases
-  if (!abbreviatedIP) return '';
-
-  // If there's no ::, just pad each segment
-  if (!abbreviatedIP.includes('::')) {
-    return abbreviatedIP.split(':')
-      .map(segment => segment.padStart(4, '0'))
-      .join(':');
-  }
-
-  // Split around ::
-  const parts = abbreviatedIP.split('::');
-  
-  // Handle edge cases like :: or ::1
-  if (parts.length !== 2) {
-    return abbreviatedIP; // Invalid format, return as-is
-  }
-  
-  const leftPart = parts[0] ? parts[0].split(':') : [];
-  const rightPart = parts[1] ? parts[1].split(':') : [];
-  
-  // Determine missing segments
-  const missingSegments = 8 - leftPart.length - rightPart.length;
-  
-  // Build expanded address
-  const expandedSegments = [
-    ...leftPart.map(segment => segment.padStart(4, '0')),
-    ...Array(missingSegments).fill('0000'),
-    ...rightPart.map(segment => segment.padStart(4, '0'))
-  ];
-  
-  return expandedSegments.join(':');
-}
-
 interface SubnettingExerciseProps {
   subnetType: string;
   difficulty: string;
@@ -194,12 +158,46 @@ export default function SubnettingExerciseCard({ subnetType, difficulty }: Subne
         // For abbreviated IPv6, normalize and compare the expanded forms
         // This is more complex but ensures different valid abbreviated forms match
         if (field.id === 'abbreviated-ipv6') {
-          // Expand both user answer and correct answer to full forms and compare those
+          // Define a simplified inline helper function for expanding IPv6 in this scope
+          const expandIPv6Inline = (abbreviatedIP: string): string => {
+            // Handle edge cases
+            if (!abbreviatedIP) return '';
+            
+            // If there's no ::, just pad each segment
+            if (!abbreviatedIP.includes('::')) {
+              return abbreviatedIP.split(':')
+                .map(segment => segment.padStart(4, '0'))
+                .join(':');
+            }
+            
+            // Split around ::
+            const parts = abbreviatedIP.split('::');
+            
+            // Handle edge cases like :: or ::1
+            if (parts.length !== 2) {
+              return abbreviatedIP; // Invalid format, return as-is
+            }
+            
+            const leftPart = parts[0] ? parts[0].split(':') : [];
+            const rightPart = parts[1] ? parts[1].split(':') : [];
+            
+            // Determine missing segments
+            const missingSegments = 8 - leftPart.length - rightPart.length;
+            
+            // Build expanded address
+            const expandedSegments = [
+              ...leftPart.map(segment => segment.padStart(4, '0')),
+              ...Array(missingSegments).fill('0000'),
+              ...rightPart.map(segment => segment.padStart(4, '0'))
+            ];
+            
+            return expandedSegments.join(':');
+          };
+          
+          // Expand both answers using the inline function
           try {
-            // This is a simplified expansion - in a real implementation,
-            // you should use a proper IPv6 parsing library
-            const expandUserAnswer = expandIPv6(cleanUserAnswer);
-            const expandCorrectAnswer = expandIPv6(cleanCorrectAnswer);
+            const expandUserAnswer = expandIPv6Inline(cleanUserAnswer);
+            const expandCorrectAnswer = expandIPv6Inline(cleanCorrectAnswer);
             return expandUserAnswer === expandCorrectAnswer;
           } catch (e) {
             // If there's any error in parsing, fall back to exact match
