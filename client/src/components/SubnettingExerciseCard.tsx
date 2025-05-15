@@ -15,7 +15,12 @@ export default function SubnettingExerciseCard({ subnetType, difficulty }: Subne
   const { toast } = useToast();
   const { t, language } = useLanguage();
   const [questionText, setQuestionText] = useState("");
-  const [answerFields, setAnswerFields] = useState<{id: string, label: string, answer: string}[]>([]);
+  const [answerFields, setAnswerFields] = useState<{
+    id: string, 
+    label: string, 
+    answer: string, 
+    alternateAnswers?: string[]
+  }[]>([]);
   const [userAnswers, setUserAnswers] = useState<{[key: string]: string}>({});
   const [isAnswered, setIsAnswered] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
@@ -70,6 +75,12 @@ export default function SubnettingExerciseCard({ subnetType, difficulty }: Subne
     const allCorrect = answerFields.every(field => {
       const userAnswer = userAnswers[field.id].trim().toLowerCase();
       const correctAnswer = field.answer.toLowerCase();
+      
+      // Create an array of all acceptable answers (main answer + alternates)
+      const allAcceptableAnswers = [correctAnswer];
+      if (field.alternateAnswers && field.alternateAnswers.length > 0) {
+        field.alternateAnswers.forEach(alt => allAcceptableAnswers.push(alt.toLowerCase()));
+      }
       
       // For conversion questions between CIDR and decimal subnet mask notations
       if (field.id === 'subnet-mask') {

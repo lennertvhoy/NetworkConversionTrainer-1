@@ -479,11 +479,13 @@ function buildVlsmProblem(difficulty: string, language: Language = 'nl'): Subnet
   const networkLabel = language === 'en' ? 'Subnet Network Address' : 'Subnet Netwerkadres';
   const maskLabel = language === 'en' ? 'Subnet Mask' : 'Subnet Masker';
   
+  // Create answer fields with both forms of the subnet address for VLSM questions
   const answerFields = [
     {
       id: 'subnet-address',
       label: networkLabel,
-      answer: targetSubnet.network
+      answer: targetSubnet.network,
+      alternateAnswers: [`${targetSubnet.network}/${targetSubnet.prefix}`] // Allow CIDR notation as valid answer
     },
     {
       id: 'subnet-mask',
