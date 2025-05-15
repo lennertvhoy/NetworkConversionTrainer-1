@@ -339,6 +339,10 @@ function buildVlsmProblem(difficulty: string, language: Language = 'nl'): Subnet
   // Department prefix based on language
   const deptPrefix = language === 'en' ? 'Department' : 'Afdeling';
   
+  // For hard difficulty, potentially generate larger host requirements that will force
+  // using more than just the 4th octet
+  const generateLargeNetwork = difficulty === 'hard' && Math.random() < 0.5;
+  
   if (difficulty === 'easy') {
     departments = [
       { name: `${deptPrefix} A`, hosts: Math.floor(Math.random() * 20) + 10 },
@@ -353,13 +357,24 @@ function buildVlsmProblem(difficulty: string, language: Language = 'nl'): Subnet
       { name: `${deptPrefix} D`, hosts: Math.floor(Math.random() * 5) + 2 },
     ];
   } else { // hard
-    departments = [
-      { name: `${deptPrefix} A`, hosts: Math.floor(Math.random() * 100) + 50 },
-      { name: `${deptPrefix} B`, hosts: Math.floor(Math.random() * 50) + 20 },
-      { name: `${deptPrefix} C`, hosts: Math.floor(Math.random() * 20) + 10 },
-      { name: `${deptPrefix} D`, hosts: Math.floor(Math.random() * 10) + 5 },
-      { name: `${deptPrefix} E`, hosts: Math.floor(Math.random() * 5) + 2 },
-    ];
+    if (generateLargeNetwork) {
+      // Generate much larger host requirements that will need changes in 2nd octet
+      departments = [
+        { name: `${deptPrefix} A`, hosts: Math.floor(Math.random() * 1000) + 500 },  // 500-1500 hosts
+        { name: `${deptPrefix} B`, hosts: Math.floor(Math.random() * 500) + 200 },   // 200-700 hosts
+        { name: `${deptPrefix} C`, hosts: Math.floor(Math.random() * 200) + 100 },   // 100-300 hosts
+        { name: `${deptPrefix} D`, hosts: Math.floor(Math.random() * 100) + 50 },    // 50-150 hosts
+        { name: `${deptPrefix} E`, hosts: Math.floor(Math.random() * 50) + 20 },     // 20-70 hosts
+      ];
+    } else {
+      departments = [
+        { name: `${deptPrefix} A`, hosts: Math.floor(Math.random() * 100) + 50 },
+        { name: `${deptPrefix} B`, hosts: Math.floor(Math.random() * 50) + 20 },
+        { name: `${deptPrefix} C`, hosts: Math.floor(Math.random() * 20) + 10 },
+        { name: `${deptPrefix} D`, hosts: Math.floor(Math.random() * 10) + 5 },
+        { name: `${deptPrefix} E`, hosts: Math.floor(Math.random() * 5) + 2 },
+      ];
+    }
   }
   
   // Sort by host count (largest first) for VLSM
