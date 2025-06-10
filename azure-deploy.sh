@@ -116,23 +116,28 @@ az group create --name $RESOURCE_GROUP --location $LOCATION || handle_error "Res
 
 # Create container registry
 echo -e "\n${BOLD}Creating Azure Container Registry / Azure Container Registry aanmaken...${NC}"
-az acr create --resource-group $RESOURCE_GROUP --name $ACR_NAME --sku Basic || handle_error "ACR creation"
+az acr create --resource-group $RESOURCE_GROUP --name $ACR_NAME --sku Basic --admin-enabled true || handle_error "ACR creation"
 
-# Login to container registry
-echo -e "\n${BOLD}Logging in to Container Registry / Inloggen op Container Registry...${NC}"
-az acr login --name $ACR_NAME || handle_error "ACR login"
+# Retrieve ACR credentials
+echo -e "\n${BOLD}Retrieving ACR Credentials / ACR referenties ophalen...${NC}"
+ACR_USERNAME=$(az acr credential show --name $ACR_NAME --query username -o tsv)
+ACR_PASSWORD=$(az acr credential show --name $ACR_NAME --query "passwords[0].value" -o tsv)
+
+# Docker Login to ACR
+echo -e "\n${BOLD}Logging into Container Registry / Inloggen op Container Registry...${NC}"
+echo $ACR_PASSWORD | sudo docker login $ACR_NAME.azurecr.io --username $ACR_USERNAME --password-stdin || handle_error "ACR Docker login"
 
 # Build Docker image
 echo -e "\n${BOLD}Building Docker image / Docker image bouwen...${NC}"
-docker build -t $IMAGE_NAME:$IMAGE_TAG . || handle_error "Docker build"
+sudo docker build -t $IMAGE_NAME:$IMAGE_TAG . || handle_error "Docker build"
 
 # Tag image for ACR
 echo -e "\n${BOLD}Tagging image for ACR / Image taggen voor ACR...${NC}"
-docker tag $IMAGE_NAME:$IMAGE_TAG $ACR_NAME.azurecr.io/$IMAGE_NAME:$IMAGE_TAG || handle_error "Docker tag"
+sudo docker tag $IMAGE_NAME:$IMAGE_TAG $ACR_NAME.azurecr.io/$IMAGE_NAME:$IMAGE_TAG || handle_error "Docker tag"
 
 # Push image to ACR
 echo -e "\n${BOLD}Pushing image to ACR / Image pushen naar ACR...${NC}"
-docker push $ACR_NAME.azurecr.io/$IMAGE_NAME:$IMAGE_TAG || handle_error "Docker push"
+sudo docker push $ACR_NAME.azurecr.io/$IMAGE_NAME:$IMAGE_TAG || handle_error "Docker push"
 
 # Create App Service Plan
 echo -e "\n${BOLD}Creating App Service Plan / App Service Plan aanmaken...${NC}"
@@ -149,8 +154,6 @@ az webapp config container set --name $APP_NAME --resource-group $RESOURCE_GROUP
 # Set up ACR access for App Service
 echo -e "\n${BOLD}Setting up ACR access for App Service / ACR toegang instellen voor App Service...${NC}"
 az acr update --name $ACR_NAME --admin-enabled true || handle_error "ACR admin enable"
-ACR_USERNAME=$(az acr credential show --name $ACR_NAME --query "username" -o tsv)
-ACR_PASSWORD=$(az acr credential show --name $ACR_NAME --query "passwords[0].value" -o tsv)
 
 # Update app settings
 echo -e "\n${BOLD}Updating app configuration / App configuratie updaten...${NC}"

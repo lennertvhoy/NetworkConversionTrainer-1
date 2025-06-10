@@ -1,255 +1,240 @@
-# Network Practice - CCNA Practice Application
+# Network Conversion Trainer
 
 ![Network Practice Logo](./generated-icon.png)
 
-A comprehensive web application designed to help students master networking concepts through interactive binary conversion and subnetting exercises, with enhanced multilingual support (English/Dutch) and refined user interface.
+This project is a comprehensive web application designed to help students and professionals master networking concepts through interactive binary conversion and subnetting exercises. It features multilingual support (English/Dutch) and a refined user interface. The application is built using modern web technologies and is containerized with Docker for easy deployment and scalability.
 
-*Een uitgebreide webapplicatie ontworpen om studenten te helpen netwerkconcepten te beheersen via interactieve binaire conversie- en subnettingoefeningen, met verbeterde meertalige ondersteuning (Engels/Nederlands) en een geoptimaliseerde gebruikersinterface.*
+## Table of Contents
 
-## Features / Functies
+- [Features](#features)
+- [Project Structure](#project-structure)
+- [Technologies Used](#technologies-used)
+- [Local Development](#local-development)
+- [Dockerization](#dockerization)
+- [Azure Deployment](#azure-deployment)
+- [Updating the Application](#updating-the-application)
+- [Contributing](#contributing)
+- [License](#license)
 
-**🌐 English:**
-- **Binary Conversion Exercises:** Practice converting between binary, decimal, and hexadecimal
-- **Subnetting Exercises:** Practice various subnetting concepts including VLSM
-- **No login required:** Unlimited practice without tracking
-- **Bilingual support:** Switch between English and Dutch
-- **Mobile-friendly:** Responsive design works on all devices
-- **Dark/Light mode:** Choose your preferred theme
-
-**🌐 Nederlands:**
-- **Binaire conversie-oefeningen:** Oefen met het converteren tussen binair, decimaal en hexadecimaal
-- **Subnetting-oefeningen:** Oefen verschillende subnetting-concepten, inclusief VLSM
-- **Geen login vereist:** Onbeperkt oefenen zonder bijhouden van resultaten
-- **Tweetalige ondersteuning:** Schakel tussen Engels en Nederlands
-- **Mobiel-vriendelijk:** Responsief ontwerp werkt op alle apparaten
-- **Donker/Licht thema:** Kies je favoriete thema
-
-## Local Development / Lokale ontwikkeling
+## Features
 
 **🌐 English:**
-
-1. Install the required dependencies:
-   ```
-   npm install
-   ```
-
-2. Start the development server:
-   ```
-   npm run dev
-   ```
-
-3. Open the app in your browser at `http://localhost:5000`
+- **Binary Conversion Exercises:** Practice converting between binary, decimal, and hexadecimal.
+- **Subnetting Exercises:** Practice various subnetting concepts including Variable Length Subnet Masking (VLSM).
+- **No Login Required:** Unlimited practice sessions without the need for user accounts or tracking.
+- **Bilingual Support:** Seamlessly switch between English and Dutch interfaces.
+- **Mobile-Friendly:** Responsive design ensures optimal experience across all devices.
+- **Dark/Light Mode:** Choose your preferred visual theme.
 
 **🌐 Nederlands:**
+- **Binaire conversie-oefeningen:** Oefen met het converteren tussen binair, decimaal en hexadecimaal.
+- **Subnetting-oefeningen:** Oefen verschillende subnetting-concepten, inclusief VLSM.
+- **Geen login vereist:** Onbeperkt oefenen zonder bijhouden van resultaten.
+- **Tweetalige ondersteuning:** Schakel naadloos tussen Engels en Nederlandse interfaces.
+- **Mobiel-vriendelijk:** Responsief ontwerp zorgt voor een optimale ervaring op alle apparaten.
+- **Donker/Licht thema:** Kies je favoriete visuele thema.
 
-1. Installeer de benodigde dependencies:
-   ```
-   npm install
-   ```
+## Project Structure
 
-2. Start de development server:
-   ```
-   npm run dev
-   ```
+The project is organized into several key directories:
 
-3. Open de app in je browser op `http://localhost:5000`
+- `/client`: Contains the frontend React application.
+  - `/client/src`: Source code for the React application.
+  - `/client/src/components`: Reusable UI components.
+  - `/client/src/hooks`: Custom React hooks.
+  - `/client/src/lib`: Utility functions and helper modules.
+  - `/client/src/pages`: Individual pages of the application.
+- `/server`: Contains the backend Express.js server.
+  - `/server/index.ts`: Main server entry point.
+  - `/server/routes`: API route definitions.
+  - `/server/vite.ts`: Configuration and utilities for integrating Vite with the Express server.
+- `/shared`: Contains shared types, interfaces, and utilities used by both the client and server.
+- `/attached_assets`: Static assets like images and fonts.
+- `/azure`: Contains Bicep templates for Azure infrastructure deployment.
+  - `acr.bicep`: Defines the Azure Container Registry.
+  - `appservice.bicep`: Defines the Azure App Service Plan and Web App.
+- `Dockerfile`: Defines the Docker image for the application.
+- `azure-deploy.sh`: A comprehensive Bash script for deploying the application to Azure.
+- `package.json`: Project metadata and dependency management for both client and server.
+- `vite.config.ts`: Configuration for Vite, the build tool for the client-side application.
+- `drizzle.config.ts`: Configuration for Drizzle ORM (if used for database interactions).
+- `tsconfig.json`: TypeScript configuration.
+- `postcss.config.js`, `tailwind.config.ts`: Configuration for PostCSS and Tailwind CSS.
 
-## Production Build / Productie build
+## Technologies Used
 
-**🌐 English:**
+- **Frontend**: React.js, Vite, TypeScript, Tailwind CSS, Radix UI.
+- **Backend**: Express.js, TypeScript, Node.js.
+- **Database (if applicable)**: Drizzle ORM, Neon (Serverless PostgreSQL).
+- **Containerization**: Docker.
+- **Cloud Platform**: Microsoft Azure.
+- **Infrastructure as Code**: Bicep.
+- **Deployment Automation**: Azure CLI, Bash Scripting.
 
-1. Build the application:
-   ```
-   npm run build
-   ```
+## Local Development
 
-2. Start the production version:
-   ```
-   NODE_ENV=production node dist/server/index.js
-   ```
+To set up and run the application locally for development:
 
-**🌐 Nederlands:**
+1.  **Clone the repository:**
+    ```bash
+    git clone <your-repo-url>
+    cd NetworkConversionTrainer
+    ```
 
-1. Bouw de applicatie:
-   ```
-   npm run build
-   ```
+2.  **Install Node.js dependencies:**
+    Navigate to the project root and install all required packages for both client and server:
+    ```bash
+    npm install
+    ```
 
-2. Start de productieversie:
-   ```
-   NODE_ENV=production node dist/server/index.js
-   ```
+3.  **Start the development server:**
+    This will run the backend Express server and the Vite development server for the frontend.
+    ```bash
+    npm run dev
+    ```
 
-## Docker Deployment / Docker Implementatie
+4.  **Access the application:**
+    Open your web browser and navigate to `http://localhost:5000`.
 
-### Building Docker Image / Docker Image bouwen
+## Production Build
 
-**🌐 English:**
-```bash
-# Build the Docker image
-docker build -t netpractice:latest .
+To create a production-ready build of the application:
 
-# Run the container locally
-docker run -p 5000:5000 netpractice:latest
-```
+1.  **Build the application:**
+    This command compiles both the client-side React application and the server-side TypeScript code into optimized JavaScript bundles in the `dist` directory.
+    ```bash
+    npm run build
+    ```
 
-**🌐 Nederlands:**
-```bash
-# Bouw de Docker image
-docker build -t netpractice:latest .
+2.  **Start the production version (locally):**
+    You can test the production build locally using this command.
+    ```bash
+    NODE_ENV=production node dist/index.js
+    ```
+    Access the app at `http://localhost:5000`.
 
-# Draai de container lokaal
-docker run -p 5000:5000 netpractice:latest
-```
+## Dockerization
 
-### Deployment to Azure / Deployment naar Azure
+The application is containerized using Docker, allowing for consistent environments across development and deployment.
 
-**🌐 English:**
+### Prerequisites for Docker
 
-This app can be easily deployed to Azure App Service with containers.
+-   [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed and running on your machine. Ensure WSL 2 integration is enabled if you're on Windows.
 
-#### Prerequisites
+### Building and Running the Docker Image Locally
 
-- [Azure CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli)
-- [Docker](https://docs.docker.com/get-docker/)
+1.  **Build the Docker image:**
+    This command builds the Docker image based on the `Dockerfile` in the project root.
+    ```bash
+    sudo docker build -t network-conversion-trainer .
+    ```
 
-#### Deployment steps
+2.  **Run the container locally:**
+    This command starts a Docker container from the built image, mapping port 5000 from the container to your host machine's port 5000.
+    ```bash
+    sudo docker run -d -p 5000:5000 network-conversion-trainer
+    ```
+    The application will be accessible at `http://localhost:5000`.
 
-1. Make all scripts executable:
-   ```bash
-   chmod +x *.sh
-   ```
+## Azure Deployment
 
-2. Log in to Azure:
-   ```bash
-   az login
-   ```
+The application can be deployed to Azure using Azure CLI and Bicep for Infrastructure as Code (IaC), automated via a Bash script.
 
-3. Run the deployment script:
-   ```bash
-   ./azure-deploy.sh
-   ```
+### Prerequisites for Azure Deployment
 
-This script automatically does the following:
-- Creates a resource group (if it doesn't exist)
-- Creates an Azure Container Registry (ACR)
-- Builds and pushes the Docker image to ACR
-- Creates an App Service Plan and App Service
-- Links the container to the App Service
+-   [Azure CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli) installed.
+-   [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed and running.
+-   An Azure account with an active subscription.
 
-**🌐 Nederlands:**
+### Automated Deployment Steps
 
-Deze app kan eenvoudig gedeployed worden naar Azure App Service met containers.
+The `azure-deploy.sh` script automates the entire deployment process to Azure:
 
-#### Vereisten
+1.  **Make the script executable:**
+    ```bash
+    chmod +x azure-deploy.sh
+    ```
 
-- [Azure CLI](https://docs.microsoft.com/nl-nl/cli/azure/install-azure-cli)
-- [Docker](https://docs.docker.com/get-docker/)
+2.  **Log in to Azure CLI:**
+    You must be logged in to your Azure account before running the deployment script.
+    ```bash
+    az login
+    ```
 
-#### Deployment stappen
+3.  **Run the deployment script:**
+    ```bash
+    ./azure-deploy.sh
+    ```
 
-1. Maak alle scripts uitvoerbaar:
-   ```bash
-   chmod +x *.sh
-   ```
+The script will perform the following actions:
+-   Prompt for custom configuration values or use defaults (Resource Group, Location, ACR Name, App Name).
+-   Create an Azure Resource Group (if it doesn't already exist).
+-   Create an Azure Container Registry (ACR) to store your Docker images securely.
+-   Log in to the newly created ACR.
+-   Build the Docker image.
+-   Tag the Docker image with your ACR login server.
+-   Push the Docker image to ACR.
+-   Create an Azure App Service Plan (a hosting plan for your web app).
+-   Create an Azure Web App for Containers and configure it to pull the Docker image from your ACR.
+-   Set necessary application settings, including `WEBSITES_PORT` and `NODE_ENV=production`, and provide ACR credentials for secure image pull.
+-   Output the public URL of your deployed Azure Web App.
 
-2. Log in op Azure:
-   ```bash
-   az login
-   ```
+### Manual Azure Configuration (for detailed understanding)
 
-3. Voer het deployment script uit:
-   ```bash
-   ./azure-deploy.sh
-   ```
+If you prefer to understand each step of the Azure configuration manually, here are the commands:
 
-Dit script doet automatisch het volgende:
-- Resource groep aanmaken (als deze nog niet bestaat)
-- Azure Container Registry (ACR) aanmaken
-- Docker image bouwen en pushen naar ACR
-- App Service Plan en App Service aanmaken
-- De container koppelen aan de App Service
+1.  **Build the Docker image:**
+    ```bash
+    sudo docker build -t network-conversion-trainer .
+    ```
 
-## Manual Azure Configuration / Handmatige Azure configuratie
+2.  **Create an Azure Resource Group and Azure Container Registry:**
+    ```bash
+    az group create --name <your-resource-group-name> --location <your-location>
+    az acr create --resource-group <your-resource-group-name> --name <your-acr-name> --sku Basic --admin-enabled true
+    ```
 
-**🌐 English:**
+3.  **Retrieve ACR credentials, log in to the registry, and push the image:**
+    ```bash
+    ACR_USERNAME=$(az acr credential show --name <your-acr-name> --query "username" -o tsv)
+    ACR_PASSWORD=$(az acr credential show --name <your-acr-name> --query "passwords[0].value" -o tsv)
+    echo $ACR_PASSWORD | sudo docker login <your-acr-name>.azurecr.io --username $ACR_USERNAME --password-stdin
+    sudo docker tag network-conversion-trainer:latest <your-acr-name>.azurecr.io/network-conversion-trainer:latest
+    sudo docker push <your-acr-name>.azurecr.io/network-conversion-trainer:latest
+    ```
 
-If you want to do it step by step:
+4.  **Create an App Service Plan and App Service:**
+    ```bash
+    az appservice plan create --resource-group <your-resource-group-name> --name <your-app-service-plan-name> --is-linux --sku B1
+    az webapp create --resource-group <your-resource-group-name> --plan <your-app-service-plan-name> --name <your-web-app-name> --deployment-container-image-name <your-acr-name>.azurecr.io/network-conversion-trainer:latest
+    ```
 
-1. Build the Docker image:
-   ```bash
-   docker build -t netpractice:latest .
-   ```
+5.  **Configure container settings for the Web App:**
+    ```bash
+    az webapp config appsettings set --resource-group <your-resource-group-name> --name <your-web-app-name> --settings \
+  WEBSITES_PORT=5000 \
+  DOCKER_REGISTRY_SERVER_URL=https://<your-acr-name>.azurecr.io \
+  DOCKER_REGISTRY_SERVER_USERNAME=$ACR_USERNAME \
+  DOCKER_REGISTRY_SERVER_PASSWORD=$ACR_PASSWORD \
+  NODE_ENV=production
+    ```
+    The application will be available at `https://<your-web-app-name>.azurewebsites.net`.
 
-2. Create an Azure Container Registry:
-   ```bash
-   az group create --name netpractice-rg --location westeurope
-   az acr create --resource-group netpractice-rg --name netpracticeregistry --sku Basic
-   ```
+## Updating the Application
 
-3. Log in to the registry and push the image:
-   ```bash
-   az acr login --name netpracticeregistry
-   docker tag netpractice:latest netpracticeregistry.azurecr.io/netpractice:latest
-   docker push netpracticeregistry.azurecr.io/netpractice:latest
-   ```
+To update the application (e.g., after making code changes, pushing to GitHub, or updating the Docker image and Azure deployment):
 
-4. Create an App Service Plan and App Service:
-   ```bash
-   az appservice plan create --resource-group netpractice-rg --name netpractice-plan --is-linux --sku B1
-   az webapp create --resource-group netpractice-rg --plan netpractice-plan --name netpractice-app --deployment-container-image-name netpracticeregistry.azurecr.io/netpractice:latest
-   ```
+1.  **Commit and push code changes to GitHub (after setting up Git locally - see next steps).**
+2.  **Run the update script:**
+    This script will rebuild the Docker image, push it to ACR, and trigger a redeployment on Azure App Service.
+    ```bash
+    ./update-all.sh
+    ```
 
-5. Configure container settings:
-   ```bash
-   az acr update --name netpracticeregistry --admin-enabled true
-   ACR_USERNAME=$(az acr credential show --name netpracticeregistry --query "username" -o tsv)
-   ACR_PASSWORD=$(az acr credential show --name netpracticeregistry --query "passwords[0].value" -o tsv)
-   
-   az webapp config container set --name netpractice-app --resource-group netpractice-rg --docker-custom-image-name netpracticeregistry.azurecr.io/netpractice:latest --docker-registry-server-url https://netpracticeregistry.azurecr.io
-   
-   az webapp config appsettings set --resource-group netpractice-rg --name netpractice-app --settings WEBSITES_PORT=5000 DOCKER_REGISTRY_SERVER_URL=https://netpracticeregistry.azurecr.io DOCKER_REGISTRY_SERVER_USERNAME=$ACR_USERNAME DOCKER_REGISTRY_SERVER_PASSWORD=$ACR_PASSWORD NODE_ENV=production
-   ```
+## Contributing
 
-The app is now available at `https://netpractice-app.azurewebsites.net`
+Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
 
-**🌐 Nederlands:**
+## License
 
-Als je het stap voor stap wilt doen:
-
-1. Bouw de Docker image:
-   ```bash
-   docker build -t netpractice:latest .
-   ```
-
-2. Maak een Azure Container Registry aan:
-   ```bash
-   az group create --name netpractice-rg --location westeurope
-   az acr create --resource-group netpractice-rg --name netpracticeregistry --sku Basic
-   ```
-
-3. Log in op de registry en push de image:
-   ```bash
-   az acr login --name netpracticeregistry
-   docker tag netpractice:latest netpracticeregistry.azurecr.io/netpractice:latest
-   docker push netpracticeregistry.azurecr.io/netpractice:latest
-   ```
-
-4. Maak een App Service Plan en App Service aan:
-   ```bash
-   az appservice plan create --resource-group netpractice-rg --name netpractice-plan --is-linux --sku B1
-   az webapp create --resource-group netpractice-rg --plan netpractice-plan --name netpractice-app --deployment-container-image-name netpracticeregistry.azurecr.io/netpractice:latest
-   ```
-
-5. Configureer de container instellingen:
-   ```bash
-   az acr update --name netpracticeregistry --admin-enabled true
-   ACR_USERNAME=$(az acr credential show --name netpracticeregistry --query "username" -o tsv)
-   ACR_PASSWORD=$(az acr credential show --name netpracticeregistry --query "passwords[0].value" -o tsv)
-   
-   az webapp config container set --name netpractice-app --resource-group netpractice-rg --docker-custom-image-name netpracticeregistry.azurecr.io/netpractice:latest --docker-registry-server-url https://netpracticeregistry.azurecr.io
-   
-   az webapp config appsettings set --resource-group netpractice-rg --name netpractice-app --settings WEBSITES_PORT=5000 DOCKER_REGISTRY_SERVER_URL=https://netpracticeregistry.azurecr.io DOCKER_REGISTRY_SERVER_USERNAME=$ACR_USERNAME DOCKER_REGISTRY_SERVER_PASSWORD=$ACR_PASSWORD NODE_ENV=production
-   ```
-
-De app is nu beschikbaar op `https://netpractice-app.azurewebsites.net`
+MIT

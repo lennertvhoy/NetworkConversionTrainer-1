@@ -17,5 +17,8 @@ RUN npm run build
 # Blootstellen van poort 5000
 EXPOSE 5000
 
+# Stel de NODE_ENV in op productie
+ENV NODE_ENV=production
+
 # Start command
-CMD ["node", "./dist/server/index.js"]
+CMD ["node", "dist/index.js"]
