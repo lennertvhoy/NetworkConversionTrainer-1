@@ -12,42 +12,31 @@ interface SubnettingQuestion {
 }
 
 // A more robust approach to calculate subnet addresses
-function calculateSubnetAddress(baseIP: number[], subnetNumber: number, subnetIncrement: number, changingOctet: number): number[] {
-  // Make a deep copy of the base IP, but ensure all host bits are 0
-  const resultIP = [...baseIP];
-  
-  // Reset all octets to the right of the changing octet
-  for (let i = changingOctet + 1; i < 4; i++) {
-    resultIP[i] = 0;
+function calculateSubnetAddress(baseNetworkOctets: number[], subnetNumber: number, subnetIncrement: number, changingOctet: number): number[] {
+  const newIP = [...baseNetworkOctets]; // Start with the network ID of the supernet
+
+  // Calculate the value to add to the changing octet
+  let incrementValue = subnetNumber * subnetIncrement;
+
+  // Apply the increment and handle carries
+  let currentOctetIndex = changingOctet;
+  // Ensure we don't go out of bounds (octets 0-3)
+  while (incrementValue > 0 && currentOctetIndex >= 0) {
+    newIP[currentOctetIndex] += incrementValue;
+    incrementValue = Math.floor(newIP[currentOctetIndex] / 256); // Calculate carry
+    newIP[currentOctetIndex] %= 256; // Keep current octet within 0-255
+
+    // If there's a carry, move to the previous octet
+    if (incrementValue > 0) {
+      currentOctetIndex--;
+    }
   }
-  
-  // For high subnet numbers or special cases, use a more reliable bit-by-bit calculation
-  // Convert octets to a 32-bit integer
-  let ipAsBinary = (resultIP[0] << 24) | (resultIP[1] << 16) | (resultIP[2] << 8) | resultIP[3];
-  
-  // Calculate bit position where the subnet bits start (based on changing octet)
-  const bitPosition = (3 - changingOctet) * 8;
-  
-  // Determine the subnet mask for just the subnet part at the right position
-  const subnetMask = (subnetIncrement - 1) << bitPosition;
-  
-  // Clear the subnet bits in the base IP
-  ipAsBinary = ipAsBinary & ~subnetMask;
-  
-  // Calculate the subnet bits
-  const subnetBits = (subnetNumber * subnetIncrement) << bitPosition;
-  
-  // Add the subnet bits to the IP
-  ipAsBinary = ipAsBinary | subnetBits;
-  
-  // Convert back to octets
-  const newIP = [
-    (ipAsBinary >> 24) & 0xFF,
-    (ipAsBinary >> 16) & 0xFF,
-    (ipAsBinary >> 8) & 0xFF,
-    ipAsBinary & 0xFF
-  ];
-  
+
+  // Ensure octets after the changing one are zeroed out (host bits)
+  for (let i = changingOctet + 1; i < 4; i++) {
+    newIP[i] = 0;
+  }
+
   return newIP;
 }
 
@@ -587,7 +576,7 @@ function buildBasicSubnettingProblem(difficulty: string, language: Language = 'n
     }
   }
   
-  let answerFields: { id: string; label: string; answer: string }[] = [];
+  let answerFields: { id: string; label: string; answer: string; alternateAnswers?: string[] }[] = [];
   
   switch (questionType) {
     case 'network':
@@ -941,7 +930,7 @@ function buildWildcardMaskProblem(difficulty: string, language: Language = 'nl')
     : `Een wildcard-masker wordt gebruikt in access control lists (ACL's) om aan te geven welke delen van een IP-adres belangrijk zijn voor matching. Het is het <i>omgekeerde</i> van een subnet masker.`;
     
   let questionText = '';
-  let answerFields: { id: string; label: string; answer: string }[] = [];
+  let answerFields: { id: string; label: string; answer: string; alternateAnswers?: string[] }[] = [];
   
   // Different question based on difficulty
   if (difficulty === 'easy' || difficulty === 'medium') {
@@ -1001,7 +990,7 @@ function buildWildcardMaskProblem(difficulty: string, language: Language = 'nl')
 // Build a network calculation problem (e.g., "How many /28 subnets can you get from a /24 network?")
 function buildNetworkCalculationProblem(difficulty: string, language: Language = 'nl', forcedType: string = ''): SubnettingQuestion {
   let questionText = '';
-  let answerFields: { id: string; label: string; answer: string }[] = [];
+  let answerFields: { id: string; label: string; answer: string; alternateAnswers?: string[] }[] = [];
   let explanation = '';
   
   // Choose what kind of calculation to test or use the forced type
@@ -1063,13 +1052,13 @@ function buildNetworkCalculationProblem(difficulty: string, language: Language =
       // For medium, use less common subnet counts
       targetSubnets = [6, 12, 24, 48][Math.floor(Math.random() * 4)];
     } else { // hard
-      // Special case: 30% chance of the specific 215 case for consistency with screenshots
-      if (Math.random() < 0.3) {
-        baseNetwork = '215.186.127.166';
-        basePrefix = 8;
-        targetSubnets = 15;
-      } else {
-        // For hard, use various networks
+      // This is the specific 215 case from the screenshot, but now calculated correctly
+      baseNetwork = '215.0.0.0'; // Changed from 215.186.127.166
+      basePrefix = 8;
+      targetSubnets = 15;
+      
+      // For hard, also use various networks in other cases
+      if (Math.random() > 0.3) { // 70% chance of random for hard difficulty
         baseNetwork = generateRandomIP();
         basePrefix = [8, 16, 20, 24][Math.floor(Math.random() * 4)];
         
@@ -1094,129 +1083,32 @@ function buildNetworkCalculationProblem(difficulty: string, language: Language =
     const hostBits = 32 - subnetPrefix;
     
     // Create a more comprehensive question
-    // Special case for the 215.x.x.x network with 15 subnets (to match the screenshot)
-    // First parse the base network octets for checking
-    const parsedBaseNetwork = baseNetwork.split('.').map(octet => parseInt(octet));
-    if (parsedBaseNetwork[0] === 215 && targetSubnets === 15) {
-      const subnetQuestionTitle = language === 'en'
-        ? `<p class="text-slate-800 mb-3 dark:text-zinc-200">Divide 215.186.127.166/8 into ${targetSubnets} subnets.</p>`
-        : `<p class="text-slate-800 mb-3 dark:text-zinc-200">215.186.127.166/8 verdelen in ${targetSubnets} subnetten.</p>`;
-      
-      const subnetQuestionPrompt = language === 'en'
-        ? `<p class="text-slate-700 mb-3 dark:text-zinc-300">Answer the following questions:</p>`
-        : `<p class="text-slate-700 mb-3 dark:text-zinc-300">Beantwoord de volgende vragen:</p>`;
-      
-      questionText = subnetQuestionTitle + subnetQuestionPrompt;
-    } else {
-      // Regular case
-      const subnetQuestionTitle = language === 'en'
-        ? `<p class="text-slate-800 mb-3 dark:text-zinc-200">Divide ${baseNetwork}/${basePrefix} into ${targetSubnets} subnets.</p>`
-        : `<p class="text-slate-800 mb-3 dark:text-zinc-200">${baseNetwork}/${basePrefix} verdelen in ${targetSubnets} subnetten.</p>`;
-      
-      const subnetQuestionPrompt = language === 'en'
-        ? `<p class="text-slate-700 mb-3 dark:text-zinc-300">Answer the following questions:</p>`
-        : `<p class="text-slate-700 mb-3 dark:text-zinc-300">Beantwoord de volgende vragen:</p>`;
-      
-      questionText = subnetQuestionTitle + subnetQuestionPrompt;
-    }
+    const subnetQuestionTitle = language === 'en'
+      ? `<p class="text-slate-800 mb-3 dark:text-zinc-200">Divide ${baseNetwork}/${basePrefix} into ${targetSubnets} subnets.</p>`
+      : `<p class="text-slate-800 mb-3 dark:text-zinc-200">${baseNetwork}/${basePrefix} verdelen in ${targetSubnets} subnetten.</p>`;
+    
+    const subnetQuestionPrompt = language === 'en'
+      ? `<p class="text-slate-700 mb-3 dark:text-zinc-300">Answer the following questions:</p>`
+      : `<p class="text-slate-700 mb-3 dark:text-zinc-300">Beantwoord de volgende vragen:</p>`;
+    
+    questionText = subnetQuestionTitle + subnetQuestionPrompt;
     
     // Multiple fields for the answer
     const subnetMaskLabel = language === 'en' ? 'Subnet Mask (decimal)' : 'Subnetmask (decimaal)';
     const hostBitsLabel = language === 'en' ? 'Host Bits' : 'Host-bits';
     const cidrLabel = language === 'en' ? 'CIDR Prefix' : 'CIDR Prefix';
     
-    // We already have parsedBaseNetwork from earlier
-    const subnetIncrementValue = Math.pow(2, Math.max(0, 8 - (subnetPrefix % 8)));
+    // Calculate the network address for the original base network and prefix
+    const baseNetworkMask = prefixToSubnetMask(basePrefix);
+    const initialNetworkAddressString = calculateNetworkAddress(baseNetwork, baseNetworkMask);
+    const networkBaseOctets = initialNetworkAddressString.split('.').map(octet => parseInt(octet));
     
-    // Calculate which octet will change based on the subnet prefix
+    // Determine the subnet increment value and the octet where changes occur
+    const subnetIncrementValue = calculateSubnetIncrement(subnetMask);
     const changingOctetIndex = Math.min(3, Math.floor(subnetPrefix / 8));
     
     // Calculate subnet addresses with proper handling of octet overflow
     const subnetAddresses = [];
-    
-    // For subnet calculations, we need to start from the base network address (all zeros in host part)
-    // Create a clean network address (zeros in host part)
-    let networkBaseOctets = [...parsedBaseNetwork];
-    
-    // Special case for the example with 215.x.x.x/8 dividing into 15 subnets
-    // This will force the correct output as shown in the screenshots
-    if (networkBaseOctets[0] === 215 && targetSubnets === 15) {
-      // Override with exactly the expected subnets from the screenshot
-      subnetAddresses.push(`215.186.0.0/${subnetPrefix}`);
-      subnetAddresses.push(`215.202.0.0/${subnetPrefix}`);
-      subnetAddresses.push(`215.218.0.0/${subnetPrefix}`);
-      subnetAddresses.push(`215.234.0.0/${subnetPrefix}`);
-      
-      // Skip the rest of the subnet calculation
-      return {
-        questionText,
-        answerFields: [
-          { id: 'subnet-mask', label: subnetMaskLabel, answer: "255.240.0.0" },
-          { id: 'host-bits', label: hostBitsLabel, answer: "20" },
-          { id: 'subnet-prefix', label: cidrLabel, answer: "/12" },
-          { 
-            id: 'subnet-1', 
-            label: 'Eerste Subnet (CIDR)', 
-            answer: "215.186.0.0/12",
-            alternateAnswers: ["215.186.0.0"]
-          },
-          { 
-            id: 'subnet-2', 
-            label: 'Tweede Subnet (CIDR)', 
-            answer: "215.202.0.0/12",
-            alternateAnswers: ["215.202.0.0"]
-          },
-          { 
-            id: 'subnet-3', 
-            label: 'Derde Subnet (CIDR)', 
-            answer: "215.218.0.0/12",
-            alternateAnswers: ["215.218.0.0"]
-          },
-          { 
-            id: 'subnet-4', 
-            label: 'Vierde Subnet (CIDR)', 
-            answer: "215.234.0.0/12",
-            alternateAnswers: ["215.234.0.0"]
-          }
-        ],
-        explanation: `<p>Om het netwerk 215.186.127.166/8 te verdelen in 15 subnetten:</p>
-        <ol class="list-decimal ml-5 mt-2 space-y-1">
-          <li><strong>Bereken benodigde subnet-bits:</strong> We hebben minstens 15 subnetten nodig, dus we hebben genoeg bits nodig om dat aantal netwerken te representeren:<br>
-          ceil(log₂(15)) = 4 bits</li>
-          <li><strong>Bereken nieuwe subnet-prefix:</strong> Tel de subnet-bits op bij de originele prefix:<br>
-          8 (origineel) + 4 (subnet-bits) = /12</li>
-          <li><strong>Bepaal subnet masker:</strong> Zet de nieuwe prefix om naar een subnet masker:<br>
-          /12 = 255.240.0.0</li>
-          <li><strong>Bereken beschikbare host-bits:</strong> Totaal aantal bits (32) min prefix bits:<br>
-          32 - 12 = 20 host-bits</li>
-          <li><strong>Totaal aantal mogelijke subnetten:</strong> Met 4 subnet-bits:<br>
-          2<sup>4</sup> = 16 subnetten</li>
-        </ol>
-        <p class="mt-2">Met deze subnet configuratie (/12) kun je 16 even grote subnetten maken van het originele 215.0.0.0/8 netwerk.</p>
-        <p class="mt-2">De eerste subnet-adressen zijn:</p>
-        <ul class="list-disc ml-5 mt-2 space-y-1 font-mono font-bold">
-          <li>Subnet 1: 215.186.0.0/12</li>
-          <li>Subnet 2: 215.202.0.0/12</li>
-          <li>Subnet 3: 215.218.0.0/12</li>
-          <li>Subnet 4: 215.234.0.0/12</li>
-        </ul>`
-      };
-    }
-    
-    // Regular case: Zero out all bits in the host part (everything after the basePrefix)
-    if (basePrefix <= 8) {
-      // For Class A, zero out octets 2-4
-      networkBaseOctets[1] = 0;
-      networkBaseOctets[2] = 0;
-      networkBaseOctets[3] = 0;
-    } else if (basePrefix <= 16) {
-      // For Class B, zero out octets 3-4
-      networkBaseOctets[2] = 0;
-      networkBaseOctets[3] = 0;
-    } else if (basePrefix <= 24) {
-      // For Class C, zero out octet 4
-      networkBaseOctets[3] = 0;
-    }
     
     // Calculate the first few subnet addresses
     for (let i = 0; i < Math.min(4, actualSubnets); i++) {
@@ -1303,7 +1195,7 @@ function buildNetworkCalculationProblem(difficulty: string, language: Language =
         <li><strong>Bereken benodigde subnet-bits:</strong> We hebben minstens ${targetSubnets} subnetten nodig, dus we hebben genoeg bits nodig om dat aantal netwerken te representeren:<br>
         ceil(log₂(${targetSubnets})) = ${requiredPrefixBits} bits</li>
         <li><strong>Bereken nieuwe subnet-prefix:</strong> Tel de subnet-bits op bij de originele prefix:<br>
-        ${basePrefix} (origineel) + ${requiredPrefixBits} (subnet-bits) = /${subnetPrefix}</li>
+        ${basePrefix} (origineel) + ${requiredPrefixBits} (subnet bits) = /${subnetPrefix}</li>
         <li><strong>Bepaal subnet masker:</strong> Zet de nieuwe prefix om naar een subnet masker:<br>
         /${subnetPrefix} = ${subnetMask}</li>
         <li><strong>Bereken beschikbare host-bits:</strong> Totaal aantal bits (32) min prefix bits:<br>
@@ -1544,7 +1436,7 @@ function buildNetworkCalculationProblem(difficulty: string, language: Language =
       const subnetN = '79.142.18.128'; // This is subnet 19
       
       // Use a fixed randomSubnetNumber of 19 to match the screenshot example
-      randomSubnetNumber = 19;
+      const randomSubnetNumber = 19; // Moved declaration here
       const changingOctetIndex = 2; // Third octet changes
       const subnetIncrementValue = 1; // Increment by 1 in the third octet
       
@@ -1931,7 +1823,7 @@ function generateRandomIPv6(): string {
 // Build an IPv6 problem (focusing only on expanding/shortening IPv6 addresses)
 function buildIPv6Problem(difficulty: string, language: Language = 'nl'): SubnettingQuestion {
   let questionText = "";
-  let answerFields: { id: string; label: string; answer: string }[] = [];
+  let answerFields: { id: string; label: string; answer: string; alternateAnswers?: string[] }[] = [];
   let explanation = "";
   
   // Based on user request, we'll only use expand/contract IPv6 addresses
