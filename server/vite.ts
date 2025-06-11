@@ -7,6 +7,23 @@ import { type Server } from "http";
 import viteConfig from "../vite.config";
 import { nanoid } from "nanoid";
 
+// Helper to find the project root by walking up the directory tree
+function findProjectRoot(): string {
+  let currentDir = path.dirname(url.fileURLToPath(import.meta.url));
+  while (path.basename(currentDir) !== 'NetworkConversionTrainer-1' && currentDir !== path.parse(currentDir).root) {
+    currentDir = path.resolve(currentDir, '..');
+  }
+  if (path.basename(currentDir) === 'NetworkConversionTrainer-1') {
+    return currentDir;
+  } else {
+    // Fallback or error if root not found, though it should be found in this project structure
+    console.error("Could not find project root: NetworkConversionTrainer-1");
+    return process.cwd(); // Fallback
+  }
+}
+
+const projectRoot = findProjectRoot();
+
 const viteLogger = createLogger();
 
 export function log(message: string, source = "express") {
@@ -24,7 +41,7 @@ export async function setupVite(app: Express, server: Server) {
   const serverOptions = {
     middlewareMode: true,
     hmr: { server },
-    allowedHosts: true as const,
+    allowedHosts: true as const, // Explicitly assert type as literal 'true'
   };
 
   const vite = await createViteServer({
@@ -45,11 +62,9 @@ export async function setupVite(app: Express, server: Server) {
   app.use("*", async (req, res, next) => {
     const requestUrl = req.originalUrl;
 
-    const currentDir = path.dirname(url.fileURLToPath(import.meta.url));
     try {
       const clientTemplate = path.resolve(
-        currentDir,
-        "..",
+        projectRoot,
         "client",
         "index.html",
       );
@@ -70,8 +85,7 @@ export async function setupVite(app: Express, server: Server) {
 }
 
 export function serveStatic(app: Express) {
-  const currentDir = path.dirname(url.fileURLToPath(import.meta.url));
-  const distPath = path.resolve(currentDir, "public");
+  const distPath = path.resolve(projectRoot, "dist", "public");
 
   if (!fs.existsSync(distPath)) {
     throw new Error(

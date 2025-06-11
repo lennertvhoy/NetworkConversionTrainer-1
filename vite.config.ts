@@ -4,7 +4,22 @@ import path from "path";
 import url from "url";
 import runtimeErrorOverlay from "@replit/vite-plugin-runtime-error-modal";
 
-const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
+// Helper to find the project root by walking up the directory tree
+function findProjectRoot(): string {
+  let currentDir = path.dirname(url.fileURLToPath(import.meta.url));
+  while (path.basename(currentDir) !== 'NetworkConversionTrainer-1' && currentDir !== path.parse(currentDir).root) {
+    currentDir = path.resolve(currentDir, '..');
+  }
+  if (path.basename(currentDir) === 'NetworkConversionTrainer-1') {
+    return currentDir;
+  } else {
+    // Fallback or error if root not found, though it should be found in this project structure
+    console.error("Could not find project root: NetworkConversionTrainer-1");
+    return process.cwd(); // Fallback
+  }
+}
+
+const projectRoot = findProjectRoot();
 
 export default defineConfig({
   plugins: [
@@ -21,14 +36,14 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "client", "src"),
-      "@shared": path.resolve(__dirname, "shared"),
-      "@assets": path.resolve(__dirname, "attached_assets"),
+      "@": path.resolve(projectRoot, "client", "src"),
+      "@shared": path.resolve(projectRoot, "shared"),
+      "@assets": path.resolve(projectRoot, "attached_assets"),
     },
   },
-  root: path.resolve(__dirname, "client"),
+  root: path.resolve(projectRoot, "client"),
   build: {
-    outDir: path.resolve(__dirname, "dist/public"),
+    outDir: path.resolve(projectRoot, "dist", "public"),
     emptyOutDir: true,
   },
 });
