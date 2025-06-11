@@ -68,13 +68,15 @@ function generateRandomHex(length: number): string {
 // Helper to generate a random decimal number in a given range
 function generateRandomDecimal(min: number, max: number): number {
   // Generate a random number that isn't too trivial to convert
-  let result;
+  let result: number;
+  let isPowerOf2: boolean;
+
   // Avoid numbers that are powers of 2 or very close to them
   // as they're too simple for learning binary conversion
   do {
     result = Math.floor(Math.random() * (max - min + 1)) + min;
     // Check if it's a power of 2 (has exactly one bit set to 1)
-    const isPowerOf2 = (result & (result - 1)) === 0;
+    isPowerOf2 = (result > 0) && ((result & (result - 1)) === 0);
     // Also avoid 0 as it's too trivial
   } while (result === 0 || isPowerOf2);
   
@@ -145,14 +147,14 @@ export function generateBinaryQuestion(conversionType: string, difficulty: strin
       const binaryArray = binValue.split('').reverse(); // Reverse for LSB to MSB
       
       let bin2decTableHtml = '<div class="overflow-x-auto mt-2 mb-4">';
-      bin2decTableHtml += '<table class="min-w-full border-collapse">';
+      bin2decTableHtml += '<table class="min-w-full border-collapse"><thead>';
       
       // First row - powers of 2
       bin2decTableHtml += '<tr class="bg-slate-50 dark:bg-slate-800">';
       for (let i = binaryArray.length - 1; i >= 0; i--) {
         bin2decTableHtml += `<th class="py-1 px-2 text-center text-sm font-medium border">${Math.pow(2, i)}</th>`;
       }
-      bin2decTableHtml += '</tr>';
+      bin2decTableHtml += '</tr></thead><tbody>';
       
       // Second row - binary digits (in correct order)
       bin2decTableHtml += '<tr>';
@@ -171,7 +173,7 @@ export function generateBinaryQuestion(conversionType: string, difficulty: strin
           bin2decTableHtml += '<td class="py-1 px-2 text-center border">0</td>';
         }
       }
-      bin2decTableHtml += '</tr>';
+      bin2decTableHtml += '</tr></tbody>';
       bin2decTableHtml += '</table></div>';
       
       // Add calculation details
@@ -333,7 +335,7 @@ export function generateBinaryQuestion(conversionType: string, difficulty: strin
       calculationText += calculationSteps.join(' + ');
       calculationText += ` = ${decimalValue}`;
       
-      explanation += dec2binTableHtml + '<br/>' + calculationText + '<br/><br/>';
+      explanation += dec2binTableHtml + '<br/><br/>' + calculationText + '<br/><br/>';
       
       // Add division method explanation
       const divisionIntro = language === 'en' 
