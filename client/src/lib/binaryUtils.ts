@@ -13,6 +13,8 @@ export function convertBinary(value: string, fromType: string, toType: string): 
     return parseInt(value, 2).toString(16).toUpperCase();
   } else if (fromType === "decimal" && toType === "binary") {
     return parseInt(value).toString(2);
+  } else if (fromType === "decimal" && toType === "hex") {
+    return parseInt(value).toString(16).toUpperCase();
   } else if (fromType === "hex" && toType === "binary") {
     // Convert each hex digit to 4 binary digits and pad if needed
     return value.split('').map(digit => {
@@ -21,6 +23,233 @@ export function convertBinary(value: string, fromType: string, toType: string): 
     }).join('');
   }
   return value; // Default fallback
+}
+
+// Helper functions for explanation generation
+function buildBinaryToDecimalExplanationHtml(binValue: string, decimalValue: string, language: Language): string {
+  const powerMethodTitle = language === 'en'
+    ? 'Using the powers of 2 method:'
+    : 'Met de machten van 2 methode:';
+
+  let html = `<p>${powerMethodTitle}</p>`;
+  html += '<div class="overflow-x-auto mt-2 mb-4">';
+  html += '<table class="min-w-full border-collapse"><thead>';
+
+  // First row - powers of 2 (from MSB to LSB)
+  html += '<tr class="bg-slate-50 dark:bg-slate-800">';
+  for (let i = binValue.length - 1; i >= 0; i--) {
+    html += `<th class="py-1 px-2 text-center text-sm font-medium border">2<sup>${i}</sup> (${Math.pow(2, i)})</th>`;
+  }
+  html += '</tr></thead><tbody>';
+
+  // Second row - binary digits (in correct order, MSB to LSB)
+  html += '<tr>';
+  for (let i = 0; i < binValue.length; i++) {
+    html += `<td class="py-1 px-2 text-center font-mono font-bold border">${binValue[i]}</td>`;
+  }
+  html += '</tr>';
+
+  // Third row - values where binary digit is 1
+  html += '<tr>';
+  let calculationSteps: string[] = [];
+  for (let i = 0; i < binValue.length; i++) {
+    const digit = binValue[i];
+    const power = binValue.length - 1 - i; // Correct power for current bit position
+    if (digit === '1') {
+      html += `<td class="py-1 px-2 text-center border">${Math.pow(2, power)}</td>`;
+      calculationSteps.push(`1×2<sup>${power}</sup> (${Math.pow(2, power)})`);
+    } else {
+      html += '<td class="py-1 px-2 text-center border">0</td>';
+      calculationSteps.push(`0×2<sup>${power}</sup> (0)`);
+    }
+  }
+  html += '</tr></tbody>';
+  html += '</table></div>';
+
+  const calculationIntro = language === 'en'
+    ? 'To convert from binary to decimal, add up the powers of 2 where the binary digit is 1:'
+    : 'Om van binair naar decimaal te gaan, tel je de machten van 2 op waar het binaire cijfer 1 is:';
+
+  html += `<p class="mt-2">${calculationIntro}<br/>`;
+  html += `${calculationSteps.join(' + ')} = ${decimalValue}</p>`;
+  return html;
+}
+
+function buildDecimalToBinaryExplanationHtml(decimalValue: number, binaryValue: string, language: Language): string {
+  let html = '';
+
+  // Powers of 2 method explanation
+  const powerMethodTitle = language === 'en'
+    ? 'Using the powers of 2 method:'
+    : 'Met de machten van 2 methode:';
+  html += `<p>${powerMethodTitle}</p>`;
+
+  html += '<div class="overflow-x-auto mt-2 mb-4">';
+  html += '<table class="min-w-full border-collapse"><thead>';
+
+  // First row - powers of 2 (from MSB to LSB based on final binary length)
+  html += '<tr class="bg-slate-50 dark:bg-slate-800">';
+  for (let i = binaryValue.length - 1; i >= 0; i--) {
+    html += `<th class="py-1 px-2 text-center text-sm font-medium border">2<sup>${i}</sup> (${Math.pow(2, i)})</th>`;
+  }
+  html += '</tr></thead><tbody>';
+
+  // Second row - binary digits (in correct order, MSB to LSB)
+  html += '<tr>';
+  for (let i = 0; i < binaryValue.length; i++) {
+    html += `<td class="py-1 px-2 text-center font-mono font-bold border">${binaryValue[i]}</td>`;
+  }
+  html += '</tr>';
+
+  // Third row - values where binary digit is 1
+  html += '<tr>';
+  let calculationSteps: string[] = [];
+  for (let i = 0; i < binaryValue.length; i++) {
+    const digit = binaryValue[i];
+    const power = binaryValue.length - 1 - i; // Correct power for current bit position
+    if (digit === '1') {
+      html += `<td class="py-1 px-2 text-center border">${Math.pow(2, power)}</td>`;
+      calculationSteps.push(`1×2<sup>${power}</sup> (${Math.pow(2, power)})`);
+    } else {
+      html += '<td class="py-1 px-2 text-center border">0</td>';
+      calculationSteps.push(`0×2<sup>${power}</sup> (0)`);
+    }
+  }
+  html += '</tr></tbody>';
+  html += '</table></div>';
+
+  const calculationIntro = language === 'en'
+    ? 'To convert from binary to decimal, add up the powers of 2 where the binary digit is 1:'
+    : 'Om van binair naar decimaal te gaan, tel je de machten van 2 op waar het binaire cijfer 1 is:';
+
+  html += `<p class="mt-2">${calculationIntro}<br/>`;
+  html += `${calculationSteps.join(' + ')} = ${decimalValue}</p>`;
+
+
+  // Division method explanation
+  const divisionIntro = language === 'en'
+    ? 'Alternatively, using the division method:'
+    : 'Als alternatief, met de delingsmethode:';
+
+  html += `<p class="mt-4">${divisionIntro}</p>`;
+
+  let tempValue = decimalValue;
+  let steps = [];
+
+  while (tempValue > 0) {
+    const remainder = tempValue % 2;
+    const remainderText = language === 'en' ? 'remainder' : 'rest';
+    steps.push(`${tempValue} ÷ 2 = ${Math.floor(tempValue / 2)} ${remainderText} ${remainder}`);
+    tempValue = Math.floor(tempValue / 2);
+  }
+
+  html += `<p class="mt-2">${steps.join('<br/>')}</p>`;
+
+  const bottomToTop = language === 'en'
+    ? 'Reading the remainders from bottom to top gives the binary result.'
+    : 'De restwaarden van onder naar boven lezen geeft het binaire resultaat.';
+
+  html += `<p class="mt-2">${bottomToTop}</p>`;
+  return html;
+}
+
+// Helper to build Hex to Binary explanation
+function buildHexToBinaryExplanationHtml(hexValue: string, binaryValue: string, language: Language): string {
+  const explanationIntro = language === 'en'
+    ? `Convert each hex digit to 4 binary digits:<br/>`
+    : `Zet elk hexadecimaal cijfer om naar 4 binaire cijfers:<br/>`;
+
+  let html = `<p class="mt-2">${explanationIntro}</p>`;
+
+  for (let i = 0; i < hexValue.length; i++) {
+    const digit = hexValue[i];
+    const binaryGroup = parseInt(digit, 16).toString(2).padStart(4, '0');
+
+    const arrowSymbol = language === 'en' ? '→' : '→';
+    const hexLabel = language === 'en' ? 'Hex' : 'Hex';
+    const binaryLabel = language === 'en' ? 'Binary' : 'Binair';
+
+    html += `<p>${hexLabel} ${digit} ${arrowSymbol} ${binaryLabel} ${binaryGroup}</p>`;
+  }
+  return html;
+}
+
+// Helper to build Binary to Hex explanation
+function buildBinaryToHexExplanationHtml(binValue: string, hexValue: string, language: Language): string {
+  let html = '';
+  const groupingText = language === 'en'
+    ? `Group the binary into sets of 4 bits (padding with leading zeros if needed) and convert each group to its hexadecimal equivalent:`
+    : `Groepeer het binaire getal in sets van 4 bits (met voorloopnullen indien nodig) en converteer elke groep naar zijn hexadecimale equivalent:`;
+
+  html += `<p>${groupingText}</p><div class="font-mono mt-2">`;
+
+  let paddedBinary = binValue.padStart(Math.ceil(binValue.length / 4) * 4, '0');
+  for (let i = 0; i < paddedBinary.length; i += 4) {
+    let group = paddedBinary.slice(i, i + 4);
+    let hexDigit = parseInt(group, 2).toString(16).toUpperCase();
+    html += `<p>${group} → ${hexDigit}</p>`;
+  }
+  html += `</div>`;
+  return html;
+}
+
+// Helper to build Decimal to Hex explanation
+function buildDecimalToHexExplanationHtml(decimalValue: number, hexValue: string, language: Language): string {
+  let html = '';
+
+  const divisionIntro = language === 'en'
+    ? 'Using the division method (divide by 16 and record remainders):'
+    : 'Met de delingsmethode (deel door 16 en noteer de restwaarden):';
+
+  html += `<p>${divisionIntro}</p>`;
+
+  let tempValue = decimalValue;
+  let steps = [];
+  const hexChars = '0123456789ABCDEF';
+
+  while (tempValue > 0) {
+    const remainder = tempValue % 16;
+    const quotient = Math.floor(tempValue / 16);
+    const remainderHex = hexChars[remainder];
+    
+    const remainderText = language === 'en' ? 'remainder' : 'rest';
+    steps.push(`${tempValue} ÷ 16 = ${quotient} ${remainderText} ${remainder} (${remainderHex})`);
+    tempValue = quotient;
+  }
+  
+  html += `<p class="mt-2">${steps.reverse().join('<br/>')}</p>`; // Steps are built in reverse order, reverse them back
+
+  const bottomToTop = language === 'en'
+    ? 'Reading the remainders from bottom to top gives the hexadecimal result.'
+    : 'De restwaarden van onder naar boven lezen geeft het hexadecimale resultaat.';
+
+  html += `<p class="mt-2">${bottomToTop}</p>`;
+  return html;
+}
+
+// Helper to build Hex to Decimal explanation
+function buildHexToDecimalExplanationHtml(hexValue: string, decimalValue: string, language: Language): string {
+  let html = '';
+
+  const explanationIntro = language === 'en'
+    ? `Multiply each hexadecimal digit by the corresponding power of 16 and sum the results:`
+    : `Vermenigvuldig elk hexadecimaal cijfer met de corresponderende macht van 16 en tel de resultaten op:`;
+
+  html += `<p>${explanationIntro}</p>`;
+
+  let calculationSteps: string[] = [];
+  const hexChars = '0123456789ABCDEF';
+
+  for (let i = 0; i < hexValue.length; i++) {
+    const digit = hexValue[i].toUpperCase();
+    const value = hexChars.indexOf(digit);
+    const power = hexValue.length - 1 - i;
+    const term = `${value}×16<sup>${power}</sup>`;
+    calculationSteps.push(term);
+  }
+
+  html += `<p class="mt-2">${calculationSteps.join(' + ')} = ${decimalValue}</p>`;
+  return html;
 }
 
 // Helper to generate a random binary number of a given length
@@ -131,63 +360,13 @@ export function generateBinaryQuestion(conversionType: string, difficulty: strin
       
       // Translation-aware explanations
       const bin2decExplanation = language === 'en'
-        ? `The binary number <span class="font-mono font-bold">${binValue}</span> equals <span class="font-mono font-bold">${answer}</span> in decimal.<br/><br/>`
-        : `Het binaire getal <span class="font-mono font-bold">${binValue}</span> is gelijk aan <span class="font-mono font-bold">${answer}</span> in decimaal.<br/><br/>`;
+        ? `The binary number <span class="font-mono font-bold">${binValue}</span> equals <span class="font-mono font-bold">${answer}</span> in decimal.`
+        : `Het binaire getal <span class="font-mono font-bold">${binValue}</span> is gelijk aan <span class="font-mono font-bold">${answer}</span> in decimaal.`;
       
       explanation = bin2decExplanation;
       
-      // Add power of 2 method visual explanation (similar to the image shared)
-      const powerMethodBin2Dec = language === 'en'
-        ? 'Using the powers of 2 method:<br/>'
-        : 'Met de machten van 2 methode:<br/>';
-      
-      explanation += powerMethodBin2Dec;
-      
-      // Create table for powers of 2 in binary to decimal conversion (matching the example image)
-      const binaryArray = binValue.split('').reverse(); // Reverse for LSB to MSB
-      
-      let bin2decTableHtml = '<div class="overflow-x-auto mt-2 mb-4">';
-      bin2decTableHtml += '<table class="min-w-full border-collapse"><thead>';
-      
-      // First row - powers of 2
-      bin2decTableHtml += '<tr class="bg-slate-50 dark:bg-slate-800">';
-      for (let i = binaryArray.length - 1; i >= 0; i--) {
-        bin2decTableHtml += `<th class="py-1 px-2 text-center text-sm font-medium border">${Math.pow(2, i)}</th>`;
-      }
-      bin2decTableHtml += '</tr></thead><tbody>';
-      
-      // Second row - binary digits (in correct order)
-      bin2decTableHtml += '<tr>';
-      for (let i = binaryArray.length - 1; i >= 0; i--) {
-        bin2decTableHtml += `<td class="py-1 px-2 text-center font-mono font-bold border">${binaryArray[binaryArray.length - 1 - i]}</td>`;
-      }
-      bin2decTableHtml += '</tr>';
-      
-      // Third row - values where binary digit is 1
-      bin2decTableHtml += '<tr>';
-      for (let i = binaryArray.length - 1; i >= 0; i--) {
-        const digit = binaryArray[binaryArray.length - 1 - i];
-        if (digit === '1') {
-          bin2decTableHtml += `<td class="py-1 px-2 text-center border">${Math.pow(2, i)}</td>`;
-        } else {
-          bin2decTableHtml += '<td class="py-1 px-2 text-center border">0</td>';
-        }
-      }
-      bin2decTableHtml += '</tr></tbody>';
-      bin2decTableHtml += '</table></div>';
-      
-      // Add calculation details
-      const calculationInWords = language === 'en'
-        ? 'To convert from binary to decimal, add up the powers of 2 where the binary digit is 1:<br/>'
-        : 'Om van binair naar decimaal te gaan, tel je de machten van 2 op waar het binaire cijfer 1 is:<br/>';
-        
-      explanation += bin2decTableHtml + calculationInWords;
-      
-      // Create calculation string showing detailed steps as before
-      const calcText = language === 'en' ? ' = ' : ' = ';
-      explanation += binValue.split('').reverse().map((bit, index) => {
-        return bit === '1' ? `1×2<sup>${index}</sup> (${Math.pow(2, index)})` : `0×2<sup>${index}</sup> (0)`;
-      }).reverse().join(' + ') + calcText + answer;
+      // Use the new helper function for explanation HTML
+      explanation += buildBinaryToDecimalExplanationHtml(binValue, answer, language);
       break;
       
     case 'bin2hex':
@@ -197,25 +376,11 @@ export function generateBinaryQuestion(conversionType: string, difficulty: strin
       
       // Translation-aware explanations
       const bin2hexExplanation = language === 'en'
-        ? `The binary number <span class="font-mono font-bold">${binHexValue}</span> equals <span class="font-mono font-bold">${answer}</span> in hexadecimal.<br/><br/>`
-        : `Het binaire getal <span class="font-mono font-bold">${binHexValue}</span> is gelijk aan <span class="font-mono font-bold">${answer}</span> in hexadecimaal.<br/><br/>`;
+        ? `The binary number <span class="font-mono font-bold">${binHexValue}</span> equals <span class="font-mono font-bold">${answer}</span> in hexadecimal.`
+        : `Het binaire getal <span class="font-mono font-bold">${binHexValue}</span> is gelijk aan <span class="font-mono font-bold">${answer}</span> in hexadecimaal.`;
       
       explanation = bin2hexExplanation;
-      
-      // Add grouped conversion for explanation
-      let groupedBinary = '';
-      let paddedBinary = binHexValue.padStart(Math.ceil(binHexValue.length / 4) * 4, '0');
-      for (let i = 0; i < paddedBinary.length; i += 4) {
-        let group = paddedBinary.slice(i, i + 4);
-        let hexValue = parseInt(group, 2).toString(16).toUpperCase();
-        groupedBinary += `${group} (${hexValue}) `;
-      }
-      
-      const groupingText = language === 'en'
-        ? `Group the binary into sets of 4 bits (padding with leading zeros if needed):<br/>${groupedBinary}`
-        : `Groepeer het binaire getal in sets van 4 bits (met voorloopnullen indien nodig):<br/>${groupedBinary}`;
-      
-      explanation += groupingText;
+      explanation += buildBinaryToHexExplanationHtml(binHexValue, answer, language);
       break;
       
     case 'hex2bin':
@@ -223,38 +388,20 @@ export function generateBinaryQuestion(conversionType: string, difficulty: strin
       question = questionTextHex + binaryWord;
       answer = '';
       
-      // Translation-aware explanations
-      const hex2binStart = language === 'en'
-        ? `The hexadecimal number <span class="font-mono font-bold">${hexValue}</span> equals <span class="font-mono font-bold">`
-        : `Het hexadecimale getal <span class="font-mono font-bold">${hexValue}</span> is gelijk aan <span class="font-mono font-bold">`;
-      
-      explanation = hex2binStart;
-      
       // Convert each hex digit and build explanation
       for (let i = 0; i < hexValue.length; i++) {
         const digit = hexValue[i];
         const binaryGroup = parseInt(digit, 16).toString(2).padStart(4, '0');
         answer += binaryGroup;
-        explanation += `${binaryGroup}`;
-        if (i < hexValue.length - 1) explanation += ' ';
       }
+
+      // Translation-aware explanations
+      const hex2binIntro = language === 'en'
+        ? `The hexadecimal number <span class="font-mono font-bold">${hexValue}</span> equals <span class="font-mono font-bold">${answer}</span> in binary.`
+        : `Het hexadecimale getal <span class="font-mono font-bold">${hexValue}</span> is gelijk aan <span class="font-mono font-bold">${answer}</span> in binair.`;
       
-      const hex2binMiddle = language === 'en'
-        ? `</span> in binary.<br/><br/>Convert each hex digit to 4 binary digits:<br/>`
-        : `</span> in binair.<br/><br/>Zet elk hexadecimaal cijfer om naar 4 binaire cijfers:<br/>`;
-        
-      explanation += hex2binMiddle;
-      
-      for (let i = 0; i < hexValue.length; i++) {
-        const digit = hexValue[i];
-        const binaryGroup = parseInt(digit, 16).toString(2).padStart(4, '0');
-        
-        const arrowSymbol = language === 'en' ? '→' : '→';
-        const hexLabel = language === 'en' ? 'Hex' : 'Hex';
-        const binaryLabel = language === 'en' ? 'Binary' : 'Binair';
-        
-        explanation += `${hexLabel} ${digit} ${arrowSymbol} ${binaryLabel} ${binaryGroup}<br/>`;
-      }
+      explanation = hex2binIntro;
+      explanation += buildHexToBinaryExplanationHtml(hexValue, answer, language);
       break;
       
     case 'dec2bin':
@@ -264,105 +411,39 @@ export function generateBinaryQuestion(conversionType: string, difficulty: strin
       
       // Translation-aware explanations
       const dec2binExplanation = language === 'en'
-        ? `The decimal number <span class="font-mono font-bold">${decimalValue}</span> equals <span class="font-mono font-bold">${answer}</span> in binary.<br/><br/>`
-        : `Het decimale getal <span class="font-mono font-bold">${decimalValue}</span> is gelijk aan <span class="font-mono font-bold">${answer}</span> in binair.<br/><br/>`;
+        ? `The decimal number <span class="font-mono font-bold">${decimalValue}</span> equals <span class="font-mono font-bold">${answer}</span> in binary.`
+        : `Het decimale getal <span class="font-mono font-bold">${decimalValue}</span> is gelijk aan <span class="font-mono font-bold">${answer}</span> in binair.`;
       
       explanation = dec2binExplanation;
-      
-      // Add power of 2 method visual explanation (similar to the image shared)
-      const powerMethod = language === 'en'
-        ? 'Using the powers of 2 method:<br/>'
-        : 'Met de machten van 2 methode:<br/>';
-      
-      explanation += powerMethod;
-      
-      // Create table for powers of 2
-      const binaryDigits = answer.split('').reverse(); // Reverse to start from LSB
-      let dec2binTableHtml = '<div class="overflow-x-auto mt-2 mb-4">';
-      dec2binTableHtml += '<table class="min-w-full border-collapse">';
-      
-      // Table headers - powers of 2
-      dec2binTableHtml += '<tr class="bg-slate-50 dark:bg-slate-800">';
-      const powerLabel = language === 'en' ? 'Power' : 'Macht';
-      
-      // Calculate required columns based on binary length
-      const columns = binaryDigits.length;
-      for (let i = 0; i < columns; i++) {
-        dec2binTableHtml += `<th class="py-2 px-3 text-center text-sm font-medium border">${Math.pow(2, i)}</th>`;
-      }
-      dec2binTableHtml += '</tr>';
-      
-      // Row for binary representation (0/1)
-      dec2binTableHtml += '<tr>';
-      for (let i = 0; i < columns; i++) {
-        dec2binTableHtml += `<td class="py-2 px-3 text-center font-mono font-bold border">${binaryDigits[i] || '0'}</td>`;
-      }
-      dec2binTableHtml += '</tr>';
-      
-      // Row for calculation results
-      dec2binTableHtml += '<tr>';
-      let sum = 0;
-      for (let i = 0; i < columns; i++) {
-        const digit = parseInt(binaryDigits[i] || '0');
-        const value = digit * Math.pow(2, i);
-        sum += value;
-        
-        let cellContent = '';
-        if (digit === 1) {
-          cellContent = `${Math.pow(2, i)}`;
-        } else {
-          cellContent = '0';
-        }
-        
-        dec2binTableHtml += `<td class="py-2 px-3 text-center border">${cellContent}</td>`;
-      }
-      dec2binTableHtml += '</tr>';
-      dec2binTableHtml += '</table></div>';
-      
-      // Add calculation details
-      let calculationText = language === 'en' 
-        ? 'To convert from binary to decimal, add up the powers of 2 where the binary digit is 1:<br/>'
-        : 'Om van binair naar decimaal te gaan, tel je de machten van 2 op waar het binaire cijfer 1 is:<br/>';
-      
-      let calculationSteps = [];
-      for (let i = 0; i < columns; i++) {
-        const digit = parseInt(binaryDigits[i] || '0');
-        if (digit === 1) {
-          calculationSteps.push(`2<sup>${i}</sup> = ${Math.pow(2, i)}`);
-        }
-      }
-      
-      calculationText += calculationSteps.join(' + ');
-      calculationText += ` = ${decimalValue}`;
-      
-      explanation += dec2binTableHtml + '<br/><br/>' + calculationText + '<br/><br/>';
-      
-      // Add division method explanation
-      const divisionIntro = language === 'en' 
-        ? 'Alternatively, using the division method:<br/>'
-        : 'Als alternatief, met de delingsmethode:<br/>';
-        
-      explanation += divisionIntro;
-      
-      let tempValue = decimalValue;
-      let steps = [];
-      
-      while (tempValue > 0) {
-        const remainder = tempValue % 2;
-        const remainderText = language === 'en' ? 'remainder' : 'rest';
-        steps.push(`${tempValue} ÷ 2 = ${Math.floor(tempValue / 2)} ${remainderText} ${remainder}`);
-        tempValue = Math.floor(tempValue / 2);
-      }
-      
-      explanation += steps.join('<br/>');
-      
-      const bottomToTop = language === 'en'
-        ? '<br/><br/>Reading the remainders from bottom to top gives the binary result.'
-        : '<br/><br/>De restwaarden van onder naar boven lezen geeft het binaire resultaat.';
-        
-      explanation += bottomToTop;
+      explanation += buildDecimalToBinaryExplanationHtml(decimalValue, answer, language);
+      break;
+
+    case 'dec2hex':
+      const decHexValue = generateRandomDecimal(decMin, decMax);
+      question = questionTextDecimal + hexWord;
+      answer = decHexValue.toString(16).toUpperCase();
+
+      const dec2hexExplanation = language === 'en'
+        ? `The decimal number <span class="font-mono font-bold">${decHexValue}</span> equals <span class="font-mono font-bold">${answer}</span> in hexadecimal.`
+        : `Het decimale getal <span class="font-mono font-bold">${decHexValue}</span> is gelijk aan <span class="font-mono font-bold">${answer}</span> in hexadecimaal.`;
+
+      explanation = dec2hexExplanation;
+      explanation += buildDecimalToHexExplanationHtml(decHexValue, answer, language);
       break;
       
+    case 'hex2dec':
+      const hexDecValue = generateRandomHex(hexLength);
+      question = questionTextHex + decimalWord;
+      answer = parseInt(hexDecValue, 16).toString();
+
+      const hex2decExplanation = language === 'en'
+        ? `The hexadecimal number <span class="font-mono font-bold">${hexDecValue}</span> equals <span class="font-mono font-bold">${answer}</span> in decimal.`
+        : `Het hexadecimale getal <span class="font-mono font-bold">${hexDecValue}</span> is gelijk aan <span class="font-mono font-bold">${answer}</span> in decimaal.`;
+
+      explanation = hex2decExplanation;
+      explanation += buildHexToDecimalExplanationHtml(hexDecValue, answer, language);
+      break;
+
     default:
       question = 'Invalid conversion type';
       answer = '';
